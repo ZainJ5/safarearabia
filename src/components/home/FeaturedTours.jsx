@@ -3,96 +3,165 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
+/* ─── Demo fallback data ─── */
 const demoTours = [
-  { _id: '1', slug: 'city-lights-islamic-culture', title: 'Embracing City Lights, Land And Islamic Culture', pricing: { price: 600 }, duration: '4 Days / 3 Night', location: 'Makkah', rating: 4, reviews: 18, features_image: '/uploads/sliders/egens-S8KiKhpF01.webp', min_people: 2, max_people: 15 },
-  { _id: '2', slug: 'cultural-express-local-traditions', title: 'Immersive Cultural Express, Local Traditions, Mediterranean', pricing: { price: 1000 }, duration: '4 Days / 3 Night', location: 'Madina', rating: 4, reviews: 22, features_image: '/uploads/sliders/egens-fuD60wAN4P.webp', min_people: 1, max_people: 12 },
-  { _id: '3', slug: 'ancient-ruins-history', title: 'Exploring Ancient Ruins, History Landmarks, And Cultural', pricing: { price: 500 }, duration: '4 Days / 3 Night', location: 'Jeddah', rating: 4, reviews: 14, features_image: '/uploads/sliders/egens-GwxliwfgJ4.webp', min_people: 2, max_people: 20 },
-  { _id: '4', slug: 'adventure-art-mediterranean', title: 'Adventure Art, Architecture, And Mediterranean', pricing: { price: 700 }, duration: '5 Days / 4 Night', location: 'Makkah', rating: 4, reviews: 30, features_image: '/uploads/sliders/egens-S8KiKhpF01.webp', min_people: 2, max_people: 18 },
-  { _id: '5', slug: 'journey-beauty-mediterranean', title: 'A Journey Of Tour Beauty And Mediterranean', pricing: { price: 400 }, duration: '5 Days / 4 Night', location: 'Madina', rating: 4, reviews: 12, features_image: '/uploads/sliders/egens-fuD60wAN4P.webp', min_people: 1, max_people: 25 },
-  { _id: '6', slug: 'exploring-energy-landmarks', title: 'Exploring Energy, Landmarks, And Traditions', pricing: { price: 500 }, duration: '5 Days / 4 Night', location: 'Taif', rating: 4, reviews: 20, features_image: '/uploads/sliders/egens-GwxliwfgJ4.webp', min_people: 2, max_people: 15 },
+  { _id: '1', slug: 'embracing-city-lights', title: 'Embracing City Lights, Land And Iconic Culture.', price: 600, sale_price: 700, features_image: '/uploads/sliders/egens-S8KiKhpF01.webp', sub_destination: ['Rome','Turin','Napoli','Florence'], itinerary: {1:{},2:{},3:{},4:{},5:{},6:{}} },
+  { _id: '2', slug: 'immersive-cultural-expirees', title: 'Immersive Cultural Expirees, Local Cuisine', price: 500, sale_price: 700, features_image: '/uploads/sliders/egens-fuD60wAN4P.webp', sub_destination: ['Paris','Lyon','Bordeaux','Lille'], itinerary: {1:{},2:{},3:{},4:{},5:{}} },
+  { _id: '3', slug: 'exploring-ancient-ruins', title: 'Exploring Ancient Ruins, History Landmarks, And Cultural', price: 850, sale_price: 900, features_image: '/uploads/sliders/egens-GwxliwfgJ4.webp', sub_destination: ['Québec City','St. John\'s','Winnipeg'], itinerary: {1:{},2:{},3:{}} },
 ];
 
 const demoHotels = [
-  { _id: 'h1', slug: 'grand-makkah-hotel', title: 'Grand Makkah Hotel & Suites', pricing: { price: 800 }, location: 'Makkah', rating: 5, reviews: 45, features_image: '/uploads/sliders/egens-S8KiKhpF01.webp', category: { name: 'Luxury' } },
-  { _id: 'h2', slug: 'madina-pearl-hotel', title: 'Madina Pearl Hotel Near Haram', pricing: { price: 650 }, location: 'Madina', rating: 4, reviews: 38, features_image: '/uploads/sliders/egens-fuD60wAN4P.webp', category: { name: 'Premium' } },
-  { _id: 'h3', slug: 'jeddah-corniche-hotel', title: 'Jeddah Corniche Business Hotel', pricing: { price: 450 }, location: 'Jeddah', rating: 4, reviews: 27, features_image: '/uploads/sliders/egens-GwxliwfgJ4.webp', category: { name: 'Business' } },
-  { _id: 'h4', slug: 'royal-palace-makkah', title: 'Royal Palace Makkah Grand Suite', pricing: { price: 1200 }, location: 'Makkah', rating: 5, reviews: 52, features_image: '/uploads/sliders/egens-S8KiKhpF01.webp', category: { name: 'Royal' } },
-  { _id: 'h5', slug: 'madinah-hilton-hotel', title: 'Madinah Hilton Hotel & Resort', pricing: { price: 900 }, location: 'Madina', rating: 5, reviews: 61, features_image: '/uploads/sliders/egens-fuD60wAN4P.webp', category: { name: 'Luxury' } },
-  { _id: 'h6', slug: 'haram-view-hotel', title: 'Haram View Hotel Premium Rooms', pricing: { price: 750 }, location: 'Makkah', rating: 4, reviews: 33, features_image: '/uploads/sliders/egens-GwxliwfgJ4.webp', category: { name: 'Premium' } },
+  { _id: 'h1', slug: 'grand-makkah-hotel', name: 'Grand Makkah Hotel & Suites', price: 800, feature_img: '/uploads/sliders/egens-S8KiKhpF01.webp', location: { address: 'Makkah, Saudi Arabia' }, category: { name: 'Luxury' }, rating: 5, reviews: 45 },
+  { _id: 'h2', slug: 'madina-pearl-hotel',  name: 'Madina Pearl Hotel Near Haram',  price: 650, feature_img: '/uploads/sliders/egens-fuD60wAN4P.webp', location: { address: 'Madina, Saudi Arabia' }, category: { name: 'Premium' }, rating: 4, reviews: 38 },
+  { _id: 'h3', slug: 'jeddah-corniche',     name: 'Jeddah Corniche Business Hotel', price: 450, feature_img: '/uploads/sliders/egens-GwxliwfgJ4.webp', location: { address: 'Jeddah, Saudi Arabia' }, category: { name: 'Business' }, rating: 4, reviews: 27 },
 ];
 
 const demoTransports = [
-  { _id: 't1', slug: 'vip-gmc-makkah-madina', title: 'VIP GMC — Makkah to Madina', car_price: 350, location: 'Makkah', car_type: 'GMC', car_person: 7, reviews: 24, features_image: '/uploads/sliders/egens-S8KiKhpF01.webp' },
-  { _id: 't2', slug: 'luxury-sedan-jeddah-makkah', title: 'Luxury Sedan — Jeddah to Makkah', car_price: 200, location: 'Jeddah', car_type: 'Sedan', car_person: 4, reviews: 18, features_image: '/uploads/sliders/egens-fuD60wAN4P.webp' },
-  { _id: 't3', slug: 'group-bus-airport-transfer', title: 'Group Bus — Airport Transfer', car_price: 120, location: 'Jeddah', car_type: 'Bus', car_person: 30, reviews: 41, features_image: '/uploads/sliders/egens-GwxliwfgJ4.webp' },
-  { _id: 't4', slug: 'vip-van-madina-makkah', title: 'VIP Van — Madina to Makkah', car_price: 280, location: 'Madina', car_type: 'Van', car_person: 8, reviews: 15, features_image: '/uploads/sliders/egens-S8KiKhpF01.webp' },
-  { _id: 't5', slug: 'private-car-ziyarat-tour', title: 'Private Car — Ziyarat Tour', car_price: 180, location: 'Makkah', car_type: 'SUV', car_person: 5, reviews: 29, features_image: '/uploads/sliders/egens-fuD60wAN4P.webp' },
-  { _id: 't6', slug: 'family-van-hotel-transfer', title: 'Family Van — Hotel Transfers', car_price: 150, location: 'Madina', car_type: 'Van', car_person: 8, reviews: 22, features_image: '/uploads/sliders/egens-GwxliwfgJ4.webp' },
+  { _id: 't1', slug: 'dhaka-to-sajek',       title: 'Dhaka To Sajek',        car_price: 500, distance: '500km', feature_img: '/uploads/transports/features/car-img-1740652966.webp',    reviews: 0, rating: 0 },
+  { _id: 't2', slug: 'travel-to-canada',     title: 'Travel To Canada',      car_price: 700, distance: '700km', feature_img: '/uploads/transports/features/tab-big-01-1738243965.webp',  reviews: 0, rating: 0 },
+  { _id: 't3', slug: 'travel-paris-monaco',  title: 'Travel Paris To Monaco', car_price: 500, distance: '500km', feature_img: '/uploads/transports/features/car-img-1738243647.webp',    reviews: 0, rating: 0 },
 ];
 
-function TourCard({ item, type }) {
-  const href = type === 'hotel' ? `/hotel/${item.slug}` : type === 'transport' ? `/transport/${item.slug}` : `/tour/${item.slug}`;
-  const price = item.pricing?.sale_price || item.pricing?.price || item.car_price || 0;
-  const duration = item.duration || (type === 'hotel' ? 'Per Night' : type === 'transport' ? 'Per Trip' : '3 Days');
+/* ─── Helpers ─── */
+function getDuration(tour) {
+  const count = tour.itinerary
+    ? (Array.isArray(tour.itinerary) ? tour.itinerary.length : Object.keys(tour.itinerary).length)
+    : 0;
+  if (count >= 2) return `${count} Days / ${count - 1} Night`;
+  return tour.duration || '4 Days / 3 Night';
+}
+
+function getRoute(tour) {
+  const subs = tour.sub_destination || tour.sub_destinations || [];
+  if (Array.isArray(subs) && subs.length > 0) {
+    return subs.slice(0, 5).map(s => s.toUpperCase()).join(' → ') + ' →';
+  }
+  return null;
+}
+
+function getPrices(item) {
+  const raw = item.sale_price || item.pricing?.sale_price || 0;
+  const original = item.price || item.pricing?.price || item.car_price || 0;
+  if (raw > 0 && raw < original) {
+    return { current: raw, crossed: original };
+  }
+  if (raw > 0 && raw > original) {
+    // sale_price stored as "original" style in demo
+    return { current: original, crossed: raw };
+  }
+  return { current: original, crossed: null };
+}
+
+/* ─── Tab Icons ─── */
+function TourTabIcon({ active }) {
+  const c = active ? '#b07542' : '#444';
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 10c0 5.25 7 12 7 12s7-6.75 7-12c0-3.87-3.13-7-7-7z"/>
+      <path d="M5 20h14" strokeDasharray="2 2"/>
+    </svg>
+  );
+}
+function HotelTabIcon({ active }) {
+  const c = active ? '#b07542' : '#444';
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="7" width="20" height="15" rx="1"/>
+      <path d="M16 22V7a4 4 0 00-8 0v15"/><path d="M2 12h20"/>
+      <rect x="9" y="15" width="6" height="7"/>
+    </svg>
+  );
+}
+function TransportTabIcon({ active }) {
+  const c = active ? '#b07542' : '#444';
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="9" width="15" height="9" rx="2"/>
+      <path d="M16 13h3l2 3v3h-5V13z"/>
+      <circle cx="5.5" cy="18.5" r="1.5"/><circle cx="18.5" cy="18.5" r="1.5"/>
+    </svg>
+  );
+}
+
+/* ─── Transport type icons ─── */
+function CarIcon() {
+  return <svg width="28" height="20" viewBox="0 0 24 16" fill="none" stroke="#444" strokeWidth="1.3" strokeLinecap="round"><rect x="1" y="5" width="22" height="9" rx="2"/><path d="M4 5l2-4h12l2 4"/><circle cx="6" cy="14" r="2"/><circle cx="18" cy="14" r="2"/></svg>;
+}
+function TrainIcon() {
+  return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="1.3" strokeLinecap="round"><rect x="4" y="2" width="16" height="16" rx="2"/><path d="M4 10h16M12 2v8"/><circle cx="8" cy="20" r="2"/><circle cx="16" cy="20" r="2"/><path d="M7.5 18l1 2M15.5 18l1 2"/></svg>;
+}
+function BoatIcon() {
+  return <svg width="26" height="22" viewBox="0 0 24 20" fill="none" stroke="#444" strokeWidth="1.3" strokeLinecap="round"><path d="M2 16l2-8h16l2 8z"/><path d="M12 2v6M8 8l4-6 4 6"/><path d="M2 16q5 4 10 0t10 0"/></svg>;
+}
+function BusIcon() {
+  return <svg width="26" height="22" viewBox="0 0 24 20" fill="none" stroke="#444" strokeWidth="1.3" strokeLinecap="round"><rect x="2" y="2" width="20" height="14" rx="2"/><path d="M2 8h20M8 16v2M16 16v2"/><circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/></svg>;
+}
+
+/* ─── Star rating ─── */
+function Stars({ count = 0 }) {
+  return (
+    <div style={{ display: 'flex', gap: '2px' }}>
+      {[1,2,3,4,5].map(i => (
+        <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill={i <= count ? '#b07542' : 'none'} stroke="#b07542" strokeWidth="1.5">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Tour Card ─── */
+function TourCard({ item }) {
+  const href = `/tour/${item.slug}`;
+  const duration = getDuration(item);
+  const route = getRoute(item);
+  const { current, crossed } = getPrices(item);
+  const img = item.features_image || item.feature_img || '/uploads/placeholder.jpg';
+
   return (
     <div className="col-lg-4 col-md-6 mb-25">
-      <div className="package-card">
-        {/* Batch/Date badge */}
-        <div className="batch">
-          <span className="date">{duration}</span>
-          <div className="location">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="var(--primary-color1)"/>
-            </svg>
-            <ul className="location-list">
-              <li><a href={href}>{typeof item.location === 'string' ? item.location : item.location?.address || 'Saudi Arabia'}</a></li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Image */}
-        <div className="package-card-img-wrap">
-          <Link href={href} className="card-img">
-            <img
-              src={item.features_image || item.feature_img || item.image || '/uploads/placeholder.jpg'}
-              alt={item.title}
-              style={{ width: '100%', height: '220px', objectFit: 'cover' }}
-            />
+      <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        {/* Image area */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <Link href={href}>
+            <img src={img} alt={item.title} style={{ width: '100%', height: '230px', objectFit: 'cover', display: 'block' }} />
           </Link>
+          {/* Duration badge */}
+          <div style={{ position: 'absolute', top: 0, left: 0, background: '#111', color: '#fff', padding: '6px 12px', fontSize: '12px', fontWeight: 700, letterSpacing: '0.3px', borderBottomRightRadius: '4px' }}>
+            {duration.toUpperCase()}
+          </div>
+          {/* Pin icon box */}
+          <div style={{ position: 'absolute', top: '36px', left: 0, background: '#fff', padding: '6px 10px', borderBottomRightRadius: '4px' }}>
+            <svg width="14" height="18" viewBox="0 0 14 18" fill="#b07542"><path d="M7 0C3.13 0 0 3.13 0 7c0 4.875 7 11 7 11s7-6.125 7-11c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 114.5 7 2.5 2.5 0 017 9.5z"/></svg>
+          </div>
         </div>
 
         {/* Content */}
-        <div className="package-card-content">
-          <div className="card-content-top">
-            <h5><Link href={href}>{item.title}</Link></h5>
-            <div className="location-area">
-              <ul className="location-list">
-                <li>
-                  <a href={href}>
-                    <i className="bi bi-people" style={{ marginRight: '4px' }}></i>
-                    {item.min_people || item.car_person || 1} - {item.max_people || item.car_person || 15} People
-                  </a>
-                </li>
-                <li>
-                  <a href={href}>
-                    <i className="bi bi-chat-dots" style={{ marginRight: '4px' }}></i>
-                    {item.reviews || 0} Reviews
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+        <div style={{ padding: '18px 18px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <h5 style={{ fontWeight: 700, fontSize: '16px', color: '#111', marginBottom: '10px', lineHeight: 1.4 }}>
+            <Link href={href} style={{ color: 'inherit', textDecoration: 'none' }}>{item.title}</Link>
+          </h5>
 
-          <div className="card-content-bottom">
-            <div className="price-area">
-              <h6>Starting From</h6>
-              <span>Sar{price}</span>
+          {route && (
+            <p style={{ fontSize: '11px', color: '#999', letterSpacing: '0.5px', marginBottom: '12px', lineHeight: 1.4, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {route}
+            </p>
+          )}
+
+          <div style={{ borderTop: '1px solid #f0f0f0', marginBottom: '14px' }} />
+
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 'auto', gap: '10px', flexWrap: 'wrap' }}>
+            <div>
+              <div style={{ fontSize: '11px', color: '#b07542', fontWeight: 600, marginBottom: '3px' }}>Starting From:</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                <span style={{ fontSize: '22px', fontWeight: 800, color: '#b07542', lineHeight: 1 }}>Sar{current}</span>
+                {crossed && <span style={{ fontSize: '14px', color: '#aaa', textDecoration: 'line-through' }}>Sar{crossed}</span>}
+              </div>
+              <div style={{ fontSize: '10px', color: '#aaa', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Taxes Incl/Pers</div>
             </div>
-            <Link href={href} className="primary-btn2" style={{ fontSize: '14px', padding: '11px 18px' }}>
+            <Link href={href} style={{ background: '#b07542', color: '#fff', padding: '10px 18px', borderRadius: '6px', fontWeight: 600, fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', flexShrink: 0 }}>
               Inquiry Now
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="11" viewBox="0 0 14 11" fill="none">
-                <path d="M1 5.5H13M13 5.5L8.5 1M13 5.5L8.5 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1 5.5H13M13 5.5L8.5 1M13 5.5L8.5 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
           </div>
         </div>
@@ -101,81 +170,191 @@ function TourCard({ item, type }) {
   );
 }
 
+/* ─── Transport Card ─── */
+function TransportCard({ item }) {
+  const href = `/transport/${item.slug}`;
+  const img = item.feature_img || item.features_image || '/uploads/placeholder.jpg';
+  const distance = item.distance || '500km';
+  const reviews = item.reviews ?? 0;
+  const rating = item.rating ?? 0;
+
+  return (
+    <div className="col-lg-4 col-md-6 mb-25">
+      <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        {/* Image */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <Link href={href}>
+            <img src={img} alt={item.title} style={{ width: '100%', height: '230px', objectFit: 'cover', display: 'block' }} />
+          </Link>
+          {/* Distance badge */}
+          <div style={{ position: 'absolute', top: 0, left: 0, background: '#b07542', color: '#fff', padding: '6px 12px', fontSize: '13px', fontWeight: 700, borderBottomRightRadius: '6px' }}>
+            {distance}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div style={{ padding: '18px 18px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <h5 style={{ fontWeight: 700, fontSize: '17px', color: '#111', marginBottom: '10px' }}>
+            <Link href={href} style={{ color: 'inherit', textDecoration: 'none' }}>{item.title}</Link>
+          </h5>
+
+          <p style={{ fontSize: '13px', color: '#777', marginBottom: '12px' }}>Available Transport:</p>
+
+          {/* Transport type icons */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '18px', flexWrap: 'wrap' }}>
+            {[
+              { Icon: CarIcon,   label: 'Car'   },
+              { Icon: TrainIcon, label: 'Train' },
+              { Icon: BoatIcon,  label: 'Boat'  },
+              { Icon: BusIcon,   label: 'Bus'   },
+            ].map(({ Icon, label }) => (
+              <div key={label} style={{ border: '1px solid #e5e5e5', borderRadius: '6px', padding: '6px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '56px' }}>
+                <Icon />
+                <span style={{ fontSize: '11px', color: '#555', fontWeight: 500 }}>{label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', flexWrap: 'wrap', gap: '10px' }}>
+            <Link href={href} style={{ background: '#b07542', color: '#fff', padding: '11px 22px', borderRadius: '6px', fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}>
+              View Details
+            </Link>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+              <Stars count={rating} />
+              <span style={{ fontSize: '12px', color: '#aaa' }}>{reviews} Reviews</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Hotel Card ─── */
+function HotelCard({ item }) {
+  const href = `/hotel/${item.slug}`;
+  const img = item.feature_img || item.features_image || '/uploads/placeholder.jpg';
+  const price = item.price || item.pricing?.price || 0;
+  const name = item.name || item.title || 'Hotel';
+  const loc = typeof item.location === 'string' ? item.location : item.location?.address || 'Saudi Arabia';
+
+  return (
+    <div className="col-lg-4 col-md-6 mb-25">
+      <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <Link href={href}>
+            <img src={img} alt={name} style={{ width: '100%', height: '230px', objectFit: 'cover', display: 'block' }} />
+          </Link>
+          {item.category?.name && (
+            <div style={{ position: 'absolute', top: 0, left: 0, background: '#111', color: '#fff', padding: '6px 12px', fontSize: '12px', fontWeight: 700, borderBottomRightRadius: '4px' }}>
+              {item.category.name.toUpperCase()}
+            </div>
+          )}
+        </div>
+        <div style={{ padding: '18px 18px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <h5 style={{ fontWeight: 700, fontSize: '16px', color: '#111', marginBottom: '8px', lineHeight: 1.4 }}>
+            <Link href={href} style={{ color: 'inherit', textDecoration: 'none' }}>{name}</Link>
+          </h5>
+          <p style={{ fontSize: '13px', color: '#999', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <svg width="13" height="16" viewBox="0 0 14 18" fill="#b07542"><path d="M7 0C3.13 0 0 3.13 0 7c0 4.875 7 11 7 11s7-6.125 7-11c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 114.5 7 2.5 2.5 0 017 9.5z"/></svg>
+            {loc}
+          </p>
+          <Stars count={item.rating || 0} />
+          <div style={{ borderTop: '1px solid #f0f0f0', margin: '14px 0' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
+            <div>
+              <div style={{ fontSize: '11px', color: '#b07542', fontWeight: 600, marginBottom: '3px' }}>Starting From:</div>
+              <span style={{ fontSize: '20px', fontWeight: 800, color: '#b07542' }}>Sar{price}</span>
+              <div style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Per Night</div>
+            </div>
+            <Link href={href} style={{ background: '#b07542', color: '#fff', padding: '10px 18px', borderRadius: '6px', fontWeight: 600, fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              Book Now
+              <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1 5.5H13M13 5.5L8.5 1M13 5.5L8.5 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Main Component ─── */
 export default function FeaturedTours({ tours = [], hotels = [], transports = [] }) {
   const [activeTab, setActiveTab] = useState('tours');
 
-  const displayTours = tours.length > 0 ? tours : demoTours;
-  const displayHotels = hotels.length > 0 ? hotels : demoHotels;
+  const displayTours      = tours.length > 0      ? tours      : demoTours;
+  const displayHotels     = hotels.length > 0     ? hotels     : demoHotels;
   const displayTransports = transports.length > 0 ? transports : demoTransports;
 
   const tabs = [
-    { key: 'tours', label: 'Haj Umrah Package' },
-    { key: 'hotels', label: 'Hotel' },
-    { key: 'transports', label: 'Transports' },
+    { key: 'tours',      label: 'Hajj Umrah Package', Icon: TourTabIcon },
+    { key: 'hotels',     label: 'Hotel',               Icon: HotelTabIcon },
+    { key: 'transports', label: 'Transports',          Icon: TransportTabIcon },
   ];
 
-  const getItems = () => {
+  const { items, CardComponent } = (() => {
     switch (activeTab) {
-      case 'hotels': return { items: displayHotels, type: 'hotel' };
-      case 'transports': return { items: displayTransports, type: 'transport' };
-      default: return { items: displayTours, type: 'tour' };
+      case 'hotels':     return { items: displayHotels,     CardComponent: HotelCard };
+      case 'transports': return { items: displayTransports, CardComponent: TransportCard };
+      default:           return { items: displayTours,      CardComponent: TourCard };
     }
-  };
-
-  const { items, type } = getItems();
+  })();
 
   return (
-    <section className="package-card-tab-section pt-100 pb-100">
+    <section className="pt-100 pb-100" style={{ background: '#fff' }}>
       <div className="container">
+
         {/* Section Header */}
-        <div className="row mb-50 align-items-end">
-          <div className="col-lg-8 col-md-8">
-            <div className="section-title">
-              <span>Hajj Umrah</span>
-              <h2>Ultimate Travel Experience</h2>
-            </div>
-          </div>
-          <div className="col-lg-4 col-md-4 d-flex justify-content-lg-end mt-3 mt-md-0">
-            <div></div>
-          </div>
-        </div>
+        <div className="text-center mb-20">
+          <p style={{ fontFamily: "'Brush Script MT', cursive", fontStyle: 'italic', color: '#b1723c', fontSize: '18px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+            <svg width="28" height="10" viewBox="0 0 33 4"><path d="M0 2H33" stroke="#b1723c" strokeWidth="3" strokeLinecap="round"/></svg>
+            Hajj Umrah
+            <svg width="28" height="10" viewBox="0 0 33 4" style={{ transform: 'rotate(180deg)' }}><path d="M0 2H33" stroke="#b1723c" strokeWidth="3" strokeLinecap="round"/></svg>
+          </p>
+          <h2 style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 800, fontSize: '42px', color: '#111', marginBottom: '30px' }}>
+            Ultimate Travel Experience
+          </h2>
 
-        {/* Tab Buttons */}
-        <div className="package-card-with-tab">
-          <ul className="nav nav-pills mb-40" style={{ gap: '0', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
-            {tabs.map((tab) => (
-              <li key={tab.key} className="nav-item">
+          {/* Tab buttons */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '50px' }}>
+            {tabs.map(({ key, label, Icon }) => {
+              const isActive = activeTab === key;
+              return (
                 <button
+                  key={key}
                   type="button"
-                  className={`nav-link${activeTab === tab.key ? ' active' : ''}`}
-                  onClick={() => setActiveTab(tab.key)}
+                  onClick={() => setActiveTab(key)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '8px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: isActive ? '#b07542' : '#333',
+                    fontWeight: isActive ? 700 : 500,
+                    fontSize: '15px',
+                    fontFamily: 'Rubik, sans-serif',
+                    borderBottom: isActive ? '2px solid #b07542' : '2px solid transparent',
+                    transition: 'all 0.2s',
+                  }}
                 >
-                  {tab.label}
+                  <Icon active={isActive} />
+                  {label}
                 </button>
-              </li>
-            ))}
-          </ul>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Cards Grid */}
+        {/* Cards */}
         <div className="row">
           {items.slice(0, 6).map((item) => (
-            <TourCard key={item._id} item={item} type={type} />
+            <CardComponent key={item._id} item={item} />
           ))}
         </div>
 
-        {/* View All */}
-        <div className="text-center mt-30">
-          <Link
-            href={activeTab === 'hotels' ? '/all-hotels' : activeTab === 'transports' ? '/transport' : '/tours'}
-            className="primary-btn1"
-          >
-            View All {activeTab === 'hotels' ? 'Hotels' : activeTab === 'transports' ? 'Transports' : 'Packages'}
-            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="14" viewBox="0 0 17 14" fill="none">
-              <path d="M1 7H16M16 7L10.5 1.5M16 7L10.5 12.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
-        </div>
       </div>
     </section>
   );

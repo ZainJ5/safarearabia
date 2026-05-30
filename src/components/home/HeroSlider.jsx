@@ -98,22 +98,17 @@ export default function HeroSlider({ slides = [] }) {
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0,
+                      overflow: 'hidden',
                     }}>
-                      {/* TripAdvisor owl icon (simplified) */}
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 40 40" fill="white">
-                        <ellipse cx="12" cy="22" rx="5" ry="5" fill="white"/>
-                        <ellipse cx="28" cy="22" rx="5" ry="5" fill="white"/>
-                        <circle cx="12" cy="22" r="2.5" fill="#34E0A1"/>
-                        <circle cx="28" cy="22" r="2.5" fill="#34E0A1"/>
-                        <path d="M6 14 Q20 6 34 14" stroke="white" strokeWidth="2.5" fill="none"/>
-                        <path d="M10 14 Q20 10 30 14" fill="white"/>
-                      </svg>
+                      <img
+                        src="/frontend/img/home1/icon/tripadvisor-logo.svg"
+                        alt="TripAdvisor"
+                        style={{ width: '42px', height: '42px', objectFit: 'cover' }}
+                      />
                     </div>
                     <div className="content">
                       <div className="text-logo">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="16" viewBox="0 0 100 20">
-                          <text x="0" y="15" fill="white" fontSize="13" fontWeight="700" fontFamily="sans-serif">TripAdvisor</text>
-                        </svg>
+                        <span style={{ color: '#fff', fontSize: '13px', fontWeight: 700, letterSpacing: '0.5px' }}>TripAdvisor</span>
                       </div>
                       <div className="rating">
                         <ul>

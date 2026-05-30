@@ -32,79 +32,123 @@ export default function Newsletter() {
   };
 
   return (
-    <section style={{
-      background: `linear-gradient(135deg, rgba(177,114,60,0.95) 0%, rgba(109,65,0,0.95) 100%), url(/uploads/sliders/egens-S8KiKhpF01.webp) center/cover no-repeat`,
-      padding: '80px 0',
-    }}>
+    /* Transparent section — sits above footer so the card can overlap down into it */
+    <section style={{ position: 'relative', zIndex: 10, padding: '60px 0 0', background: 'transparent' }}>
       <div className="container">
-        <div className="row align-items-center justify-content-center">
-          <div className="col-lg-7 col-md-10 text-center">
-            <div style={{ marginBottom: '30px' }}>
-              <h2 style={{
-                color: '#fff',
-                fontSize: '42px',
-                fontWeight: 700,
-                marginBottom: '10px',
-                fontFamily: 'var(--font-rubik, Rubik, sans-serif)',
-              }}>
-                Join The Newsletter
-              </h2>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '16px', marginBottom: 0 }}>
-                To receive our best monthly deals
-              </p>
-            </div>
+        {/* Card overlaps into footer via negative margin-bottom */}
+        <div style={{
+          position: 'relative',
+          background: '#f2ece0',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          marginBottom: '-115px',
+          padding: '52px 0',
+          textAlign: 'center',
+        }}>
+
+          {/* Left tropical leaf */}
+          <img
+            src="/frontend/img/home1/banner3-vector1.png"
+            alt=""
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              height: '100%',
+              width: 'auto',
+              pointerEvents: 'none',
+              userSelect: 'none',
+            }}
+          />
+
+          {/* Right tropical leaf */}
+          <img
+            src="/frontend/img/home1/banner3-vector2.png"
+            alt=""
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              height: '100%',
+              width: 'auto',
+              pointerEvents: 'none',
+              userSelect: 'none',
+            }}
+          />
+
+          {/* Content */}
+          <div style={{ position: 'relative', zIndex: 2, padding: '0 120px' }}>
+            <h2 style={{
+              fontFamily: 'Rubik, var(--font-rubik), sans-serif',
+              fontWeight: 700,
+              fontSize: '42px',
+              color: '#111111',
+              marginBottom: '8px',
+              lineHeight: 1.2,
+            }}>
+              Join The Newsletter
+            </h2>
+            <p style={{
+              fontFamily: 'Rubik, var(--font-rubik), sans-serif',
+              color: '#555',
+              fontSize: '15px',
+              marginBottom: '30px',
+              fontWeight: 400,
+            }}>
+              To receive our best monthly deals
+            </p>
 
             <form
               onSubmit={handleSubscribe}
               style={{
                 display: 'flex',
-                gap: '0',
-                maxWidth: '520px',
+                maxWidth: '480px',
                 margin: '0 auto',
-                borderRadius: '5px',
+                borderRadius: '6px',
                 overflow: 'hidden',
-                boxShadow: '0 5px 25px rgba(0,0,0,0.15)',
+                border: '1.5px solid #c8974a',
+                background: '#fff',
               }}
             >
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter Your Email Address"
+                placeholder="Enter Your Email..."
                 required
                 style={{
                   flex: 1,
                   border: 'none',
                   outline: 'none',
-                  padding: '18px 22px',
-                  fontSize: '15px',
-                  background: '#fff',
-                  color: 'var(--title-color, #100C08)',
-                  fontFamily: 'var(--font-jost, Jost, sans-serif)',
+                  padding: '14px 20px',
+                  fontSize: '14px',
+                  background: 'transparent',
+                  color: '#444',
+                  fontFamily: 'Rubik, sans-serif',
                 }}
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="primary-btn1"
                 style={{
-                  borderRadius: '0',
-                  padding: '18px 28px',
-                  whiteSpace: 'nowrap',
-                  fontSize: '15px',
-                  fontWeight: 600,
+                  background: '#b07542',
+                  border: 'none',
+                  padding: '14px 22px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   flexShrink: 0,
-                  opacity: loading ? 0.8 : 1,
+                  opacity: loading ? 0.7 : 1,
+                  transition: 'background 0.2s',
+                  borderRadius: '0 4px 4px 0',
                 }}
               >
-                {loading ? 'Subscribing...' : (
-                  <>
-                    Subscribe
-                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="14" viewBox="0 0 17 14" fill="none" style={{ marginLeft: '8px' }}>
-                      <path d="M1 7H16M16 7L10.5 1.5M16 7L10.5 12.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </>
-                )}
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" viewBox="0 0 17 14" fill="none">
+                  <path d="M1 7H16M16 7L10.5 1.5M16 7L10.5 12.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </button>
             </form>
           </div>

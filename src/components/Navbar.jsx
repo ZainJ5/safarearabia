@@ -158,7 +158,7 @@ export default function Navbar() {
                 flexShrink: 0,
               }}>
                 <img
-                  src={defaultSettings.header_logo}
+                  src={session.user?.image || '/uploads/users/dpa-1750432270.png'}
                   alt="avatar"
                   style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '50%' }}
                 />
