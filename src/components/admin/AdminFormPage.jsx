@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function AdminFormPage({ title, apiUrl, id, backUrl, children, defaultData = {} }) {
   const router = useRouter();
@@ -46,12 +47,16 @@ export default function AdminFormPage({ title, apiUrl, id, backUrl, children, de
 
       const data = await res.json();
       if (data.success) {
+        toast.success(isEdit ? 'Updated successfully!' : 'Created successfully!');
         router.push(backUrl);
       } else {
-        setError(data.error || 'Failed to save');
+        const msg = data.error || 'Failed to save';
+        setError(msg);
+        toast.error(msg);
       }
     } catch (err) {
       setError(err.message);
+      toast.error('Error: ' + err.message);
     } finally {
       setSaving(false);
     }

@@ -89,7 +89,7 @@ export default function FunFacts({ facts = [] }) {
       <section style={{
         background: `linear-gradient(135deg, rgba(177,114,60,0.92) 0%, rgba(109,65,0,0.92) 100%), url('/uploads/sliders/egens-fuD60wAN4P.webp') center/cover no-repeat`,
         backgroundAttachment: 'fixed',
-        padding: '80px 0',
+        padding: '50px 0',
       }}>
         <div className="container">
           <div className="row justify-content-center text-center">

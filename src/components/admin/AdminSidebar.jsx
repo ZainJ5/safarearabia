@@ -44,10 +44,6 @@ const menuItems = [
     { label: 'All Testimonials', href: '/admin/testimonials' },
     { label: 'Create Testimonial', href: '/admin/testimonials/create' },
   ]},
-  { label: 'Fun Facts', href: '/admin/fun-facts', icon: 'bi-bar-chart-fill', sub: [
-    { label: 'All Fun Facts', href: '/admin/fun-facts' },
-    { label: 'Create Fun Fact', href: '/admin/fun-facts/create' },
-  ]},
   { label: 'Contacts', href: '/admin/contacts', icon: 'bi-envelope' },
   { label: 'Subscribers', href: '/admin/subscribers', icon: 'bi-envelope-at' },
   { label: 'Settings', href: '/admin/settings', icon: 'bi-gear' },

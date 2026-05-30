@@ -2,24 +2,18 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 /**
- * Reusable admin CRUD list page.
- * Props:
- *  - title: page heading
- *  - apiUrl: API endpoint (e.g. '/api/admin/tours')
- *  - createUrl: URL for create page
- *  - editUrl: function(id) => edit page URL
- *  - columns: array of { key, label, render? }
+ * Reusable admin CRUD list page with toast notifications and confirm dialog.
  */
 export default function AdminListPage({ title, apiUrl, createUrl, editUrl, columns }) {
-  const router = useRouter();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, pages: 1 });
+  const [confirmId, setConfirmId] = useState(null); // id pending delete
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -30,10 +24,10 @@ export default function AdminListPage({ title, apiUrl, createUrl, editUrl, colum
       const data = await res.json();
       if (data.success) {
         setItems(data.data);
-        setPagination(data.pagination);
+        setPagination(data.pagination || { total: data.data.length, pages: 1 });
       }
     } catch (err) {
-      console.error('Fetch error:', err);
+      toast.error('Failed to load data: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -42,17 +36,19 @@ export default function AdminListPage({ title, apiUrl, createUrl, editUrl, colum
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this item?')) return;
+    setConfirmId(null);
+    const tid = toast.loading('Deleting...');
     try {
-      const res = await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
+      const res  = await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
+        toast.success('Deleted successfully', { id: tid });
         fetchData();
       } else {
-        alert('Delete failed: ' + data.error);
+        toast.error('Delete failed: ' + (data.error || 'Unknown error'), { id: tid });
       }
     } catch (err) {
-      alert('Delete error: ' + err.message);
+      toast.error('Delete error: ' + err.message, { id: tid });
     }
   };
 
@@ -64,10 +60,34 @@ export default function AdminListPage({ title, apiUrl, createUrl, editUrl, colum
 
   return (
     <>
+      {/* Confirm Delete Dialog */}
+      {confirmId && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: '32px 36px', maxWidth: 380, width: '90%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#fff3f3', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <i className="bi bi-trash" style={{ fontSize: 26, color: '#dc3545' }}></i>
+            </div>
+            <h5 style={{ fontWeight: 700, marginBottom: 8 }}>Delete Item</h5>
+            <p style={{ color: '#666', fontSize: 14, marginBottom: 24 }}>Are you sure you want to delete this item? This action cannot be undone.</p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              <button onClick={() => setConfirmId(null)} className="admin-btn" style={{ background: '#f0f0f0', minWidth: 90 }}>
+                Cancel
+              </button>
+              <button onClick={() => handleDelete(confirmId)} className="admin-btn admin-btn-danger" style={{ minWidth: 90 }}>
+                <i className="bi bi-trash"></i> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
           <h4 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>{title}</h4>
-          <p style={{ color: '#888', fontSize: 13, margin: '4px 0 0' }}>{pagination.total} total items</p>
+          <p style={{ color: '#888', fontSize: 13, margin: '4px 0 0' }}>{pagination.total ?? items.length} total items</p>
         </div>
         {createUrl && (
           <Link href={createUrl} className="admin-btn admin-btn-primary">
@@ -100,17 +120,21 @@ export default function AdminListPage({ title, apiUrl, createUrl, editUrl, colum
       {/* Table */}
       <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 48, color: '#888' }}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: 48, color: '#888' }}>
+            <i className="bi bi-arrow-repeat" style={{ fontSize: 28, display: 'block', marginBottom: 8, animation: 'spin 1s linear infinite' }}></i>
+            Loading...
+          </div>
         ) : items.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 48, color: '#888' }}>No items found</div>
+          <div style={{ textAlign: 'center', padding: 48, color: '#888' }}>
+            <i className="bi bi-inbox" style={{ fontSize: 32, display: 'block', marginBottom: 8 }}></i>
+            No items found
+          </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table className="admin-table">
               <thead>
                 <tr>
-                  {columns.map(col => (
-                    <th key={col.key}>{col.label}</th>
-                  ))}
+                  {columns.map(col => <th key={col.key}>{col.label}</th>)}
                   <th style={{ width: 120 }}>Actions</th>
                 </tr>
               </thead>
@@ -119,9 +143,7 @@ export default function AdminListPage({ title, apiUrl, createUrl, editUrl, colum
                   <tr key={item._id}>
                     {columns.map(col => (
                       <td key={col.key}>
-                        {col.render ? col.render(item) : (
-                          typeof col.key === 'function' ? col.key(item) : getNestedValue(item, col.key)
-                        )}
+                        {col.render ? col.render(item) : getNestedValue(item, col.key)}
                       </td>
                     ))}
                     <td>
@@ -131,7 +153,7 @@ export default function AdminListPage({ title, apiUrl, createUrl, editUrl, colum
                             <i className="bi bi-pencil"></i>
                           </Link>
                         )}
-                        <button onClick={() => handleDelete(item._id)} className="admin-btn admin-btn-danger admin-btn-sm">
+                        <button onClick={() => setConfirmId(item._id)} className="admin-btn admin-btn-danger admin-btn-sm">
                           <i className="bi bi-trash"></i>
                         </button>
                       </div>
@@ -147,19 +169,16 @@ export default function AdminListPage({ title, apiUrl, createUrl, editUrl, colum
         {pagination.pages > 1 && (
           <div className="admin-pagination" style={{ padding: '16px 0' }}>
             <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Prev</button>
-            {Array.from({ length: Math.min(pagination.pages, 7) }, (_, i) => {
-              const p = i + 1;
-              return (
-                <button key={p} onClick={() => setPage(p)} className={page === p ? 'active' : ''}>
-                  {p}
-                </button>
-              );
-            })}
+            {Array.from({ length: Math.min(pagination.pages, 7) }, (_, i) => (
+              <button key={i + 1} onClick={() => setPage(i + 1)} className={page === i + 1 ? 'active' : ''}>{i + 1}</button>
+            ))}
             {pagination.pages > 7 && <span style={{ padding: '8px 4px' }}>...</span>}
             <button disabled={page >= pagination.pages} onClick={() => setPage(p => p + 1)}>Next →</button>
           </div>
         )}
       </div>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </>
   );
 }

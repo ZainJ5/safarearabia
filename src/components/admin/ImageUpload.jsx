@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import toast from 'react-hot-toast';
 
 export default function ImageUpload({ value, onChange, label = 'Image', folder = 'uploads' }) {
   const [uploading, setUploading] = useState(false);
@@ -27,12 +28,13 @@ export default function ImageUpload({ value, onChange, label = 'Image', folder =
       if (result.success) {
         setPreview(result.url);
         onChange(result.url);
+        toast.success('Image uploaded successfully');
       } else {
-        alert('Upload failed: ' + result.error);
+        toast.error('Upload failed: ' + (result.error || 'Unknown error'));
         setPreview(value || '');
       }
     } catch (err) {
-      alert('Upload error: ' + err.message);
+      toast.error('Upload error: ' + err.message);
       setPreview(value || '');
     } finally {
       setUploading(false);

@@ -21,7 +21,7 @@ export default async function LoginPage({ searchParams }) {
       await signIn('credentials', {
         email,
         password,
-        redirectTo,
+        redirectTo: redirectTo === '/dashboard' ? undefined : redirectTo,
       });
     } catch (error) {
       if (error.type === 'CredentialsSignin') {

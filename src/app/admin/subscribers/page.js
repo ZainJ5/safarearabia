@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 export default function AdminSubscribersPage() {
   const [subscribers, setSubscribers] = useState([]);
@@ -27,18 +28,22 @@ export default function AdminSubscribersPage() {
     setLoading(false);
   }
 
+  const [confirmId, setConfirmId] = useState(null);
+
   async function handleDelete(id) {
-    if (!confirm('Delete this subscriber?')) return;
+    setConfirmId(null);
+    const tid = toast.loading('Deleting subscriber...');
     try {
-      const res = await fetch(`/api/newsletter/${id}`, { method: 'DELETE' });
+      const res  = await fetch(`/api/newsletter/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
+        toast.success('Subscriber deleted', { id: tid });
         fetchData();
       } else {
-        alert(data.error || 'Failed to delete');
+        toast.error(data.error || 'Failed to delete', { id: tid });
       }
     } catch (e) {
-      alert('Error: ' + e.message);
+      toast.error('Error: ' + e.message, { id: tid });
     }
   }
 

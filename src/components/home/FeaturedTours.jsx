@@ -2,6 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { currencySymbol } from '@/lib/currency';
+import { defaultSettings } from '@/lib/defaultSettings';
+
+const CUR = currencySymbol(defaultSettings.default_currency);
 
 /* ─── Demo fallback data ─── */
 const demoTours = [
@@ -154,8 +158,8 @@ function TourCard({ item }) {
             <div>
               <div style={{ fontSize: '11px', color: '#b07542', fontWeight: 600, marginBottom: '3px' }}>Starting From:</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                <span style={{ fontSize: '22px', fontWeight: 800, color: '#b07542', lineHeight: 1 }}>Sar{current}</span>
-                {crossed && <span style={{ fontSize: '14px', color: '#aaa', textDecoration: 'line-through' }}>Sar{crossed}</span>}
+                <span style={{ fontSize: '22px', fontWeight: 800, color: '#b07542', lineHeight: 1 }}>{CUR}{current}</span>
+                {crossed && <span style={{ fontSize: '14px', color: '#aaa', textDecoration: 'line-through' }}>{CUR}{crossed}</span>}
               </div>
               <div style={{ fontSize: '10px', color: '#aaa', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Taxes Incl/Pers</div>
             </div>

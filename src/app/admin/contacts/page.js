@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 
 const STATUS_MAP = { 0: 'Unread', 1: 'Read' };
 const STATUS_BADGE = { 0: 'admin-badge-warning', 1: 'admin-badge-success' };
@@ -43,14 +44,17 @@ export default function AdminContactsPage() {
     }
   };
 
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
   const deleteContact = async (id) => {
-    if (!confirm('Delete this message?')) return;
+    setConfirmDeleteId(null);
     try {
       await fetch(`/api/contact/${id}`, { method: 'DELETE' });
       setItems(prev => prev.filter(item => item._id !== id));
       if (selected?._id === id) setSelected(null);
+      toast.success('Message deleted');
     } catch (e) {
-      console.error(e);
+      toast.error('Failed to delete: ' + e.message);
     }
   };
 

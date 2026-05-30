@@ -52,10 +52,10 @@ export default function Testimonials({ testimonials = [] }) {
         <Swiper
           className="testimonial-card-slider"
           modules={[Navigation, Autoplay]}
-          slidesPerView={3}
+          slidesPerView={Math.min(3, displayTestimonials.length)}
           spaceBetween={24}
           speed={1500}
-          loop={true}
+          loop={displayTestimonials.length >= 3}
           autoplay={{ delay: 2500, disableOnInteraction: false }}
           navigation={{
             nextEl: '.testimonial-card-tab-next',
@@ -64,9 +64,9 @@ export default function Testimonials({ testimonials = [] }) {
           breakpoints={{
             280: { slidesPerView: 1 },
             576: { slidesPerView: 1, spaceBetween: 15 },
-            768: { slidesPerView: 2, spaceBetween: 15 },
-            992: { slidesPerView: 3, spaceBetween: 15 },
-            1400: { slidesPerView: 3 },
+            768: { slidesPerView: Math.min(2, displayTestimonials.length), spaceBetween: 15 },
+            992: { slidesPerView: Math.min(3, displayTestimonials.length), spaceBetween: 15 },
+            1400: { slidesPerView: Math.min(3, displayTestimonials.length) },
           }}
         >
           {displayTestimonials.map((t, i) => (

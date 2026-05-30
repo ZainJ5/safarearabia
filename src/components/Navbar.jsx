@@ -1,14 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession, signOut, signIn } from 'next-auth/react';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { defaultSettings } from '@/lib/defaultSettings';
+import { useLanguage } from '@/providers/LanguageProvider';
 
 export default function Navbar() {
   const { data: session } = useSession();
+  const { lang, setLang } = useLanguage();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsSticky(window.scrollY > 0);
@@ -16,7 +26,48 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close modal on Escape key
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') setShowLoginModal(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError('');
+    try {
+      const result = await signIn('credentials', {
+        email: loginEmail,
+        password: loginPassword,
+        redirect: false,
+      });
+      if (result?.ok) {
+        setShowLoginModal(false);
+        // Fetch updated session to check role
+        const sess = await fetch('/api/auth/session').then(r => r.json());
+        if (sess?.user?.role === 1) {
+          router.push('/admin/dashboard');
+        } else {
+          router.push('/dashboard');
+        }
+        router.refresh();
+      } else {
+        setLoginError('Invalid email or password.');
+      }
+    } catch {
+      setLoginError('Something went wrong. Please try again.');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    signIn('google', { callbackUrl: '/dashboard' });
+  };
 
   return (
     <>
@@ -40,19 +91,23 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Center — Language Selector */}
-        <div className="topbar-lang">
-          <img
-            src="/assets/img/flags/gb.png"
-            alt="EN"
-            width="20"
-            height="14"
-            style={{ borderRadius: '2px', objectFit: 'cover' }}
-          />
-          <span>EN</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M7 10l5 5 5-5z"/>
-          </svg>
+        {/* Center — Language Toggle EN / AR */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '20px', padding: '3px 4px' }}>
+          {['en', 'ar'].map((l) => (
+            <button
+              key={l}
+              onClick={() => setLang(l)}
+              style={{
+                padding: '4px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer',
+                fontSize: '12px', fontWeight: 600, letterSpacing: '0.5px',
+                background: lang === l ? 'var(--primary-color1, #B1723C)' : 'transparent',
+                color: lang === l ? '#fff' : 'rgba(255,255,255,0.65)',
+                transition: 'all 0.2s',
+              }}
+            >
+              {l.toUpperCase()}
+            </button>
+          ))}
         </div>
 
         {/* Right — Social Icons */}
@@ -178,17 +233,17 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            /* Logged-out: single Account button */
-            <Link
-              href="/login"
+            /* Logged-out: Account button → opens login modal */
+            <button
+              onClick={() => setShowLoginModal(true)}
               className="primary-btn1"
-              style={{ padding: '10px 22px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '7px', borderRadius: '5px' }}
+              style={{ padding: '10px 22px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '7px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 18 18" fill="white">
                 <path d="M9 0a4.5 4.5 0 110 9 4.5 4.5 0 010-9zM9 11.25c5.01 0 9 2.015 9 4.5V18H0v-2.25c0-2.485 3.99-4.5 9-4.5z"/>
               </svg>
               Account
-            </Link>
+            </button>
           )}
 
           {/* Mobile menu toggle */}
@@ -211,12 +266,103 @@ export default function Navbar() {
         <div
           className="mobile-menu-overlay"
           onClick={closeMobileMenu}
-          style={{
-            position: 'fixed', top: 0, left: 0,
-            width: '100%', height: '100%',
-            background: 'rgba(0,0,0,0.5)', zIndex: 998,
-          }}
+          style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 998 }}
         />
+      )}
+
+      {/* ===== Login Modal ===== */}
+      {showLoginModal && (
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) setShowLoginModal(false); }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+        >
+          <div style={{ width: '100%', maxWidth: '440px', background: '#fff', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.35)', position: 'relative' }}>
+
+            {/* Top landscape image */}
+            <div style={{ position: 'relative', height: '155px', overflow: 'hidden' }}>
+              <img src="/uploads/sliders/egens-GwxliwfgJ4.webp" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {/* Close button */}
+              <button
+                onClick={() => setShowLoginModal(false)}
+                style={{ position: 'absolute', top: '10px', right: '10px', width: '32px', height: '32px', borderRadius: '50%', background: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 700, color: '#333', lineHeight: 1 }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Form */}
+            <div style={{ padding: '28px 32px 32px' }}>
+              <h3 style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 700, fontSize: '22px', textAlign: 'center', color: '#111', marginBottom: '6px' }}>
+                Sign in to continue
+              </h3>
+              <p style={{ color: '#999', fontSize: '14px', textAlign: 'center', marginBottom: '22px' }}>
+                Enter your email address for Login.
+              </p>
+
+              {loginError && (
+                <div style={{ background: '#fff0f0', color: '#c0392b', borderRadius: '6px', padding: '10px 14px', fontSize: '13px', marginBottom: '14px', textAlign: 'center' }}>
+                  {loginError}
+                </div>
+              )}
+
+              <form onSubmit={handleLoginSubmit}>
+                <input
+                  type="email"
+                  value={loginEmail}
+                  onChange={e => setLoginEmail(e.target.value)}
+                  placeholder="admin@gmail.com"
+                  required
+                  style={{ width: '100%', padding: '14px 16px', borderRadius: '8px', border: '1px solid #e5e5e5', background: '#f0f4f8', fontSize: '14px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box' }}
+                />
+                <div style={{ position: 'relative', marginBottom: '18px' }}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={loginPassword}
+                    onChange={e => setLoginPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    style={{ width: '100%', padding: '14px 44px 14px 16px', borderRadius: '8px', border: '1px solid #e5e5e5', background: '#f0f4f8', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 0 }}>
+                    {showPassword ? '🙈' : '👁'}
+                  </button>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loginLoading}
+                  style={{ width: '100%', padding: '15px', borderRadius: '30px', background: '#111', color: '#fff', border: 'none', fontSize: '16px', fontWeight: 600, cursor: loginLoading ? 'not-allowed' : 'pointer', opacity: loginLoading ? 0.75 : 1, marginBottom: '16px' }}
+                >
+                  {loginLoading ? 'Signing in…' : 'Sign In'}
+                </button>
+              </form>
+
+              <p style={{ textAlign: 'center', fontSize: '14px', color: '#666', marginBottom: '18px' }}>
+                Don&apos;t have an account?{' '}
+                <Link href="/register" onClick={() => setShowLoginModal(false)} style={{ color: '#b07542', fontWeight: 600, textDecoration: 'none' }}>
+                  Register Here
+                </Link>
+              </p>
+
+              {/* OR divider */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+                <div style={{ flex: 1, height: '1px', background: '#e5e5e5' }} />
+                <span style={{ color: '#aaa', fontSize: '13px' }}>or</span>
+                <div style={{ flex: 1, height: '1px', background: '#e5e5e5' }} />
+              </div>
+
+              {/* Google button */}
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                style={{ width: '100%', padding: '13px 16px', borderRadius: '30px', background: '#fff', border: '1px solid #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '15px', fontWeight: 500, cursor: 'pointer', color: '#333' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+                Sign In With Google
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import ImageUpload from '@/components/admin/ImageUpload';
+import toast from 'react-hot-toast';
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({});
@@ -28,10 +29,10 @@ export default function AdminSettingsPage() {
         body: JSON.stringify(settings),
       });
       const data = await res.json();
-      if (data.success) alert('Settings saved successfully');
-      else alert(data.error || 'Failed to save');
+      if (data.success) toast.success('Settings saved successfully!');
+      else toast.error(data.error || 'Failed to save settings');
     } catch (e) {
-      alert(e.message);
+      toast.error('Error: ' + e.message);
     }
     setSaving(false);
   };
@@ -110,11 +111,19 @@ export default function AdminSettingsPage() {
             <div className="row">
               <div className="col-md-6">
                 <div className="admin-form-group"><label>Footer Description</label><textarea value={settings.footer_text || ''} onChange={e => set('footer_text', e.target.value)} rows={4} /></div>
-                <div className="admin-form-group"><label>Copyright Text</label><input value={settings.copyright_text || ''} onChange={e => set('copyright_text', e.target.value)} placeholder="© 2026 Safar e Arabian. All rights reserved." /></div>
+                <div className="admin-form-group"><label>Copyright Text (HTML allowed)</label><input value={settings.copyright_text || ''} onChange={e => set('copyright_text', e.target.value)} placeholder="Copyright 2026 Safar e Arabian" /></div>
+                <div className="admin-form-group"><label>Quick Links Column Title</label><input value={settings.footer1_title || ''} onChange={e => set('footer1_title', e.target.value)} placeholder="Quick link" /></div>
+                <div className="admin-form-group"><label>"Find About" Column Title</label><input value={settings.footer_latest_title || ''} onChange={e => set('footer_latest_title', e.target.value)} placeholder="Find About Safar e Arabian" /></div>
               </div>
               <div className="col-md-6">
-                <div className="admin-form-group"><label>Marketing Banner Title</label><input value={settings.marketing_title || ''} onChange={e => set('marketing_title', e.target.value)} placeholder="Get 5% Off Your First Booking" /></div>
-                <div className="admin-form-group"><label>Marketing Banner Subtitle</label><input value={settings.marketing_subtitle || ''} onChange={e => set('marketing_subtitle', e.target.value)} placeholder="Join our newsletter" /></div>
+                <div className="admin-form-group"><label>Marketing Banner Title</label><input value={settings.marketing_title || ''} onChange={e => set('marketing_title', e.target.value)} placeholder="Want to take tour packages?" /></div>
+                <div className="admin-form-group"><label>Marketing Button Text</label><input value={settings.marketing_btn_text || ''} onChange={e => set('marketing_btn_text', e.target.value)} placeholder="Explore Tours" /></div>
+                <div className="admin-form-group"><label>Footer Quick Link 1 Label</label><input value={settings.footer_link1_label || ''} onChange={e => set('footer_link1_label', e.target.value)} placeholder="About Us" /></div>
+                <div className="admin-form-group"><label>Footer Quick Link 1 URL</label><input value={settings.footer_link1_url || ''} onChange={e => set('footer_link1_url', e.target.value)} placeholder="/about-us" /></div>
+                <div className="admin-form-group"><label>Footer Quick Link 2 Label</label><input value={settings.footer_link2_label || ''} onChange={e => set('footer_link2_label', e.target.value)} placeholder="Hajj Umrah" /></div>
+                <div className="admin-form-group"><label>Footer Quick Link 2 URL</label><input value={settings.footer_link2_url || ''} onChange={e => set('footer_link2_url', e.target.value)} placeholder="/tours" /></div>
+                <div className="admin-form-group"><label>Footer Quick Link 3 Label</label><input value={settings.footer_link3_label || ''} onChange={e => set('footer_link3_label', e.target.value)} placeholder="Umrah Visa" /></div>
+                <div className="admin-form-group"><label>Footer Quick Link 3 URL</label><input value={settings.footer_link3_url || ''} onChange={e => set('footer_link3_url', e.target.value)} placeholder="/all-visa" /></div>
               </div>
             </div>
           )}

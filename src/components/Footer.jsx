@@ -17,7 +17,15 @@ export default function Footer() {
   const li = defaultSettings.linkedin_link  || defaultSettings.social_linkedin;
   const ig = defaultSettings.instagram_link || defaultSettings.social_instagram;
 
-  const quickLinks = [
+  // Build quick links: admin-managed (footer_link1..3) + static fallbacks
+  const adminLinks = [1, 2, 3].reduce((acc, n) => {
+    const label = defaultSettings[`footer_link${n}_label`];
+    const href  = defaultSettings[`footer_link${n}_url`];
+    if (label && href) acc.push({ label, href });
+    return acc;
+  }, []);
+
+  const quickLinks = adminLinks.length > 0 ? adminLinks : [
     { label: 'About Us',             href: '/about-us'         },
     { label: 'Hajj Umrah',           href: '/tours'            },
     { label: 'Umrah Visa',           href: '/all-visa'         },
@@ -26,7 +34,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer style={{ background: FOOTER_BG, paddingTop: '165px' }}>
+    <footer style={{ background: FOOTER_BG, paddingTop: '148px' }}>
       {/* ── FOOTER_STYLE ── */}
       <style>{`
         .ft-link { color: ${MUTED}; text-decoration: none; font-size: 14px; line-height: 2; transition: color 0.2s; }

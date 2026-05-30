@@ -1,6 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { currencySymbol } from '@/lib/currency';
+import { defaultSettings } from '@/lib/defaultSettings';
+const CUR = currencySymbol(defaultSettings.default_currency);
 
 export default function VisaSection({ visas = [] }) {
   // Return null if no real visas are provided to prevent empty renders
@@ -227,7 +230,7 @@ export default function VisaSection({ visas = [] }) {
                       </div>
                       <div className="visa-card-bottom-divider" />
                       <div className="visa-card-bottom-right">
-                        <div className="vp-price">Sar{visa.cost ?? '0'}</div>
+                        <div className="vp-price">{CUR}{visa.cost ?? '0'}</div>
                         <div className="vp-tax">TAXES INCL/PERS</div>
                       </div>
                     </div>

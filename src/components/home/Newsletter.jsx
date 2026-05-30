@@ -33,7 +33,7 @@ export default function Newsletter() {
 
   return (
     /* Transparent section — sits above footer so the card can overlap down into it */
-    <section style={{ position: 'relative', zIndex: 10, padding: '60px 0 0', background: 'transparent' }}>
+    <section style={{ position: 'relative', zIndex: 10, padding: '40px 0 0', background: 'transparent' }}>
       <div className="container">
         {/* Card overlaps into footer via negative margin-bottom */}
         <div style={{
@@ -41,8 +41,8 @@ export default function Newsletter() {
           background: '#f2ece0',
           borderRadius: '16px',
           overflow: 'hidden',
-          marginBottom: '-115px',
-          padding: '52px 0',
+          marginBottom: '-100px',
+          padding: '44px 0',
           textAlign: 'center',
         }}>
 

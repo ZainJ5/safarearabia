@@ -129,6 +129,24 @@ a {
   z-index: 99999 !important;
 }
 
+/* --- Section spacing: reduce from 110px to 60px for tighter layout --- */
+.pt-100 { padding-top: 60px !important; }
+.pb-100 { padding-bottom: 60px !important; }
+.pt-90  { padding-top: 55px !important; }
+.pb-90  { padding-bottom: 55px !important; }
+.pt-70  { padding-top: 50px !important; }
+.pb-70  { padding-bottom: 50px !important; }
+.mb-50  { margin-bottom: 30px !important; }
+.mb-40  { margin-bottom: 24px !important; }
+.mb-30  { margin-bottom: 18px !important; }
+.mb-25  { margin-bottom: 16px !important; }
+@media (max-width: 991px) {
+  .pt-100 { padding-top: 44px !important; }
+  .pb-100 { padding-bottom: 44px !important; }
+  .pt-70  { padding-top: 36px !important; }
+  .pb-70  { padding-bottom: 36px !important; }
+}
+
 /* --- Swiper fixes for React --- */
 .swiper {
   width: 100%;
@@ -154,7 +172,7 @@ a {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(177,114,60,0.85), rgba(109,65,0,0.85));
+  background: rgba(0, 0, 0, 0.55);
 }
 .breadcrumb-area .container {
   position: relative;
