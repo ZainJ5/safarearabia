@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useSession, signOut, signIn, getSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { defaultSettings } from '@/lib/defaultSettings';
 import { useLanguage } from '@/providers/LanguageProvider';
 
@@ -15,7 +14,6 @@ const LANGS = [
 export default function Navbar() {
   const { data: session } = useSession();
   const { lang, setLang, t } = useLanguage();
-  const router = useRouter();
   const activeLang = LANGS.find(l => l.code === lang) || LANGS[0];
   const [langOpen, setLangOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -56,12 +54,11 @@ export default function Navbar() {
         setShowLoginModal(false);
         const sess = await getSession();
         const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl') || '/dashboard';
-        if (Number(sess?.user?.role) === 1) {
-          router.push(callbackUrl.startsWith('/admin') ? callbackUrl : '/admin/dashboard');
-        } else {
-          router.push(callbackUrl.startsWith('/admin') ? '/dashboard' : callbackUrl);
-        }
-        router.refresh();
+        const dest = Number(sess?.user?.role) === 1
+          ? (callbackUrl.startsWith('/admin') ? callbackUrl : '/admin/dashboard')
+          : (callbackUrl.startsWith('/admin') ? '/dashboard' : callbackUrl);
+        // Hard redirect so the server reads the fresh session cookie correctly
+        window.location.href = dest;
       } else {
         setLoginError('Invalid email or password.');
       }

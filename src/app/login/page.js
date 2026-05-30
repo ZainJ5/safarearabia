@@ -2,20 +2,19 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { signIn, getSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 function LoginModal() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
   const urlError = searchParams.get('error');
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail]           = useState('');
+  const [password, setPassword]     = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(urlError ? 'Invalid credentials. Please try again.' : '');
-  const [loading, setLoading] = useState(false);
+  const [error, setError]           = useState(urlError ? 'Invalid credentials. Please try again.' : '');
+  const [loading, setLoading]       = useState(false);
 
   // Lock body scroll while modal is open
   useEffect(() => {
@@ -31,12 +30,11 @@ function LoginModal() {
       const result = await signIn('credentials', { redirect: false, email, password });
       if (result?.ok) {
         const session = await getSession();
-        if (Number(session?.user?.role) === 1) {
-          router.push(callbackUrl.startsWith('/admin') ? callbackUrl : '/admin/dashboard');
-        } else {
-          router.push(callbackUrl.startsWith('/admin') ? '/dashboard' : callbackUrl);
-        }
-        router.refresh();
+        const dest = Number(session?.user?.role) === 1
+          ? (callbackUrl.startsWith('/admin') ? callbackUrl : '/admin/dashboard')
+          : (callbackUrl.startsWith('/admin') ? '/dashboard' : callbackUrl);
+        // Hard redirect so the server reads the fresh session cookie correctly
+        window.location.href = dest;
       } else {
         setError('Invalid email or password. Please try again.');
       }

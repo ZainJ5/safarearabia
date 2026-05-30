@@ -17,7 +17,9 @@ export async function GET(request, { params }) {
 
   try {
     await dbConnect();
-    const slider = await Slider.findById(params.id).lean();
+    const { id } = await params; 
+    
+    const slider = await Slider.findById(id).lean();
     if (!slider) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
     return NextResponse.json({ success: true, data: slider });
   } catch (error) {
@@ -31,8 +33,11 @@ export async function PUT(request, { params }) {
 
   try {
     await dbConnect();
+    // Destructure after awaiting params
+    const { id } = await params;
+    
     const body = await request.json();
-    const slider = await Slider.findByIdAndUpdate(params.id, body, { new: true, runValidators: true });
+    const slider = await Slider.findByIdAndUpdate(id, body, { new: true, runValidators: true });
     if (!slider) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
     return NextResponse.json({ success: true, data: slider });
   } catch (error) {
@@ -46,7 +51,9 @@ export async function DELETE(request, { params }) {
 
   try {
     await dbConnect();
-    await Slider.findByIdAndDelete(params.id);
+    const { id } = await params;
+    
+    await Slider.findByIdAndDelete(id);
     return NextResponse.json({ success: true, message: 'Slider deleted' });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
