@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useLanguage } from '@/providers/LanguageProvider';
 
 export default function Newsletter() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -88,7 +90,7 @@ export default function Newsletter() {
               marginBottom: '8px',
               lineHeight: 1.2,
             }}>
-              Join The Newsletter
+              {t('Join The Newsletter')}
             </h2>
             <p style={{
               fontFamily: 'Rubik, var(--font-rubik), sans-serif',
@@ -97,7 +99,7 @@ export default function Newsletter() {
               marginBottom: '30px',
               fontWeight: 400,
             }}>
-              To receive our best monthly deals
+              {t('To receive our best monthly deals')}
             </p>
 
             <form
@@ -116,7 +118,7 @@ export default function Newsletter() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter Your Email..."
+                placeholder={t('Enter Your Email...')}
                 required
                 style={{
                   flex: 1,

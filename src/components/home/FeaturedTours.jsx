@@ -2,10 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { currencySymbol } from '@/lib/currency';
-import { defaultSettings } from '@/lib/defaultSettings';
-
-const CUR = currencySymbol(defaultSettings.default_currency);
+import { useLanguage } from '@/providers/LanguageProvider';
+import { useSettings } from '@/providers/SettingsProvider';
 
 /* ─── Demo fallback data ─── */
 const demoTours = [
@@ -116,11 +114,15 @@ function Stars({ count = 0 }) {
 
 /* ─── Tour Card ─── */
 function TourCard({ item }) {
+  const { lang, t } = useLanguage();
+  const { currencySymbol: CUR } = useSettings();
+  const isRTL = lang === 'ar';
   const href = `/tour/${item.slug}`;
   const duration = getDuration(item);
   const route = getRoute(item);
   const { current, crossed } = getPrices(item);
   const img = item.features_image || item.feature_img || '/uploads/placeholder.jpg';
+  const arrow = isRTL ? '←' : '→';
 
   return (
     <div className="col-lg-4 col-md-6 mb-25">
@@ -130,8 +132,8 @@ function TourCard({ item }) {
           <Link href={href}>
             <img src={img} alt={item.title} style={{ width: '100%', height: '230px', objectFit: 'cover', display: 'block' }} />
           </Link>
-          {/* Duration badge */}
-          <div style={{ position: 'absolute', top: 0, left: 0, background: '#111', color: '#fff', padding: '6px 12px', fontSize: '12px', fontWeight: 700, letterSpacing: '0.3px', borderBottomRightRadius: '4px' }}>
+          {/* Duration badge — always LTR */}
+          <div dir="ltr" style={{ position: 'absolute', top: 0, left: 0, background: '#111', color: '#fff', padding: '6px 12px', fontSize: '12px', fontWeight: 700, letterSpacing: '0.3px', borderBottomRightRadius: '4px' }}>
             {duration.toUpperCase()}
           </div>
           {/* Pin icon box */}
@@ -141,31 +143,33 @@ function TourCard({ item }) {
         </div>
 
         {/* Content */}
-        <div style={{ padding: '18px 18px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <h5 style={{ fontWeight: 700, fontSize: '16px', color: '#111', marginBottom: '10px', lineHeight: 1.4 }}>
+        <div style={{ padding: '18px 18px 20px', display: 'flex', flexDirection: 'column', flex: 1, textAlign: isRTL ? 'right' : 'left' }}>
+          {/* DB title: always LTR to avoid period/punctuation reversal */}
+          <h5 dir="ltr" lang="en" style={{ fontWeight: 700, fontSize: '16px', color: '#111', marginBottom: '10px', lineHeight: 1.4, textAlign: 'left' }}>
             <Link href={href} style={{ color: 'inherit', textDecoration: 'none' }}>{item.title}</Link>
           </h5>
 
           {route && (
-            <p style={{ fontSize: '11px', color: '#999', letterSpacing: '0.5px', marginBottom: '12px', lineHeight: 1.4, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {route}
+            /* Always LTR: route cities with → arrows */
+            <p dir="ltr" style={{ fontSize: '11px', color: '#999', letterSpacing: '0.5px', marginBottom: '12px', lineHeight: 1.4, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'left' }}>
+              {isRTL ? route.replace(/→/g, '←') : route}
             </p>
           )}
 
           <div style={{ borderTop: '1px solid #f0f0f0', marginBottom: '14px' }} />
 
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 'auto', gap: '10px', flexWrap: 'wrap' }}>
-            <div>
-              <div style={{ fontSize: '11px', color: '#b07542', fontWeight: 600, marginBottom: '3px' }}>Starting From:</div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 'auto', gap: '10px', flexWrap: 'wrap', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+            <div dir="ltr" style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: '11px', color: '#b07542', fontWeight: 600, marginBottom: '3px' }}>{t('Starting From')}:</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                <span style={{ fontSize: '22px', fontWeight: 800, color: '#b07542', lineHeight: 1 }}>{CUR}{current}</span>
-                {crossed && <span style={{ fontSize: '14px', color: '#aaa', textDecoration: 'line-through' }}>{CUR}{crossed}</span>}
+                <span style={{ fontSize: '22px', fontWeight: 800, color: '#b07542', lineHeight: 1 }}>{CUR} {current}</span>
+                {crossed && <span style={{ fontSize: '14px', color: '#aaa', textDecoration: 'line-through' }}>{CUR} {crossed}</span>}
               </div>
-              <div style={{ fontSize: '10px', color: '#aaa', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Taxes Incl/Pers</div>
+              <div style={{ fontSize: '10px', color: '#aaa', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('Taxes Incl/Pers')}</div>
             </div>
-            <Link href={href} style={{ background: '#b07542', color: '#fff', padding: '10px 18px', borderRadius: '6px', fontWeight: 600, fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', flexShrink: 0 }}>
-              Inquiry Now
-              <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1 5.5H13M13 5.5L8.5 1M13 5.5L8.5 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <Link href={href} dir="ltr" style={{ background: '#b07542', color: '#fff', padding: '10px 18px', borderRadius: '6px', fontWeight: 600, fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              {t('Inquiry Now')}
+              <svg width="14" height="11" viewBox="0 0 14 11" fill="none" style={{ transform: isRTL ? 'rotate(180deg)' : 'none' }}><path d="M1 5.5H13M13 5.5L8.5 1M13 5.5L8.5 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
           </div>
         </div>
@@ -176,6 +180,8 @@ function TourCard({ item }) {
 
 /* ─── Transport Card ─── */
 function TransportCard({ item }) {
+  const { lang, t } = useLanguage();
+  const isRTL = lang === 'ar';
   const href = `/transport/${item.slug}`;
   const img = item.feature_img || item.features_image || '/uploads/placeholder.jpg';
   const distance = item.distance || '500km';
@@ -190,19 +196,19 @@ function TransportCard({ item }) {
           <Link href={href}>
             <img src={img} alt={item.title} style={{ width: '100%', height: '230px', objectFit: 'cover', display: 'block' }} />
           </Link>
-          {/* Distance badge */}
-          <div style={{ position: 'absolute', top: 0, left: 0, background: '#b07542', color: '#fff', padding: '6px 12px', fontSize: '13px', fontWeight: 700, borderBottomRightRadius: '6px' }}>
+          {/* Distance badge — always LTR */}
+          <div dir="ltr" style={{ position: 'absolute', top: 0, left: 0, background: '#b07542', color: '#fff', padding: '6px 12px', fontSize: '13px', fontWeight: 700, borderBottomRightRadius: '6px' }}>
             {distance}
           </div>
         </div>
 
         {/* Content */}
         <div style={{ padding: '18px 18px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <h5 style={{ fontWeight: 700, fontSize: '17px', color: '#111', marginBottom: '10px' }}>
+          <h5 dir="ltr" lang="en" style={{ fontWeight: 700, fontSize: '17px', color: '#111', marginBottom: '10px', textAlign: 'left' }}>
             <Link href={href} style={{ color: 'inherit', textDecoration: 'none' }}>{item.title}</Link>
           </h5>
 
-          <p style={{ fontSize: '13px', color: '#777', marginBottom: '12px' }}>Available Transport:</p>
+          <p style={{ fontSize: '13px', color: '#777', marginBottom: '12px' }}>{t('Available Transport')}:</p>
 
           {/* Transport type icons */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '18px', flexWrap: 'wrap' }}>
@@ -220,12 +226,12 @@ function TransportCard({ item }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', flexWrap: 'wrap', gap: '10px' }}>
-            <Link href={href} style={{ background: '#b07542', color: '#fff', padding: '11px 22px', borderRadius: '6px', fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}>
-              View Details
+            <Link href={href} dir="ltr" style={{ background: '#b07542', color: '#fff', padding: '11px 22px', borderRadius: '6px', fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}>
+              {t('View Details')}
             </Link>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: isRTL ? 'flex-start' : 'flex-end', gap: '3px' }}>
               <Stars count={rating} />
-              <span style={{ fontSize: '12px', color: '#aaa' }}>{reviews} Reviews</span>
+              <span dir="ltr" style={{ fontSize: '12px', color: '#aaa' }}>{reviews} {t('Reviews')}</span>
             </div>
           </div>
         </div>
@@ -236,6 +242,9 @@ function TransportCard({ item }) {
 
 /* ─── Hotel Card ─── */
 function HotelCard({ item }) {
+  const { lang, t } = useLanguage();
+  const { currencySymbol: CUR } = useSettings();
+  const isRTL = lang === 'ar';
   const href = `/hotel/${item.slug}`;
   const img = item.feature_img || item.features_image || '/uploads/placeholder.jpg';
   const price = item.price || item.pricing?.price || 0;
@@ -266,14 +275,14 @@ function HotelCard({ item }) {
           <Stars count={item.rating || 0} />
           <div style={{ borderTop: '1px solid #f0f0f0', margin: '14px 0' }} />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
-            <div>
-              <div style={{ fontSize: '11px', color: '#b07542', fontWeight: 600, marginBottom: '3px' }}>Starting From:</div>
-              <span style={{ fontSize: '20px', fontWeight: 800, color: '#b07542' }}>Sar{price}</span>
-              <div style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Per Night</div>
+            <div dir="ltr" style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: '11px', color: '#b07542', fontWeight: 600, marginBottom: '3px' }}>{t('Starting From')}:</div>
+              <span style={{ fontSize: '20px', fontWeight: 800, color: '#b07542' }}>{CUR} {price}</span>
+              <div style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('Per Night')}</div>
             </div>
-            <Link href={href} style={{ background: '#b07542', color: '#fff', padding: '10px 18px', borderRadius: '6px', fontWeight: 600, fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              Book Now
-              <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1 5.5H13M13 5.5L8.5 1M13 5.5L8.5 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <Link href={href} dir="ltr" style={{ background: '#b07542', color: '#fff', padding: '10px 18px', borderRadius: '6px', fontWeight: 600, fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {t('Book Now')}
+              <svg width="14" height="11" viewBox="0 0 14 11" fill="none" style={{ transform: isRTL ? 'rotate(180deg)' : 'none' }}><path d="M1 5.5H13M13 5.5L8.5 1M13 5.5L8.5 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
           </div>
         </div>
@@ -285,15 +294,17 @@ function HotelCard({ item }) {
 /* ─── Main Component ─── */
 export default function FeaturedTours({ tours = [], hotels = [], transports = [] }) {
   const [activeTab, setActiveTab] = useState('tours');
+  const { lang, t } = useLanguage();
+  const isRTL = lang === 'ar';
 
   const displayTours      = tours.length > 0      ? tours      : demoTours;
   const displayHotels     = hotels.length > 0     ? hotels     : demoHotels;
   const displayTransports = transports.length > 0 ? transports : demoTransports;
 
   const tabs = [
-    { key: 'tours',      label: 'Hajj Umrah Package', Icon: TourTabIcon },
-    { key: 'hotels',     label: 'Hotel',               Icon: HotelTabIcon },
-    { key: 'transports', label: 'Transports',          Icon: TransportTabIcon },
+    { key: 'tours',      label: t('Hajj Umrah Package'), Icon: TourTabIcon },
+    { key: 'hotels',     label: t('Hotel'),               Icon: HotelTabIcon },
+    { key: 'transports', label: t('Transports'),        Icon: TransportTabIcon },
   ];
 
   const { items, CardComponent } = (() => {
@@ -312,11 +323,11 @@ export default function FeaturedTours({ tours = [], hotels = [], transports = []
         <div className="text-center mb-20">
           <p style={{ fontFamily: "'Brush Script MT', cursive", fontStyle: 'italic', color: '#b1723c', fontSize: '18px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
             <svg width="28" height="10" viewBox="0 0 33 4"><path d="M0 2H33" stroke="#b1723c" strokeWidth="3" strokeLinecap="round"/></svg>
-            Hajj Umrah
+            {t('Hajj Umrah')}
             <svg width="28" height="10" viewBox="0 0 33 4" style={{ transform: 'rotate(180deg)' }}><path d="M0 2H33" stroke="#b1723c" strokeWidth="3" strokeLinecap="round"/></svg>
           </p>
           <h2 style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 800, fontSize: '42px', color: '#111', marginBottom: '30px' }}>
-            Ultimate Travel Experience
+            {t('Ultimate Travel Experience')}
           </h2>
 
           {/* Tab buttons */}

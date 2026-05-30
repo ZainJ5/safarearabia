@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useLanguage } from '@/providers/LanguageProvider';
 
 function Counter({ end, suffix = '' }) {
   const [count, setCount] = useState(0);
@@ -34,43 +35,14 @@ function Counter({ end, suffix = '' }) {
   return <span ref={ref}>{count}{suffix}</span>;
 }
 
-const whyChooseItems = [
-  {
-    iconSrc: '/assets/img/icon/why_choose/Worldwide Coverage.svg',
-    iconBg: '#e8f5e8',
-    title: 'Worldwide Coverage',
-    desc: 'Explore top destinations across the globe with our trusted travel network. From famous landmarks to hidden treasures, we\'ve got your journey covered.',
-  },
-  {
-    iconSrc: '/assets/img/icon/why_choose/Competitive Pricing.svg',
-    iconBg: '#fef6e4',
-    title: 'Competitive Pricing',
-    desc: 'Enjoy premium travel experiences at unbeatable prices. We offer the best deals without compromising on quality or comfort.',
-  },
-  {
-    iconSrc: '/assets/img/icon/why_choose/Fast Booking.svg',
-    iconBg: '#f5f7e6',
-    title: 'Fast Booking',
-    desc: 'Book your trip in minutes with our quick and easy reservation system. Travel planning has never been this smooth and hassle-free.',
-  },
-  {
-    iconSrc: '/assets/img/icon/why_choose/Guided Tours.svg',
-    iconBg: '#e8f5e8',
-    title: 'Guided Tours',
-    desc: 'Discover each destination with expert-led tours tailored for a rich, immersive experience. Learn, explore, and enjoy with confidence.',
-  },
-  {
-    iconSrc: '/assets/img/icon/why_choose/Best Support.svg',
-    iconBg: '#fef6e4',
-    title: 'Best Support 24/7',
-    desc: 'Our dedicated team is here for you anytime, anywhere. Get instant assistance before, during, and after your trip—day or night.',
-  },
-  {
-    iconSrc: '/assets/img/icon/why_choose/Ultimate flexibility.svg',
-    iconBg: '#fef6e4',
-    title: 'Ultimate Flexibility',
-    desc: 'Plans change? No problem. We offer flexible booking options and personalized itineraries to fit your schedule and preferences.',
-  },
+// WHY CHOOSE: defined as factory so t() can be applied inside the component
+const WHY_CHOOSE_DATA = [
+  { iconSrc: '/assets/img/icon/why_choose/Worldwide Coverage.svg',  iconBg: '#e8f5e8', titleKey: 'Worldwide Coverage',  descKey: 'wc_desc' },
+  { iconSrc: '/assets/img/icon/why_choose/Competitive Pricing.svg', iconBg: '#fef6e4', titleKey: 'Competitive Pricing', descKey: 'cp_desc' },
+  { iconSrc: '/assets/img/icon/why_choose/Fast Booking.svg',        iconBg: '#f5f7e6', titleKey: 'Fast Booking',        descKey: 'fb_desc' },
+  { iconSrc: '/assets/img/icon/why_choose/Guided Tours.svg',        iconBg: '#e8f5e8', titleKey: 'Guided Tours',        descKey: 'gt_desc' },
+  { iconSrc: '/assets/img/icon/why_choose/Best Support.svg',        iconBg: '#fef6e4', titleKey: 'Best Support 24/7',  descKey: 'bs_desc' },
+  { iconSrc: '/assets/img/icon/why_choose/Ultimate flexibility.svg',iconBg: '#fef6e4', titleKey: 'Ultimate Flexibility',descKey: 'uf_desc' },
 ];
 
 const defaultFacts = [
@@ -81,7 +53,16 @@ const defaultFacts = [
 ];
 
 export default function FunFacts({ facts = [] }) {
+  const { lang, t } = useLanguage();
+  const isRTL = lang === 'ar';
   const displayFacts = facts.length > 0 ? facts : defaultFacts;
+
+  // Build translated items inside component so t() is available
+  const whyChooseItems = WHY_CHOOSE_DATA.map(item => ({
+    ...item,
+    title: t(item.titleKey),
+    desc: t(item.descKey),
+  }));
 
   return (
     <>
@@ -112,7 +93,7 @@ export default function FunFacts({ facts = [] }) {
                     <Counter end={fact.number} suffix={fact.suffix} />
                   </h3>
                   <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '15px', marginBottom: 0, fontWeight: 500 }}>
-                    {fact.label}
+                    {t(fact.label)}
                   </p>
                 </div>
               </div>
@@ -136,10 +117,10 @@ export default function FunFacts({ facts = [] }) {
                   display: 'block',
                   marginBottom: '10px',
                 }}>
-                  &#x2192; Our Success &#x2190;
+                  &#x2192; {t('Our Success')} &#x2190;
                 </span>
                 <h2 style={{ fontWeight: 800, fontSize: '36px', color: '#100C08' }}>
-                  Why Choose Safar e Arabian
+                  {t('Why Choose Safar e Arabian')}
                 </h2>
               </div>
             </div>
@@ -152,7 +133,7 @@ export default function FunFacts({ facts = [] }) {
                   borderRadius: '12px',
                   padding: '28px 24px',
                   display: 'flex',
-                  flexDirection: 'row',
+                  flexDirection: isRTL ? 'row-reverse' : 'row',
                   alignItems: 'flex-start',
                   gap: '18px',
                   height: '100%',
@@ -178,7 +159,7 @@ export default function FunFacts({ facts = [] }) {
                       style={{ objectFit: 'contain' }}
                     />
                   </div>
-                  <div>
+                  <div style={{ textAlign: isRTL ? 'right' : 'left' }}>
                     <h4 style={{ fontSize: '17px', fontWeight: 700, marginBottom: '10px', color: '#100C08', lineHeight: 1.3 }}>
                       {item.title}
                     </h4>

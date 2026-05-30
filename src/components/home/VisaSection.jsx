@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { currencySymbol } from '@/lib/currency';
-import { defaultSettings } from '@/lib/defaultSettings';
-const CUR = currencySymbol(defaultSettings.default_currency);
+import { useLanguage } from '@/providers/LanguageProvider';
+import { useSettings } from '@/providers/SettingsProvider';
 
 export default function VisaSection({ visas = [] }) {
+  const { lang, t } = useLanguage();
+  const { currencySymbol: CUR } = useSettings();
+  const isRTL = lang === 'ar';
   // Return null if no real visas are provided to prevent empty renders
   if (!visas || visas.length === 0) {
     return null;
@@ -176,12 +178,12 @@ export default function VisaSection({ visas = [] }) {
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="12" viewBox="0 0 20 12" fill="none">
                     <path d="M1 6H19M19 6L14 1M19 6L14 11" stroke="#bb7442" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Visa Services
+                  {t('Visa Services')}
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="12" viewBox="0 0 20 12" fill="none" style={{ transform: 'rotate(180deg)' }}>
                     <path d="M1 6H19M19 6L14 1M19 6L14 11" stroke="#bb7442" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </span>
-                <h2>Visa Processing</h2>
+                <h2>{t('Visa Processing')}</h2>
               </div>
             </div>
             <div className="col-lg-3 d-flex justify-content-lg-end align-items-end mt-3 mt-lg-0">
@@ -224,14 +226,14 @@ export default function VisaSection({ visas = [] }) {
                     <div className="visa-country-badge">
                       <span>{visa.title}</span>
                     </div>
-                    <div className="visa-card-bottom">
+                    <div className="visa-card-bottom" dir={isRTL ? 'rtl' : 'ltr'}>
                       <div className="visa-card-bottom-left">
-                        <span>{visa.subtitle || visa.category?.name || 'Tourist Visa'}</span>
+                        <span>{visa.subtitle || visa.category?.name || t('Tourist Visa')}</span>
                       </div>
                       <div className="visa-card-bottom-divider" />
-                      <div className="visa-card-bottom-right">
-                        <div className="vp-price">{CUR}{visa.cost ?? '0'}</div>
-                        <div className="vp-tax">TAXES INCL/PERS</div>
+                      <div className="visa-card-bottom-right" dir="ltr">
+                        <div className="vp-price">{CUR} {visa.cost ?? '0'}</div>
+                        <div className="vp-tax">{t('TAXES INCL/PERS')}</div>
                       </div>
                     </div>
                   </Link>

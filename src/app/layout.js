@@ -22,6 +22,7 @@ import './globals.css';
 import AuthProvider from '@/providers/AuthProvider';
 import ToastProvider from '@/providers/ToastProvider';
 import { LanguageProvider } from '@/providers/LanguageProvider';
+import { SettingsProvider } from '@/providers/SettingsProvider';
 import Preloader from '@/components/Preloader';
 import ConditionalLayout from '@/components/ConditionalLayout';
 
@@ -62,13 +63,15 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${jost.variable} ${rubik.variable} ${satisfy.variable}`}>
       <body className={`${jost.variable} ${rubik.variable} ${satisfy.variable}`} style={{ fontFamily: "'Jost', sans-serif" }}>
         <AuthProvider>
-          <LanguageProvider>
-            <Preloader />
-            <ToastProvider />
-            <ConditionalLayout>
-              {children}
-            </ConditionalLayout>
-          </LanguageProvider>
+          <SettingsProvider>
+            <LanguageProvider>
+              <Preloader />
+              <ToastProvider />
+              <ConditionalLayout>
+                {children}
+              </ConditionalLayout>
+            </LanguageProvider>
+          </SettingsProvider>
         </AuthProvider>
       </body>
     </html>

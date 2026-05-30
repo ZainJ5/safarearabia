@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useLanguage } from '@/providers/LanguageProvider';
 
 const defaultBlogs = [
   {
@@ -28,6 +31,8 @@ const defaultBlogs = [
 ];
 
 export default function BlogSection({ blogs = [] }) {
+  const { lang, t } = useLanguage();
+  const isRTL = lang === 'ar';
   const displayBlogs = blogs.length > 0 ? blogs : defaultBlogs;
 
   return (
@@ -36,13 +41,13 @@ export default function BlogSection({ blogs = [] }) {
         <div className="row mb-50 align-items-end">
           <div className="col-lg-8">
             <div className="section-title">
-              <span>Travel Insights</span>
-              <h2>Latest News & Articles</h2>
+              <span>{t('Travel Insights')}</span>
+              <h2>{t('Latest News & Articles')}</h2>
             </div>
           </div>
           <div className="col-lg-4 d-flex justify-content-lg-end align-items-end mt-3 mt-lg-0">
             <Link href="/blog" className="primary-btn1">
-              View All Posts
+              {t('View All Posts')}
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="11" viewBox="0 0 14 11" fill="none">
                 <path d="M1 5.5H13M13 5.5L8.5 1M13 5.5L8.5 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -86,17 +91,17 @@ export default function BlogSection({ blogs = [] }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '12px', fontSize: '13px', color: 'var(--text-color, #787878)' }}>
                     <span><i className="bi bi-calendar3"></i> {blog.date || (blog.created_at ? new Date(blog.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '')}</span>
                   </div>
-                  <h4 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '12px', lineHeight: 1.4 }}>
+                  <h4 dir="ltr" lang="en" style={{ fontSize: '18px', fontWeight: 600, marginBottom: '12px', lineHeight: 1.4, textAlign: 'left' }}>
                     <Link href={`/blog/${blog.slug}`} style={{ color: 'var(--title-color, #100C08)', transition: '0.3s' }}>
                       {blog.title}
                     </Link>
                   </h4>
-                  <p style={{ color: 'var(--text-color, #787878)', fontSize: '14px', lineHeight: 1.6, marginBottom: '15px' }}>
+                  <p dir="ltr" lang="en" style={{ color: 'var(--text-color, #787878)', fontSize: '14px', lineHeight: 1.6, marginBottom: '15px', textAlign: 'left' }}>
                     {blog.excerpt || blog.short_desc}
                   </p>
                   <Link href={`/blog/${blog.slug}`} className="primary-btn2">
-                    Read More
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="11" viewBox="0 0 14 11" fill="none">
+                    {t('Read More')}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="11" viewBox="0 0 14 11" fill="none" style={{ transform: isRTL ? 'rotate(180deg)' : 'none' }}>
                       <path d="M1 5.5H13M13 5.5L8.5 1M13 5.5L8.5 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </Link>

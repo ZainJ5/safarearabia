@@ -2,6 +2,7 @@
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
+import { useLanguage } from '@/providers/LanguageProvider';
 
 const defaultTestimonials = [
   {
@@ -25,6 +26,7 @@ const defaultTestimonials = [
 ];
 
 export default function Testimonials({ testimonials = [] }) {
+  const { t } = useLanguage();
   const displayTestimonials = testimonials.length > 0 ? testimonials : defaultTestimonials;
 
   return (
@@ -33,8 +35,8 @@ export default function Testimonials({ testimonials = [] }) {
         <div className="row mb-50 align-items-end">
           <div className="col-lg-8">
             <div className="section-title">
-              <span>Testimonials</span>
-              <h2>What Our Clients Say</h2>
+              <span>{t('Testimonials')}</span>
+              <h2>{t('What Our Clients Say')}</h2>
             </div>
           </div>
           <div className="col-lg-4 d-flex justify-content-lg-end mt-3 mt-lg-0">
@@ -98,7 +100,8 @@ export default function Testimonials({ testimonials = [] }) {
                   marginBottom: '25px',
                   fontStyle: 'italic',
                 }}>
-                  &ldquo;{t.comment || t.text}&rdquo;
+                  {/* DB content: always LTR to prevent Arabic RTL reversing English text */}
+                  <span dir="ltr" lang="en">&ldquo;{t.comment || t.text}&rdquo;</span>
                 </p>
                 {/* Author */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

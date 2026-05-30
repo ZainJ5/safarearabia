@@ -2,26 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/providers/LanguageProvider';
 
-const TABS = [
-  {
-    key: 'mission',
-    label: 'Mission & Vision',
-    content:
-      'Safar e Arabian is a trusted name in spiritual travel, dedicated to providing exceptional Hajj and Umrah services with comfort, care, and integrity. Based on strong Islamic values, our mission is to make your sacred journey to the holy cities of Makkah and Madinah smooth, safe, and spiritually fulfilling. We understand the importance of this once-in-a-lifetime experience and strive to ensure every aspect is handled with the highest level of professionalism and respect.',
-  },
-  {
-    key: 'focus',
-    label: 'Focus On Customer',
-    content:
-      'From visa assistance and flight bookings to premium accommodation near Haram, guided ziyarah tours, and round-the-clock support—we take care of every detail so you can focus entirely on your ibadah. Our knowledgeable team is experienced in managing individual pilgrims, family groups, and large caravans with personalized attention and hospitality.',
-  },
-  {
-    key: 'enjoy',
-    label: 'Enjoy with us',
-    content:
-      "At Safar e Arabian, we don't just arrange trips—we guide your spiritual journey. With competitive pricing, reliable service, and a commitment to excellence, we aim to be your lifelong partner in your path toward Allah. Choose us for a journey that's not just organized—but truly blessed.",
-  },
+// Defined with keys so t() can translate content inside the component
+const TABS_DATA = [
+  { key: 'mission', labelKey: 'Mission & Vision',   contentKey: 'tab_mission' },
+  { key: 'focus',   labelKey: 'Focus On Customer',  contentKey: 'tab_focus'   },
+  { key: 'enjoy',   labelKey: 'Enjoy with us',      contentKey: 'tab_enjoy'   },
 ];
 
 /* Icon: target crosshair (Mission) */
@@ -46,12 +33,21 @@ function CheckCircleIcon({ color = 'currentColor' }) {
 }
 
 export default function AboutSection({ settings = {} }) {
+  const { lang, t } = useLanguage();
+  const isRTL = lang === 'ar';
   const [activeTab, setActiveTab] = useState('mission');
 
-  const activeContent = TABS.find((t) => t.key === activeTab)?.content || '';
+  // Build translated tabs inside component so t() is available
+  const TABS = TABS_DATA.map(tab => ({
+    key:     tab.key,
+    label:   t(tab.labelKey),
+    content: t(tab.contentKey),
+  }));
+
+  const activeContent = TABS.find((tab) => tab.key === activeTab)?.content || '';
 
   return (
-    <section className="pt-100 pb-100" style={{ background: '#fff' }}>
+    <section className="pt-100 pb-100" style={{ background: '#fff' }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container">
         <div className="row align-items-center g-5">
 
@@ -70,7 +66,7 @@ export default function AboutSection({ settings = {} }) {
               gap: '8px',
             }}>
               <svg width="28" height="10" viewBox="0 0 33 4"><path d="M0 2H33" stroke="#b1723c" strokeWidth="3" strokeLinecap="round"/></svg>
-              Safar e Arabian Travel &amp; Tours
+              {t('Safar e Arabian Travel & Tours')}
               <svg width="28" height="10" viewBox="0 0 33 4" style={{ transform: 'rotate(180deg)' }}><path d="M0 2H33" stroke="#b1723c" strokeWidth="3" strokeLinecap="round"/></svg>
             </p>
 
@@ -83,7 +79,7 @@ export default function AboutSection({ settings = {} }) {
               color: '#111',
               marginBottom: '26px',
             }}>
-              Let&rsquo;s know About Our<br />Journey For Safar e<br />Arabian.
+              {t("Let's know About Our Journey For Safar e Arabian.")}
             </h2>
 
             {/* Tab buttons */}
@@ -114,7 +110,7 @@ export default function AboutSection({ settings = {} }) {
                     {tab.key === 'mission'
                       ? <TargetIcon color={iconColor} />
                       : <CheckCircleIcon color={iconColor} />}
-                    {tab.label}
+                    {t(tab.label)}
                   </button>
                 );
               })}
@@ -127,6 +123,8 @@ export default function AboutSection({ settings = {} }) {
               lineHeight: 1.85,
               marginBottom: '32px',
               fontFamily: 'Rubik, sans-serif',
+              textAlign: isRTL ? 'right' : 'left',
+              direction: isRTL ? 'rtl' : 'ltr',
             }}>
               {activeContent}
             </p>
@@ -148,7 +146,7 @@ export default function AboutSection({ settings = {} }) {
                   whiteSpace: 'nowrap',
                 }}
               >
-                More About
+                {t('More About')}
               </Link>
 
               {/* Customer avatars + count */}
@@ -189,7 +187,7 @@ export default function AboutSection({ settings = {} }) {
                     345+
                   </div>
                   <div style={{ fontSize: '13px', color: '#777', marginTop: '3px' }}>
-                    Customer
+                    {t('Customer')}
                   </div>
                 </div>
               </div>
