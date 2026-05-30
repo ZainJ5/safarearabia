@@ -17,6 +17,8 @@ const menuItems = [
   { label: 'Transport', href: '/admin/transport', icon: 'bi-car-front', sub: [
     { label: 'All Transport', href: '/admin/transport' },
     { label: 'Create Transport', href: '/admin/transport/create' },
+    { label: 'Categories', href: '/admin/transport/category' },
+    { label: 'Inquiries', href: '/admin/transport/inquiries' },
   ]},
   { label: 'Visa', href: '/admin/visa', icon: 'bi-passport', sub: [
     { label: 'All Visas', href: '/admin/visa' },

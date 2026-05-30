@@ -44,9 +44,14 @@ export default function AdminTransportPage() {
       editUrl={(id) => `/admin/transport/${id}/edit`}
       columns={columns}
       extraActions={
-        <Link href="/admin/transport/category" className="admin-btn" style={{ background: '#6f42c1', color: '#fff' }}>
-          <i className="bi bi-tags"></i> Categories
-        </Link>
+        <>
+          <Link href="/admin/transport/inquiries" className="admin-btn" style={{ background: '#0d6efd', color: '#fff' }}>
+            <i className="bi bi-inbox"></i> Inquiries
+          </Link>
+          <Link href="/admin/transport/category" className="admin-btn" style={{ background: '#6f42c1', color: '#fff' }}>
+            <i className="bi bi-tags"></i> Categories
+          </Link>
+        </>
       }
     />
   );
