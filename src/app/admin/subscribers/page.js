@@ -1,0 +1,109 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+
+export default function AdminSubscribersPage() {
+  const [subscribers, setSubscribers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ total: 0, pages: 1 });
+
+  useEffect(() => {
+    fetchData();
+  }, [page]);
+
+  async function fetchData() {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/newsletter?page=${page}&limit=20`);
+      const data = await res.json();
+      if (data.success) {
+        setSubscribers(data.data);
+        setPagination(data.pagination);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    setLoading(false);
+  }
+
+  async function handleDelete(id) {
+    if (!confirm('Delete this subscriber?')) return;
+    try {
+      const res = await fetch(`/api/newsletter/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        fetchData();
+      } else {
+        alert(data.error || 'Failed to delete');
+      }
+    } catch (e) {
+      alert('Error: ' + e.message);
+    }
+  }
+
+  return (
+    <>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div>
+          <h4 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Newsletter Subscribers</h4>
+          <p style={{ color: '#888', fontSize: 13, margin: '4px 0 0' }}>{pagination.total} total subscribers</p>
+        </div>
+      </div>
+
+      <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: 48, color: '#888' }}>Loading...</div>
+        ) : subscribers.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 48, color: '#888' }}>No subscribers yet</div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Subscribed On</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {subscribers.map((sub) => (
+                  <tr key={sub._id}>
+                    <td style={{ fontWeight: 500 }}>{sub.email}</td>
+                    <td style={{ color: '#888', fontSize: 13 }}>
+                      {sub.created_at ? new Date(sub.created_at).toLocaleString() : '—'}
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => handleDelete(sub._id)}
+                        className="admin-btn admin-btn-sm"
+                        style={{ background: '#ffebee', color: '#c62828' }}
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {pagination.pages > 1 && (
+          <div className="admin-pagination" style={{ padding: '16px 0' }}>
+            <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+              ← Prev
+            </button>
+            {Array.from({ length: Math.min(pagination.pages, 7) }, (_, i) => (
+              <button key={i + 1} onClick={() => setPage(i + 1)} className={page === i + 1 ? 'active' : ''}>
+                {i + 1}
+              </button>
+            ))}
+            <button disabled={page >= pagination.pages} onClick={() => setPage((p) => p + 1)}>
+              Next →
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}

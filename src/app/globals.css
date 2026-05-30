@@ -1,6 +1,20 @@
 @import "tailwindcss";
 
+/* =============================================================================
+   Safar e Arabian — Global Style Overrides
+   
+   Strategy: The legacy TripRex CSS (style.css) uses --primary-color1 (#63AB45 green)
+   and --primary-color2 (#FBB03B gold). We override these to brand colors.
+   ============================================================================= */
+
+/* --- Brand Color Overrides (from Laravel settings table) --- */
 :root {
+  --primary-color1: #B1723C !important;
+  --primary-color1-opc: 177, 114, 60 !important;
+  --primary-color2: #6D4100 !important;
+  --primary-color2-opc: 109, 65, 0 !important;
+  --primary-color: #B1723C;
+  --secondary-color: #6D4100;
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -8,19 +22,794 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: #B1723C;
+  --color-secondary: #6D4100;
+  --font-sans: 'Jost', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* --- Base body styles --- */
+body {
+  font-family: 'Jost', sans-serif;
+  color: var(--foreground);
+  background: var(--background);
+  overflow-x: hidden;
+}
+
+/* --- Smooth scrolling --- */
+html {
+  scroll-behavior: smooth;
+}
+
+/* --- Loading/preloader override (disabled in settings) --- */
+.preloader {
+  display: none !important;
+}
+.egns-preloader {
+  display: none !important;
+}
+
+/* --- Next.js Image component adjustments --- */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* --- Fix for Tailwind v4 resetting Bootstrap classes --- */
+*, ::before, ::after {
+  border-color: currentColor;
+}
+
+/* Preserve Bootstrap grid */
+.container {
+  width: 100%;
+}
+
+/* Fix Bootstrap button colors to use brand */
+.btn-primary {
+  background-color: var(--primary-color1) !important;
+  border-color: var(--primary-color1) !important;
+}
+.btn-primary:hover {
+  background-color: var(--primary-color2) !important;
+  border-color: var(--primary-color2) !important;
+}
+.btn-outline-primary {
+  color: var(--primary-color1) !important;
+  border-color: var(--primary-color1) !important;
+}
+.btn-outline-primary:hover {
+  background-color: var(--primary-color1) !important;
+  border-color: var(--primary-color1) !important;
+  color: #fff !important;
+}
+.bg-primary {
+  background-color: var(--primary-color1) !important;
+}
+.text-primary {
+  color: var(--primary-color1) !important;
+}
+
+/* Fix anchor color (template overrides to light grey which breaks everything) */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* --- Fix for legacy CSS selectors that target jQuery-specific states --- */
+.slick-initialized .slick-slide {
+  display: block;
+}
+
+/* --- Custom scrollbar for modern browsers --- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color2);
+}
+
+/* --- Utility: hide elements (matching legacy classes) --- */
+.d-none {
+  display: none !important;
+}
+
+/* --- Toast notification z-index fix --- */
+[data-sonner-toaster],
+.react-hot-toast {
+  z-index: 99999 !important;
+}
+
+/* --- Swiper fixes for React --- */
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+.swiper-slide {
+  height: auto;
+}
+
+/* --- Fix breadcrumb inner banner --- */
+.breadcrumb-area {
+  background-image: url('/assets/logo/inner-banner-bg-1731481033.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 80px 0;
+  position: relative;
+}
+.breadcrumb-area::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(177,114,60,0.85), rgba(109,65,0,0.85));
+}
+.breadcrumb-area .container {
+  position: relative;
+  z-index: 1;
+}
+.breadcrumb-area .breadcrumb-content h2 {
+  color: #fff;
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.breadcrumb-area .breadcrumb-content ul {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.breadcrumb-area .breadcrumb-content ul li {
+  color: rgba(255,255,255,0.8);
+  font-size: 16px;
+}
+.breadcrumb-area .breadcrumb-content ul li a {
+  color: #fff;
+  transition: 0.3s;
+}
+.breadcrumb-area .breadcrumb-content ul li a:hover {
+  color: var(--primary-color2);
+}
+.breadcrumb-area .breadcrumb-content ul li + li::before {
+  content: '›';
+  margin-right: 10px;
+  color: rgba(255,255,255,0.6);
+}
+
+/* --- Package Card Overrides (for listing pages) --- */
+.package-card {
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: 0.4s;
+  height: 100%;
+}
+.package-card:hover {
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+}
+.package-card .package-card-img-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.package-card .package-card-img-wrap img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  transition: 0.5s;
+}
+.package-card:hover .package-card-img-wrap img {
+  transform: scale(1.05);
+}
+.package-card .package-card-content {
+  padding: 20px;
+}
+.package-card .package-card-content .card-content-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.package-card .package-card-content h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+.package-card .package-card-content h3 a {
+  color: var(--title-color, #100C08);
+  transition: 0.3s;
+}
+.package-card .package-card-content h3 a:hover {
+  color: var(--primary-color1);
+}
+.package-card .card-content-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 10px;
+}
+.package-card .card-content-bottom .price-area {
+  line-height: 1;
+}
+.package-card .card-content-bottom .price-area span {
+  font-size: 13px;
+  color: var(--text-color, #787878);
+}
+.package-card .card-content-bottom .price-area h6 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-color1);
+  margin-bottom: 0;
+}
+
+/* --- Section title override for brand font --- */
+.section-title span {
+  color: var(--primary-color1) !important;
+}
+.section-title h2 {
+  color: var(--title-color, #100C08);
+}
+
+/* --- Footer brand override --- */
+.footer-area {
+  background-color: #1a1a2e;
+  background-image: url('/frontend/img/footer-bg.png');
+  background-size: cover;
+  background-position: center;
+}
+.footer-area h3,
+.footer-area .widget-title {
+  color: #fff;
+}
+.footer-area p,
+.footer-area .footer-contact-info li {
+  color: rgba(255,255,255,0.7);
+}
+.footer-area a {
+  color: rgba(255,255,255,0.7);
+  transition: 0.3s;
+}
+.footer-area a:hover {
+  color: var(--primary-color1);
+}
+.copyright-area {
+  background-color: rgba(0,0,0,0.2);
+  padding: 20px 0;
+}
+.copyright-area p {
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 0;
+}
+.copyright-area a {
+  color: var(--primary-color1);
+}
+
+/* Dashboard active menu item */
+.dashboard-menu a.active-menu {
+  background-color: var(--primary-color1) !important;
+  color: #fff !important;
+}
+
+/* ===== Top bar style-2 overrides ===== */
+/* Force orange email link even inside the white-text style-2 */
+.top-bar.style-2 .topbar-left .content p a { color: var(--primary-color1) !important; }
+.top-bar.style-2 .topbar-left .content > span { color: rgba(255,255,255,0.7) !important; font-weight: 400; }
+.top-bar.style-2 .topbar-left .icon svg { fill: var(--primary-color1); }
+
+/* Language selector in top bar */
+.top-bar .topbar-lang {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.85);
+  font-family: var(--font-rubik, Rubik, sans-serif);
+  font-size: 14px;
+  font-weight: 500;
+}
+.top-bar .topbar-lang svg { fill: rgba(255,255,255,0.85); }
+
+/* ===== Slider btn-grp position fix ===== */
+/* Arrows are inside the Swiper which is position:relative — top:50% centers within the slider, not the full area */
+.home1-banner-slider { position: relative; }
+.home1-banner-slider .slider-btn-grp { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); z-index: 99; pointer-events: none; }
+.home1-banner-slider .slider-btn-grp .slider-btn { pointer-events: all; }
+.home1-banner-area .slider-btn { cursor: pointer; }
+
+/* ===== Banner eg-tag (SVG mask ribbon badge) ===== */
+.home1-banner-area .home1-banner-wrapper .home1-banner-content .eg-tag {
+  -webkit-mask-image: url("/frontend/img/home1/vector/destination-banner-batch-bg.svg");
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: cover;
+  mask-image: url("/frontend/img/home1/vector/destination-banner-batch-bg.svg");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: cover;
+  background-color: var(--primary-color2, #6D4100);
+  padding: 12px 72px;
+  white-space: nowrap;
+  display: inline-flex;
+  margin-bottom: 20px;
+}
+.home1-banner-area .home1-banner-wrapper .home1-banner-content .eg-tag span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-family: var(--font-jost, Jost, sans-serif);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+}
+.home1-banner-area .home1-banner-wrapper .home1-banner-content .eg-tag span svg { fill: #fff; }
+
+/* ===== Banner h2 text ===== */
+.home1-banner-area .home1-banner-wrapper .home1-banner-content h2 {
+  color: #fff;
+  font-family: var(--font-rubik, Rubik, sans-serif);
+  font-size: 65px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+@media (max-width: 1199px) { .home1-banner-area .home1-banner-wrapper .home1-banner-content h2 { font-size: 48px; } }
+@media (max-width: 767px) { .home1-banner-area .home1-banner-wrapper .home1-banner-content h2 { font-size: 34px; } }
+@media (max-width: 576px) { .home1-banner-area .home1-banner-wrapper .home1-banner-content h2 { font-size: 28px; letter-spacing: 0; } }
+
+/* ===== Banner p text ===== */
+.home1-banner-area .home1-banner-wrapper .home1-banner-content p {
+  color: rgba(255,255,255,0.9);
+  font-family: var(--font-jost, Jost, sans-serif);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.9;
+  letter-spacing: 0.48px;
+  text-transform: capitalize;
+  margin-bottom: 40px;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ===== Banner wrapper min-height ===== */
+.home1-banner-area .home1-banner-wrapper {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  border-radius: 30px 30px 0 0;
+  position: relative;
+  min-height: 620px;
+}
+@media (max-width: 991px) { .home1-banner-area .home1-banner-wrapper { min-height: 500px; } }
+@media (max-width: 767px) { .home1-banner-area .home1-banner-wrapper { border-radius: 0; min-height: 420px; } }
+
+/* Dark overlay on banner */
+.home1-banner-area .home1-banner-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.5) 100%);
+  border-radius: inherit;
+  z-index: 0;
+}
+.home1-banner-area .home1-banner-wrapper .home1-banner-content { position: relative; z-index: 1; }
+
+/* ===== Banner content centered ===== */
+.home1-banner-area .home1-banner-wrapper .home1-banner-content {
+  text-align: center;
+  padding: 180px 20px 160px;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+}
+@media (max-width: 991px) { .home1-banner-area .home1-banner-wrapper .home1-banner-content { padding: 140px 20px 120px; } }
+@media (max-width: 767px) { .home1-banner-area .home1-banner-wrapper .home1-banner-content { padding: 100px 20px 80px; } }
+
+/* ===== Banner bottom CTA row ===== */
+.home1-banner-area .home1-banner-wrapper .home1-banner-content .banner-content-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 35px;
+  flex-wrap: wrap;
+}
+.home1-banner-area .home1-banner-wrapper .home1-banner-content .banner-content-bottom .rating-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.home1-banner-area .home1-banner-wrapper .home1-banner-content .banner-content-bottom .rating-area .content .text-logo { margin-bottom: 6px; }
+.home1-banner-area .home1-banner-wrapper .home1-banner-content .banner-content-bottom .rating-area .content .rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+}
+.home1-banner-area .home1-banner-wrapper .home1-banner-content .banner-content-bottom .rating-area .content .rating ul {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.home1-banner-area .home1-banner-wrapper .home1-banner-content .banner-content-bottom .rating-area .content .rating span {
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ===== Header button + account area fix ===== */
+header.style-1 .nav-right .primary-btn1 {
+  padding: 10px 22px !important;
+  font-size: 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  border-radius: 5px !important;
+}
+/* Remove the decorative left-border line from hotline content when used as account area */
+header.style-1 .nav-right .hotline-area .content::after { display: none; }
+header.style-1 .nav-right .hotline-area .content span { color: var(--text-color, #787878); font-size: 12px; font-weight: 400; }
+header.style-1 .nav-right .hotline-area .content h6 a { font-size: 15px; }
+
+/* ===== Home1 banner bottom (Search Bar) overrides ===== */
+.home1-banner-bottom {
+  margin-top: -100px;
+  position: relative;
+  z-index: 99;
+  padding: 0 70px;
+}
+@media (max-width: 1399px) { .home1-banner-bottom { padding: 0 20px; } }
+@media (max-width: 767px) { .home1-banner-bottom { margin-top: -56px; padding: 0; } }
+
+.home1-banner-bottom .filter-wrapper .nav-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home1-banner-bottom .filter-wrapper .nav-buttons .nav-pills {
+  border-radius: 15px 15px 0 0;
+  background: #EDF2DE;
+  display: inline-flex;
+  border-bottom: 1px solid #DBE1CD;
+  flex-wrap: nowrap;
+}
+.home1-banner-bottom .filter-wrapper .nav-buttons .nav-pills .nav-item .nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--title-color, #100C08);
+  font-family: var(--font-rubik, Rubik, sans-serif);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 15px 40px;
+  border-radius: unset;
+  border-left: 1px solid #DBE1CD;
+  background: transparent;
+  border-top: none;
+  border-bottom: none;
+  border-right: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.3s;
+}
+@media (max-width: 991px) {
+  .home1-banner-bottom .filter-wrapper .nav-buttons .nav-pills .nav-item .nav-link { padding: 15px 20px; }
+}
+@media (max-width: 767px) {
+  .home1-banner-bottom .filter-wrapper .nav-buttons .nav-pills .nav-item .nav-link { padding: 12px 15px; font-size: 14px; }
+}
+.home1-banner-bottom .filter-wrapper .nav-buttons .nav-pills .nav-item:first-child .nav-link {
+  border-radius: 15px 0 0 0;
+  border-left: none;
+}
+.home1-banner-bottom .filter-wrapper .nav-buttons .nav-pills .nav-item:last-child .nav-link {
+  border-radius: 0 15px 0 0;
+}
+.home1-banner-bottom .filter-wrapper .nav-buttons .nav-pills .nav-item .nav-link.active {
+  background-color: var(--primary-color1);
+  color: #fff;
+}
+.home1-banner-bottom .filter-wrapper .nav-buttons .nav-pills .nav-item .nav-link svg { fill: currentColor; }
+
+.home1-banner-bottom .filter-wrapper .filter-group {
+  border-radius: 0 0 30px 30px;
+  background: #EDF2DE;
+  padding: 30px 60px;
+}
+@media (max-width: 1199px) { .home1-banner-bottom .filter-wrapper .filter-group { padding: 30px 40px; } }
+@media (max-width: 767px) { .home1-banner-bottom .filter-wrapper .filter-group { padding: 20px 15px; } }
+
+.home1-banner-bottom .filter-wrapper .filter-group form {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+@media (max-width: 1199px) {
+  .home1-banner-bottom .filter-wrapper .filter-group form { flex-direction: column; gap: 15px; }
+}
+
+.home1-banner-bottom .filter-wrapper .filter-group form .filter-area {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+}
+@media (max-width: 1199px) {
+  .home1-banner-bottom .filter-wrapper .filter-group form .filter-area { flex-direction: column; width: 100%; }
+}
+
+.home1-banner-bottom .filter-wrapper .filter-group form .filter-area .single-search-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  padding: 0 30px;
+  border-right: 1px solid #DBE1CD;
+}
+@media (max-width: 1199px) {
+  .home1-banner-bottom .filter-wrapper .filter-group form .filter-area .single-search-box {
+    padding: 15px 20px;
+    border: 1px solid #DBE1CD;
+    border-right: 1px solid #DBE1CD !important;
+    width: 100%;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.home1-banner-bottom .filter-wrapper .filter-group form .filter-area .single-search-box .icon svg { fill: var(--primary-color1); }
+
+.home1-banner-bottom .filter-wrapper .filter-group form .filter-area .single-search-box .searchbox-input {
+  line-height: 1;
+  flex: 1;
+}
+.home1-banner-bottom .filter-wrapper .filter-group form .filter-area .single-search-box .searchbox-input label {
+  color: #6A6A6A;
+  font-size: 12px;
+  font-weight: 400;
+  display: block;
+  margin-bottom: 5px;
+}
+.home1-banner-bottom .filter-wrapper .filter-group form .filter-area .single-search-box .searchbox-input .custom-select-dropdown .select-input {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.home1-banner-bottom .filter-wrapper .filter-group form .filter-area .single-search-box .searchbox-input .custom-select-dropdown .select-input input {
+  color: var(--title-color, #100C08);
+  font-family: var(--font-rubik, Rubik, sans-serif);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  min-width: 140px;
+  cursor: pointer;
+}
+.home1-banner-bottom .filter-wrapper .filter-group form .filter-area .single-search-box .searchbox-input .custom-select-dropdown .select-input input::placeholder { color: var(--title-color, #100C08); }
+.home1-banner-bottom .filter-wrapper .filter-group form .filter-area .single-search-box .searchbox-input .custom-select-dropdown .select-input input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
+
+.home1-banner-bottom .filter-wrapper .filter-group form .primary-btn1 {
+  margin-left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  padding: 18px 30px;
+  flex-shrink: 0;
+}
+@media (max-width: 1199px) {
+  .home1-banner-bottom .filter-wrapper .filter-group form .primary-btn1 { margin-left: 0; width: 100%; justify-content: center; }
+}
+
+/* ===== About section bottom counter fix ===== */
+.home1-about-section .about-content .about-content-bottom { gap: 20px; flex-wrap: wrap; }
+
+/* ===== Package card tab nav fix ===== */
+.package-card-tab-section .package-card-with-tab .nav-pills {
+  display: flex !important;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+/* ===== mb-25 utility ===== */
+.mb-25 { margin-bottom: 25px; }
+
+/* ===== Hover effects for transport/visa cards ===== */
+.col-lg-4:hover > div { box-shadow: 0 8px 30px rgba(0,0,0,0.12) !important; transform: translateY(-3px); }
+
+/* ===== Visa Section Cards ===== */
+.visa-dest-card {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.visa-dest-card-img {
+  overflow: hidden;
+  border-radius: 10px;
+  display: block;
+  background: linear-gradient(135deg, #7a2a8e 0%, #c0286f 100%);
+  min-height: 280px;
+}
+
+.visa-dest-card-img img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  display: block;
+  border-radius: 10px;
+  transition: transform 0.5s ease;
+}
+
+.visa-dest-card:hover .visa-dest-card-img img {
+  transform: scale(1.07);
+}
+
+/* Bottom gradient overlay */
+.visa-dest-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  background: linear-gradient(to bottom, transparent 0%, rgba(124, 38, 121, 0.45) 55%, rgba(150, 40, 110, 0.85) 100%);
+  border-radius: 0 0 10px 10px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Country name badge — centered, uses destination-tag SVG mask */
+.visa-country-badge {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-mask-image: url("/frontend/img/home1/vector/destination-tag.svg");
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-image: url("/frontend/img/home1/vector/destination-tag.svg");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+  background-color: #C98A3C;
+  padding: 20px 52px;
+  max-width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 2;
+}
+
+.visa-country-badge span {
+  color: #fff;
+  font-family: var(--font-rubik, Rubik, sans-serif);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+/* Bottom info bar */
+.visa-card-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding: 16px 20px 18px;
+  background: linear-gradient(90deg, #6e2a8e 0%, #9c2a76 52%, #d12e7d 100%);
+  border-radius: 0 0 10px 10px;
+  z-index: 2;
+}
+
+.visa-card-bottom-left {
+  flex: 1;
+  padding-right: 12px;
+}
+
+.visa-card-bottom-left span {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  display: block;
+}
+
+.visa-card-bottom-divider {
+  width: 1px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.35);
+  margin: 0 16px;
+  flex-shrink: 0;
+}
+
+.visa-card-bottom-right {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.visa-card-bottom-right .vp-price {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+  font-family: var(--font-rubik, Rubik, sans-serif);
+}
+
+.visa-card-bottom-right .vp-tax {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+/* Nav arrow buttons */
+.visa-nav-group {
+  display: flex;
+  gap: 10px;
+}
+
+.visa-nav-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #d0d0d0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.visa-nav-btn:hover {
+  border-color: var(--primary-color1);
+  color: var(--primary-color1);
+}
+
+/* Visa card hover: lift + soft shadow (image zoom handled above) */
+.visa-dest-card:hover,
+.col-lg-4:hover > a.visa-dest-card {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 40px rgba(85, 15, 50, 0.28);
 }
