@@ -4,7 +4,7 @@ import dbConnect from '@/lib/dbConnect';
 
 /**
  * Creates standard CRUD route handlers for admin API routes.
- * 
+ *
  * Usage:
  *   import { createCrudRoutes } from '@/lib/adminCrud';
  *   import Tour from '@/models/Tour';
@@ -14,7 +14,7 @@ import dbConnect from '@/lib/dbConnect';
 
 async function checkAdmin() {
   const session = await auth();
-  if (!session?.user || session.user.role !== 1) {
+  if (!session?.user || Number(session.user.role) !== 1) {
     return null;
   }
   return session;
@@ -116,7 +116,7 @@ export function createCrudDetailRoutes(Model) {
       }
     },
 
-    async DELETE(request, { params }) {
+    async DELETE(_request, { params }) {
       try {
         const session = await checkAdmin();
         if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

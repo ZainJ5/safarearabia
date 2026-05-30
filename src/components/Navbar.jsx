@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useSession, signOut, signIn } from 'next-auth/react';
+import { useSession, signOut, signIn, getSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { defaultSettings } from '@/lib/defaultSettings';
@@ -54,12 +54,12 @@ export default function Navbar() {
       });
       if (result?.ok) {
         setShowLoginModal(false);
-        // Fetch updated session to check role
-        const sess = await fetch('/api/auth/session').then(r => r.json());
-        if (sess?.user?.role === 1) {
-          router.push('/admin/dashboard');
+        const sess = await getSession();
+        const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl') || '/dashboard';
+        if (Number(sess?.user?.role) === 1) {
+          router.push(callbackUrl.startsWith('/admin') ? callbackUrl : '/admin/dashboard');
         } else {
-          router.push('/dashboard');
+          router.push(callbackUrl.startsWith('/admin') ? '/dashboard' : callbackUrl);
         }
         router.refresh();
       } else {
@@ -354,7 +354,7 @@ export default function Navbar() {
                   type="email"
                   value={loginEmail}
                   onChange={e => setLoginEmail(e.target.value)}
-                  placeholder="admin@gmail.com"
+                  placeholder="user@example.com"
                   required
                   style={{ width: '100%', padding: '14px 16px', borderRadius: '8px', border: '1px solid #e5e5e5', background: '#f0f4f8', fontSize: '14px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box' }}
                 />

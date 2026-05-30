@@ -13,15 +13,13 @@ export default function ConditionalLayout({ children }) {
   
   // Admin routes have their own layout with AdminSidebar and AdminHeader
   const isAdminRoute = pathname?.startsWith('/admin');
-  
-  // Dashboard routes also have their own layout
-  const isDashboardRoute = pathname?.startsWith('/dashboard');
-  
+
   // Auth routes (login, register) don't need full layout
   const isAuthRoute = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
-  
-  // Skip navbar/footer for admin, dashboard, and auth routes
-  if (isAdminRoute || isDashboardRoute || isAuthRoute) {
+
+  // Skip navbar/footer for admin and auth routes only
+  // Dashboard routes get navbar/footer so users can navigate
+  if (isAdminRoute || isAuthRoute) {
     return <>{children}</>;
   }
   

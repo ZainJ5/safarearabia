@@ -5,7 +5,7 @@ import Activity from '@/models/Activity';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { slug } = params;
+    const { slug } = await params;
 
     const activity = await Activity.findOne({ slug, status: 1 }).lean();
 

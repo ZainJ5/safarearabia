@@ -7,11 +7,13 @@ const HotelSchema = new mongoose.Schema(
     slug: { type: String, required: true, unique: true },
     content: String,
     youtube_video: String,
+    youtube_thumbnail: String,
     category: {
       _id: mongoose.Schema.Types.ObjectId,
       name: String,
       slug: String,
     },
+    agent_setting: String,
     policies: [
       {
         title: String,
@@ -39,12 +41,18 @@ const HotelSchema = new mongoose.Schema(
     ],
     location: {
       address: String,
+      country: String,
+      state: String,
+      city: String,
       country_id: Number,
       state_id: Number,
       city_id: Number,
       zip_code: String,
       coordinates: { lat: Number, lng: Number },
     },
+    attribute_facilities: [String],
+    attribute_hotel_service: [String],
+    attribute_property_type: [String],
     attribute_terms: [Number],
     galleries: [String],
     feature_img: String,

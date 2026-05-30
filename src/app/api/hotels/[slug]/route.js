@@ -5,7 +5,7 @@ import Hotel from '@/models/Hotel';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { slug } = params;
+    const { slug } = await params;
 
     const hotel = await Hotel.findOne({ slug, status: 1 }).lean();
 

@@ -5,7 +5,7 @@ import Tour from '@/models/Tour';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { slug } = params;
+    const { slug } = await params;
 
     const tour = await Tour.findOne({ slug, status: 1 }).lean();
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import { useLanguage } from '@/providers/LanguageProvider';
@@ -28,9 +29,42 @@ const defaultTestimonials = [
 export default function Testimonials({ testimonials = [] }) {
   const { t } = useLanguage();
   const displayTestimonials = testimonials.length > 0 ? testimonials : defaultTestimonials;
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
 
   return (
-    <section className="testimonials-area pt-100 pb-100" style={{ background: '#f8f9fa' }}>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .testimonial-nav-group {
+          display: flex;
+          gap: 12px;
+        }
+
+        .testimonial-nav-btn {
+          width: 45px;
+          height: 45px;
+          border-radius: 50%;
+          background: transparent;
+          border: 1px solid #e0e0e0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #999;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .testimonial-nav-btn:hover {
+          border-color: #bb7442;
+          color: #bb7442;
+        }
+
+        .testimonial-nav-btn.swiper-button-disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+      `}} />
+      <section className="testimonials-area pt-100 pb-100" style={{ background: '#f8f9fa' }}>
       <div className="container">
         <div className="row mb-50 align-items-end">
           <div className="col-lg-8">
@@ -39,14 +73,18 @@ export default function Testimonials({ testimonials = [] }) {
               <h2>{t('What Our Clients Say')}</h2>
             </div>
           </div>
-          <div className="col-lg-4 d-flex justify-content-lg-end mt-3 mt-lg-0">
-            <div className="slider-btn-grp2">
-              <div className="slider-btn testimonial-card-tab-prev">
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16"><path d="M8 1L1 8L8 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </div>
-              <div className="slider-btn testimonial-card-tab-next">
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 10 16"><path d="M2 1L9 8L2 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </div>
+          <div className="col-lg-4 d-flex justify-content-lg-end align-items-end mt-3 mt-lg-0">
+            <div className="testimonial-nav-group">
+              <button ref={prevRef} className="testimonial-nav-btn" aria-label="Previous">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+              <button ref={nextRef} className="testimonial-nav-btn" aria-label="Next">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -56,12 +94,18 @@ export default function Testimonials({ testimonials = [] }) {
           modules={[Navigation, Autoplay]}
           slidesPerView={Math.min(3, displayTestimonials.length)}
           spaceBetween={24}
-          speed={1500}
+          speed={600}
           loop={displayTestimonials.length >= 3}
           autoplay={{ delay: 2500, disableOnInteraction: false }}
           navigation={{
-            nextEl: '.testimonial-card-tab-next',
-            prevEl: '.testimonial-card-tab-prev',
+            prevEl: prevRef.current,
+            nextEl: nextRef.current,
+          }}
+          onSwiper={(swiper) => {
+            swiper.params.navigation.prevEl = prevRef.current;
+            swiper.params.navigation.nextEl = nextRef.current;
+            swiper.navigation.init();
+            swiper.navigation.update();
           }}
           breakpoints={{
             280: { slidesPerView: 1 },
@@ -130,5 +174,6 @@ export default function Testimonials({ testimonials = [] }) {
         </Swiper>
       </div>
     </section>
+    </>
   );
 }

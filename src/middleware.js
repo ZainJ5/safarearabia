@@ -7,7 +7,8 @@ const { auth } = NextAuth(authConfig);
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
-  const userRole = req.auth?.user?.role;
+  const userRole = Number(req.auth?.user?.role);
+  const isAdmin = isLoggedIn && userRole === 1;
 
   // Protected routes that require authentication
   const protectedPaths = ['/dashboard', '/checkout'];
@@ -24,7 +25,13 @@ export default auth((req) => {
   const isAuthPage = authPaths.some((path) => pathname.startsWith(path));
 
   if (isAuthPage && isLoggedIn) {
-    return NextResponse.redirect(new URL('/dashboard', req.url));
+    const dest = isAdmin ? '/admin/dashboard' : '/dashboard';
+    return NextResponse.redirect(new URL(dest, req.url));
+  }
+
+  // Redirect admins away from the user dashboard to the admin dashboard
+  if (pathname.startsWith('/dashboard') && isAdmin) {
+    return NextResponse.redirect(new URL('/admin/dashboard', req.url));
   }
 
   if (isProtected && !isLoggedIn) {
@@ -33,7 +40,7 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAdminRoute && (!isLoggedIn || userRole !== 1)) {
+  if (isAdminRoute && !isAdmin) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 

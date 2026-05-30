@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 export default function AdminListPage({ title, apiUrl, createUrl, editUrl, columns }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, pages: 1 });
@@ -17,6 +18,7 @@ export default function AdminListPage({ title, apiUrl, createUrl, editUrl, colum
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setFetchError('');
     try {
       const params = new URLSearchParams({ page, limit: 20 });
       if (search) params.set('search', search);
@@ -25,9 +27,13 @@ export default function AdminListPage({ title, apiUrl, createUrl, editUrl, colum
       if (data.success) {
         setItems(data.data);
         setPagination(data.pagination || { total: data.data.length, pages: 1 });
+      } else if (res.status === 401) {
+        setFetchError('Session expired or not authorised. Please log out and log in again as admin.');
+      } else {
+        setFetchError(data.error || 'Failed to load data');
       }
     } catch (err) {
-      toast.error('Failed to load data: ' + err.message);
+      setFetchError('Network error: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -123,6 +129,11 @@ export default function AdminListPage({ title, apiUrl, createUrl, editUrl, colum
           <div style={{ textAlign: 'center', padding: 48, color: '#888' }}>
             <i className="bi bi-arrow-repeat" style={{ fontSize: 28, display: 'block', marginBottom: 8, animation: 'spin 1s linear infinite' }}></i>
             Loading...
+          </div>
+        ) : fetchError ? (
+          <div style={{ textAlign: 'center', padding: 48, color: '#c62828' }}>
+            <i className="bi bi-exclamation-triangle" style={{ fontSize: 32, display: 'block', marginBottom: 8 }}></i>
+            {fetchError}
           </div>
         ) : items.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 48, color: '#888' }}>

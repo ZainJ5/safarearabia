@@ -5,7 +5,7 @@ import Blog from '@/models/Blog';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { slug } = params;
+    const { slug } = await params;
 
     const blog = await Blog.findOne({ slug, status: 1 }).lean();
 

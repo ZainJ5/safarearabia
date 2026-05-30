@@ -13,6 +13,7 @@ const ActivitySchema = new mongoose.Schema(
       slug: String,
     },
     youtube_video: String,
+    youtube_thumbnail: String,
     duration_days: Number,
     duration_nights: Number,
     min_people: Number,
@@ -27,6 +28,15 @@ const ActivitySchema = new mongoose.Schema(
     ],
     includes: [{ title: String }],
     excludes: [{ title: String }],
+    highlights: [{ title: String }],
+    itinerary: [
+      {
+        title: String,
+        content: String,
+      },
+    ],
+    facilities: [String],
+    travel_styles: [String],
     pricing: {
       price: Number,
       sale_price: Number,

@@ -5,7 +5,7 @@ import Transport from '@/models/Transport';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { slug } = params;
+    const { slug } = await params;
 
     const transport = await Transport.findOne({ slug, status: 1 }).lean();
 

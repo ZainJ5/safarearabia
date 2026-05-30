@@ -5,7 +5,7 @@ import Destination from '@/models/Destination';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { slug } = params;
+    const { slug } = await params;
 
     const destination = await Destination.findOne({ slug, status: 1 }).lean();
 

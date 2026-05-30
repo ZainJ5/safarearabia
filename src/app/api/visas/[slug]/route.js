@@ -5,7 +5,7 @@ import Visa from '@/models/Visa';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { slug } = params;
+    const { slug } = await params;
 
     const visa = await Visa.findOne({ slug, status: 1 }).lean();
 
