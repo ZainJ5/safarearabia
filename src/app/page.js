@@ -46,7 +46,7 @@ async function fetchHomeData() {
       Tour.find({ status: 1 }).sort({ created_at: -1 }).limit(6).lean(),
       Hotel.find({ status: 1 }).sort({ created_at: -1 }).limit(6).lean(),
       Transport.find({ status: 1 }).sort({ created_at: -1 }).limit(6).lean(),
-      Visa.find({ status: 1 }).sort({ created_at: -1 }).limit(3).lean(),
+      Visa.find({ status: 1 }).sort({ created_at: -1 }).limit(9).lean(),
       Blog.find({ status: 1 }).sort({ created_at: -1 }).limit(3).lean(),
       Testimonial.find({ status: 1 }).sort({ serial: 1, created_at: -1 }).limit(8).lean(),
       Slider.find({ status: 1 }).sort({ serial: 1 }).lean(),

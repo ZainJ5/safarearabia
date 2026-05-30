@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -10,11 +10,18 @@ import MultiImageUpload from '@/components/admin/MultiImageUpload';
 const ATTR_FEATURES = ['FM Radio', 'Free Cancellation', 'Pay at Pickup', 'Shuttle to Car', 'Steering Wheel'];
 const ATTR_TYPES = ['Convertibles', 'Couple'];
 
-const sS = { background: '#fff', borderRadius: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.07)', padding: '20px 24px', marginBottom: 20 };
-const sT = { fontSize: 15, fontWeight: 600, color: '#222', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #f0f0f0' };
-const iS = { width: '100%', padding: '9px 12px', border: '1px solid #ddd', borderRadius: 6, fontSize: 14, fontFamily: 'inherit', color: '#333', outline: 'none' };
-const lS = { display: 'block', fontSize: 13, fontWeight: 500, color: '#444', marginBottom: 5 };
+const sS   = { background: '#fff', borderRadius: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.07)', padding: '20px 24px', marginBottom: 20 };
+const sT   = { fontSize: 15, fontWeight: 600, color: '#222', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #f0f0f0' };
+const iS   = { width: '100%', padding: '9px 12px', border: '1px solid #ddd', borderRadius: 6, fontSize: 14, fontFamily: 'inherit', color: '#333', outline: 'none' };
+const lS   = { display: 'block', fontSize: 13, fontWeight: 500, color: '#444', marginBottom: 5 };
 const row2 = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 };
+
+const defCar   = { vehicle_type: '', person: '', price: '', sale_price: '', enable_extra_service: false };
+const defBus   = { adult_price: '', adult_sale_price: '', child_price: '', enable_extra_service: false };
+const defTrain = { adult_price: '', adult_sale_price: '', child_price: '', enable_extra_service: false };
+const defBoat  = { adult_price: '', adult_sale_price: '', child_price: '', enable_extra_service: false };
+
+/* ── Stable module-level components ── */
 
 function CheckGroup({ label, options, value = [], onChange }) {
   const toggle = (o) => onChange(value.includes(o) ? value.filter(v => v !== o) : [...value, o]);
@@ -31,19 +38,53 @@ function CheckGroup({ label, options, value = [], onChange }) {
   );
 }
 
-const defCar  = { vehicle_type: '', person: '', price: '', sale_price: '', enable_extra_service: false };
-const defBus  = { adult_price: '', adult_sale_price: '', child_price: '', enable_extra_service: false };
-const defTrain = { adult_price: '', adult_sale_price: '', child_price: '', enable_extra_service: false };
-const defBoat  = { adult_price: '', adult_sale_price: '', child_price: '', enable_extra_service: false };
+function ListSection({ items, placeholder, newVal, setNewVal, onAdd, onRemove, onEdit }) {
+  return (
+    <div>
+      {(items || []).map((item, idx) => (
+        <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          <input
+            style={{ ...iS, flex: 1 }}
+            value={item.title || ''}
+            onChange={e => onEdit(idx, e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={() => onRemove(idx)}
+            style={{ padding: '0 12px', background: '#dc3545', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 18, lineHeight: 1 }}
+          >×</button>
+        </div>
+      ))}
+      <input
+        style={{ ...iS, marginBottom: 10 }}
+        placeholder={placeholder}
+        value={newVal}
+        onChange={e => setNewVal(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); onAdd(newVal); } }}
+      />
+      <div style={{ textAlign: 'center' }}>
+        <button
+          type="button"
+          onClick={() => onAdd(newVal)}
+          style={{ background: '#222', color: '#fff', border: 'none', borderRadius: 4, padding: '10px 28px', cursor: 'pointer', fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8 }}
+        >
+          <i className="bi bi-bookmark" /> Add New
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Page ── */
 
 export default function AdminTransportCreatePage() {
   const router = useRouter();
-  const [pTab, setPTab] = useState('car');
+  const [pTab, setPTab]   = useState('car');
   const [categories, setCategories] = useState([]);
-  const [saving, setSaving] = useState(false);
-  const [newFaq, setNewFaq]     = useState('');
-  const [newInc, setNewInc]     = useState('');
-  const [newExc, setNewExc]     = useState('');
+  const [saving, setSaving]         = useState(false);
+  const [newFaq, setNewFaq] = useState('');
+  const [newInc, setNewInc] = useState('');
+  const [newExc, setNewExc] = useState('');
 
   const [form, setForm] = useState({
     title: '', slug: '', content: '', youtube_url: '',
@@ -70,15 +111,21 @@ export default function AdminTransportCreatePage() {
   const setD = (p1, p2, k, v) => setForm(p => ({ ...p, [p1]: { ...p[p1], [p2]: { ...p[p1][p2], [k]: v } } }));
   const setP = (tab, k, v)    => setForm(p => ({ ...p, [`pricing_${tab}`]: { ...p[`pricing_${tab}`], [k]: v } }));
 
-  const addItem = (field, title, clear) => {
+  const addItem = useCallback((field, title, clear) => {
     if (!title.trim()) return;
-    setForm(p => ({ ...p, [field]: [...p[field], { title: title.trim() }] }));
+    setForm(p => ({ ...p, [field]: [...(p[field] || []), { title: title.trim() }] }));
     clear('');
-  };
-  const removeItem = (field, idx) => setForm(p => ({ ...p, [field]: p[field].filter((_, i) => i !== idx) }));
-  const editItem   = (field, idx, val) => setForm(p => {
-    const arr = [...p[field]]; arr[idx] = { ...arr[idx], title: val }; return { ...p, [field]: arr };
-  });
+  }, []);
+
+  const removeItem = useCallback((field, idx) =>
+    setForm(p => ({ ...p, [field]: (p[field] || []).filter((_, i) => i !== idx) })), []);
+
+  const editItem = useCallback((field, idx, val) =>
+    setForm(p => {
+      const arr = [...(p[field] || [])];
+      arr[idx] = { ...arr[idx], title: val };
+      return { ...p, [field]: arr };
+    }), []);
 
   const uploadFeatImg = async (e) => {
     const file = e.target.files[0]; if (!file) return;
@@ -96,10 +143,10 @@ export default function AdminTransportCreatePage() {
       const slug = form.slug || form.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
       const body = {
         ...form, slug, status,
-        car_price:   Number(form.pricing_car.price)        || 0,
-        bus_price:   Number(form.pricing_bus.adult_price)  || 0,
-        train_price: Number(form.pricing_train.adult_price)|| 0,
-        boat_price:  Number(form.pricing_boat.adult_price) || 0,
+        car_price:   Number(form.pricing_car.price)         || 0,
+        bus_price:   Number(form.pricing_bus.adult_price)   || 0,
+        train_price: Number(form.pricing_train.adult_price) || 0,
+        boat_price:  Number(form.pricing_boat.adult_price)  || 0,
         car_type:    form.pricing_car.vehicle_type,
         car_person:  Number(form.pricing_car.person) || 0,
         distance_km: Number(form.destination_km) || 0,
@@ -115,28 +162,6 @@ export default function AdminTransportCreatePage() {
     finally { setSaving(false); }
   };
 
-  /* ── reusable list section ── */
-  const ListSection = ({ field, placeholder, newVal, setNewVal }) => (
-    <div>
-      {form[field].map((item, idx) => (
-        <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-          <input style={{ ...iS, flex: 1 }} value={item.title} onChange={e => editItem(field, idx, e.target.value)} />
-          <button type="button" onClick={() => removeItem(field, idx)}
-            style={{ padding: '0 12px', background: '#dc3545', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
-        </div>
-      ))}
-      <input style={{ ...iS, marginBottom: 10 }} placeholder={placeholder} value={newVal}
-        onChange={e => setNewVal(e.target.value)}
-        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addItem(field, newVal, setNewVal); } }} />
-      <div style={{ textAlign: 'center' }}>
-        <button type="button" onClick={() => addItem(field, newVal, setNewVal)}
-          style={{ background: '#222', color: '#fff', border: 'none', borderRadius: 4, padding: '10px 28px', cursor: 'pointer', fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-          <i className="bi bi-bookmark" /> Add New
-        </button>
-      </div>
-    </div>
-  );
-
   const tabBtn = (tab) => ({
     padding: '8px 20px', border: '1px solid #ddd', cursor: 'pointer', fontSize: 14, borderRadius: 4,
     background: pTab === tab ? '#6f42c1' : '#fff', color: pTab === tab ? '#fff' : '#333',
@@ -145,7 +170,6 @@ export default function AdminTransportCreatePage() {
 
   return (
     <div>
-      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div>
           <span style={{ fontSize: 12, color: '#888' }}>Home / <Link href="/admin/transport" style={{ color: '#888' }}>Add Transports</Link></span>
@@ -176,19 +200,47 @@ export default function AdminTransportCreatePage() {
             </div>
             <div style={{ marginBottom: 14 }}>
               <label style={lS}>Youtube Video</label>
-              <input style={iS} placeholder="Youtube Video Link" value={form.youtube_url} onChange={e => set('youtube_url', e.target.value)} />
+              <input style={iS} placeholder="Youtube Video Link" value={form.youtube_url}
+                onChange={e => set('youtube_url', e.target.value)} />
             </div>
+
             <div style={{ marginBottom: 14 }}>
               <label style={lS}>FAQs</label>
-              <ListSection field="faqs" placeholder="Enter FAQ Title" newVal={newFaq} setNewVal={setNewFaq} />
+              <ListSection
+                items={form.faqs}
+                placeholder="Enter FAQ Title"
+                newVal={newFaq}
+                setNewVal={setNewFaq}
+                onAdd={v => addItem('faqs', v, setNewFaq)}
+                onRemove={idx => removeItem('faqs', idx)}
+                onEdit={(idx, val) => editItem('faqs', idx, val)}
+              />
             </div>
+
             <div style={{ marginBottom: 14 }}>
               <label style={lS}>Includes</label>
-              <ListSection field="includes" placeholder="Enter Include Title" newVal={newInc} setNewVal={setNewInc} />
+              <ListSection
+                items={form.includes}
+                placeholder="Enter Include Title"
+                newVal={newInc}
+                setNewVal={setNewInc}
+                onAdd={v => addItem('includes', v, setNewInc)}
+                onRemove={idx => removeItem('includes', idx)}
+                onEdit={(idx, val) => editItem('includes', idx, val)}
+              />
             </div>
+
             <div>
               <label style={lS}>Excludes</label>
-              <ListSection field="excludes" placeholder="Enter Exclude Title" newVal={newExc} setNewVal={setNewExc} />
+              <ListSection
+                items={form.excludes}
+                placeholder="Enter Exclude Title"
+                newVal={newExc}
+                setNewVal={setNewExc}
+                onAdd={v => addItem('excludes', v, setNewExc)}
+                onRemove={idx => removeItem('excludes', idx)}
+                onEdit={(idx, val) => editItem('excludes', idx, val)}
+              />
             </div>
           </div>
 
@@ -198,12 +250,14 @@ export default function AdminTransportCreatePage() {
             <div style={row2}>
               <div>
                 <label style={lS}>Minimum advance reservations</label>
-                <input style={iS} placeholder="Ex: 3" value={form.min_advance_reservation} onChange={e => set('min_advance_reservation', e.target.value)} />
+                <input style={iS} placeholder="Ex: 3" value={form.min_advance_reservation}
+                  onChange={e => set('min_advance_reservation', e.target.value)} />
                 <p style={{ fontSize: 12, color: '#888', marginTop: 4, marginBottom: 0 }}>Leave blank if you dont need to use the min day option</p>
               </div>
               <div>
                 <label style={lS}>Minimum day stay requirements</label>
-                <input style={iS} placeholder="Ex: 2" value={form.min_day_stay} onChange={e => set('min_day_stay', e.target.value)} />
+                <input style={iS} placeholder="Ex: 2" value={form.min_day_stay}
+                  onChange={e => set('min_day_stay', e.target.value)} />
                 <p style={{ fontSize: 12, color: '#888', marginTop: 4, marginBottom: 0 }}>Leave blank if you dont need to set minimum day stay option</p>
               </div>
             </div>
@@ -236,7 +290,6 @@ export default function AdminTransportCreatePage() {
                 </label>
               </div>
             )}
-
             {pTab === 'bus' && (
               <div>
                 <div style={{ ...row2, marginBottom: 14 }}>
@@ -250,7 +303,6 @@ export default function AdminTransportCreatePage() {
                 </label>
               </div>
             )}
-
             {pTab === 'train' && (
               <div>
                 <div style={{ ...row2, marginBottom: 14 }}>
@@ -264,7 +316,6 @@ export default function AdminTransportCreatePage() {
                 </label>
               </div>
             )}
-
             {pTab === 'boat' && (
               <div>
                 <div style={{ ...row2, marginBottom: 14 }}>
@@ -320,7 +371,6 @@ export default function AdminTransportCreatePage() {
         {/* ── RIGHT SIDEBAR ── */}
         <div style={{ width: 280, flexShrink: 0 }}>
 
-          {/* Publish */}
           <div style={{ ...sS, display: 'flex', gap: 8 }}>
             <button type="button" onClick={() => handleSubmit(1)} disabled={saving}
               style={{ flex: 1, padding: '10px 0', background: '#28a745', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
@@ -332,7 +382,6 @@ export default function AdminTransportCreatePage() {
             </button>
           </div>
 
-          {/* Category */}
           <div style={sS}>
             <div style={sT}>Category</div>
             <select style={{ ...iS, appearance: 'auto' }}
@@ -346,7 +395,6 @@ export default function AdminTransportCreatePage() {
             </select>
           </div>
 
-          {/* Agent Setting */}
           <div style={sS}>
             <div style={sT}>Agent Setting</div>
             <select style={{ ...iS, appearance: 'auto' }} value={form.agent_setting} onChange={e => set('agent_setting', e.target.value)}>
@@ -357,7 +405,6 @@ export default function AdminTransportCreatePage() {
             </select>
           </div>
 
-          {/* Destination */}
           <div style={sS}>
             <div style={sT}>Destination</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -372,7 +419,6 @@ export default function AdminTransportCreatePage() {
           <CheckGroup label="Attribute: Features" options={ATTR_FEATURES} value={form.attribute_features} onChange={v => set('attribute_features', v)} />
           <CheckGroup label="Attribute: Type" options={ATTR_TYPES} value={form.attribute_type} onChange={v => set('attribute_type', v)} />
 
-          {/* Feature Image */}
           <div style={sS}>
             <div style={sT}>Feature Image</div>
             <div onClick={() => document.getElementById('_tFeatImg').click()}
@@ -392,7 +438,6 @@ export default function AdminTransportCreatePage() {
             )}
           </div>
 
-          {/* Image Gallery */}
           <div style={sS}>
             <div style={sT}>Image Gallery</div>
             <MultiImageUpload value={form.galleries} onChange={v => set('galleries', v)} folder="uploads/transports" label="" />

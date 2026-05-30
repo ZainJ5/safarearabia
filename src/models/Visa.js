@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const VisaSchema = new mongoose.Schema(
   {
-    author_id: { type: mongoose.Schema.Types.Mixed },  // Can be ObjectId or Number from legacy data
+    author_id: { type: mongoose.Schema.Types.Mixed },
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     category: {
@@ -13,17 +13,17 @@ const VisaSchema = new mongoose.Schema(
     processing: String,
     validity: String,
     visa_mode: String,
-    country_id: Number,
-    banner_img: String,
-    faqs: [
-      {
-        title: String,
-        content: String,
-      },
-    ],
-    includes: [{ title: String }],
     cost: Number,
+    cost_summary: String,
+    country: String,
+    country_id: Number,
+    agent_setting: String,
+    allow_seo: { type: Boolean, default: false },
+    banner_img: String,
     features_image: String,
+    faqs: [{ title: String, content: String }],
+    includes: [{ title: String }],
+    required_documents: [{ title: String }],
     seo: {
       enable_seo: Boolean,
       meta_title: String,

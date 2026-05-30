@@ -21,6 +21,8 @@ const menuItems = [
   { label: 'Visa', href: '/admin/visa', icon: 'bi-passport', sub: [
     { label: 'All Visas', href: '/admin/visa' },
     { label: 'Create Visa', href: '/admin/visa/create' },
+    { label: 'Categories', href: '/admin/visa/category' },
+    { label: 'Applications', href: '/admin/visa/applications' },
   ]},
   { label: 'Activities', href: '/admin/activities', icon: 'bi-activity', sub: [
     { label: 'All Activities', href: '/admin/activities' },

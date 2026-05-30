@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 /**
  * Reusable admin CRUD list page with toast notifications and confirm dialog.
  */
-export default function AdminListPage({ title, apiUrl, createUrl, editUrl, columns }) {
+export default function AdminListPage({ title, apiUrl, createUrl, editUrl, columns, extraActions }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
@@ -95,11 +95,14 @@ export default function AdminListPage({ title, apiUrl, createUrl, editUrl, colum
           <h4 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>{title}</h4>
           <p style={{ color: '#888', fontSize: 13, margin: '4px 0 0' }}>{pagination.total ?? items.length} total items</p>
         </div>
-        {createUrl && (
-          <Link href={createUrl} className="admin-btn admin-btn-primary">
-            <i className="bi bi-plus-lg"></i> Create New
-          </Link>
-        )}
+        <div style={{ display: 'flex', gap: 8 }}>
+          {extraActions}
+          {createUrl && (
+            <Link href={createUrl} className="admin-btn admin-btn-primary">
+              <i className="bi bi-plus-lg"></i> Create New
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Search */}
