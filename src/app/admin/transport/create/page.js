@@ -141,14 +141,25 @@ export default function AdminTransportCreatePage() {
     setSaving(true);
     try {
       const slug = form.slug || form.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+      const n = (v) => { const x = Number(v); return isNaN(x) ? null : x || null; };
       const body = {
         ...form, slug, status,
-        car_price:   Number(form.pricing_car.price)         || 0,
-        bus_price:   Number(form.pricing_bus.adult_price)   || 0,
-        train_price: Number(form.pricing_train.adult_price) || 0,
-        boat_price:  Number(form.pricing_boat.adult_price)  || 0,
+        // clean category: remove empty _id so Mongoose never gets ""
+        category: form.category?._id
+          ? { _id: form.category._id, name: form.category.name, slug: form.category.slug }
+          : { name: form.category?.name || '', slug: form.category?.slug || '' },
+        // convert string prices to numbers explicitly
+        pricing_car:   { ...form.pricing_car,   price: n(form.pricing_car.price),   sale_price: n(form.pricing_car.sale_price),   person: n(form.pricing_car.person) },
+        pricing_bus:   { ...form.pricing_bus,   adult_price: n(form.pricing_bus.adult_price),   adult_sale_price: n(form.pricing_bus.adult_sale_price),   child_price: n(form.pricing_bus.child_price) },
+        pricing_train: { ...form.pricing_train, adult_price: n(form.pricing_train.adult_price), adult_sale_price: n(form.pricing_train.adult_sale_price), child_price: n(form.pricing_train.child_price) },
+        pricing_boat:  { ...form.pricing_boat,  adult_price: n(form.pricing_boat.adult_price),  adult_sale_price: n(form.pricing_boat.adult_sale_price),  child_price: n(form.pricing_boat.child_price) },
+        // legacy flat fields
+        car_price:   n(form.pricing_car.price)         || 0,
+        bus_price:   n(form.pricing_bus.adult_price)   || 0,
+        train_price: n(form.pricing_train.adult_price) || 0,
+        boat_price:  n(form.pricing_boat.adult_price)  || 0,
         car_type:    form.pricing_car.vehicle_type,
-        car_person:  Number(form.pricing_car.person) || 0,
+        car_person:  n(form.pricing_car.person) || 0,
         distance_km: Number(form.destination_km) || 0,
       };
       delete body._id;

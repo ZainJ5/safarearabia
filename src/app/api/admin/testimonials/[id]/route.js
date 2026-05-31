@@ -17,7 +17,9 @@ export async function GET(request, { params }) {
 
   try {
     await dbConnect();
-    const item = await Testimonial.findById(params.id).lean();
+    const { id } = await params;
+    
+    const item = await Testimonial.findById(id).lean();
     if (!item) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
     return NextResponse.json({ success: true, data: item });
   } catch (error) {
@@ -31,8 +33,10 @@ export async function PUT(request, { params }) {
 
   try {
     await dbConnect();
+    const { id } = await params;
+    
     const body = await request.json();
-    const item = await Testimonial.findByIdAndUpdate(params.id, body, { new: true, runValidators: true });
+    const item = await Testimonial.findByIdAndUpdate(id, body, { new: true, runValidators: true });
     if (!item) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
     return NextResponse.json({ success: true, data: item });
   } catch (error) {
@@ -46,7 +50,9 @@ export async function DELETE(request, { params }) {
 
   try {
     await dbConnect();
-    await Testimonial.findByIdAndDelete(params.id);
+    const { id } = await params;
+    
+    await Testimonial.findByIdAndDelete(id);
     return NextResponse.json({ success: true, message: 'Testimonial deleted' });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
