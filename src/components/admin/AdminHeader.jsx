@@ -93,13 +93,13 @@ export default function AdminHeader({ user }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 28px',
+      padding: '0 16px 0 20px',
       borderBottom: '1px solid #ECEEF2',
       flexShrink: 0,
       position: 'sticky',
       top: 0,
       zIndex: 100,
-      gap: 16,
+      gap: 12,
     }}>
       {/* Hamburger — mobile only */}
       <button
@@ -108,7 +108,7 @@ export default function AdminHeader({ user }) {
         style={{
           background: 'none', border: '1px solid #ECEEF2', borderRadius: 8,
           width: 36, height: 36, cursor: 'pointer',
-          display: 'none', // shown via CSS on mobile
+          display: 'none',
           alignItems: 'center', justifyContent: 'center',
           color: '#374151', flexShrink: 0,
         }}
@@ -119,8 +119,8 @@ export default function AdminHeader({ user }) {
         </svg>
       </button>
 
-      {/* Left: breadcrumb only — page provides its own h2 title */}
-      <div style={{ minWidth: 0, flex: 1 }}>
+      {/* Left: breadcrumb — hidden on mobile */}
+      <div className="admin-breadcrumb" style={{ minWidth: 0, flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <Link href="/admin/dashboard" style={{ color: '#6B7280', fontSize: 13.5, textDecoration: 'none', fontWeight: 600, transition: 'color 0.15s' }}>Admin</Link>
           {crumbs.map((c, i) => (
@@ -132,22 +132,29 @@ export default function AdminHeader({ user }) {
         </div>
       </div>
 
+      {/* Mobile page title — visible only on mobile */}
+      <div className="admin-mobile-title" style={{ display: 'none', flex: 1, minWidth: 0 }}>
+        <span style={{ fontSize: 15, fontWeight: 700, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{pageTitle}</span>
+      </div>
+
       {/* Right: actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
 
-        {/* Quick actions */}
-        <Link href="/admin/dashboard" title="Dashboard" style={{ width: 36, height: 36, borderRadius: 9, border: '1px solid #ECEEF2', background: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', textDecoration: 'none', transition: 'all 0.15s' }}
+        {/* Quick actions — hidden on mobile */}
+        <Link href="/admin/dashboard" title="Dashboard" className="admin-header-grid-btn" style={{ width: 36, height: 36, borderRadius: 9, border: '1px solid #ECEEF2', background: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', textDecoration: 'none', transition: 'all 0.15s' }}
           onMouseEnter={e => { e.currentTarget.style.background = '#F3F4F6'; e.currentTarget.style.color = '#374151'; }}
           onMouseLeave={e => { e.currentTarget.style.background = '#FAFAFA'; e.currentTarget.style.color = '#6B7280'; }}>
           <IcoGrid />
         </Link>
 
-        {/* Divider */}
-        <div style={{ width: 1, height: 24, background: '#ECEEF2', margin: '0 4px' }} />
+        {/* Divider — hidden on mobile */}
+        <div className="admin-header-divider" style={{ width: 1, height: 24, background: '#ECEEF2', margin: '0 2px' }} />
 
         {/* User menu */}
         <div style={{ position: 'relative' }}>
+          {/* Desktop: show avatar + name + chevron */}
           <button
+            className="admin-user-btn-desktop"
             onClick={() => setMenuOpen(o => !o)}
             style={{
               display: 'flex', alignItems: 'center', gap: 9,
@@ -168,17 +175,34 @@ export default function AdminHeader({ user }) {
               {userInitial}
             </div>
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: 12.5, fontWeight: 600, color: '#111827', lineHeight: 1.3 }}>{user?.fname || 'Admin'} {user?.lname || ''}</div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: '#111827', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{user?.fname || 'Admin'} {user?.lname || ''}</div>
               <div style={{ fontSize: 10.5, color: '#9CA3AF', lineHeight: 1 }}>{roleLabel}</div>
             </div>
             <span style={{ color: '#9CA3AF', marginLeft: 2 }}><IcoChevron /></span>
           </button>
 
+          {/* Mobile: avatar-only button */}
+          <button
+            className="admin-user-btn-mobile"
+            onClick={() => setMenuOpen(o => !o)}
+            style={{
+              display: 'none',
+              width: 36, height: 36, borderRadius: 9,
+              background: 'linear-gradient(135deg, #B1723C 0%, #6D4100 100%)',
+              border: 'none', cursor: 'pointer',
+              alignItems: 'center', justifyContent: 'center',
+              color: '#fff', fontSize: 13, fontWeight: 700, flexShrink: 0,
+            }}
+            aria-label="Profile menu"
+          >
+            {userInitial}
+          </button>
+
           {menuOpen && (
             <>
               <div onClick={() => setMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
-              <div style={{
-                position: 'absolute', right: 0, top: 'calc(100% + 8px)', zIndex: 50,
+              <div className="admin-profile-dropdown" style={{
+                position: 'fixed', right: 12, top: 64, zIndex: 50,
                 background: '#fff', borderRadius: 13, minWidth: 210, overflow: 'hidden',
                 boxShadow: '0 8px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.06)',
               }}>
@@ -228,7 +252,16 @@ export default function AdminHeader({ user }) {
 
     <style>{`
       @media (max-width: 768px) {
-        .admin-hamburger { display: flex !important; }
+        .admin-hamburger          { display: flex !important; }
+        .admin-breadcrumb         { display: none !important; }
+        .admin-mobile-title       { display: block !important; }
+        .admin-header-grid-btn    { display: none !important; }
+        .admin-header-divider     { display: none !important; }
+        .admin-user-btn-desktop   { display: none !important; }
+        .admin-user-btn-mobile    { display: flex !important; }
+      }
+      @media (min-width: 769px) {
+        .admin-user-btn-mobile    { display: none !important; }
       }
     `}</style>
   </>

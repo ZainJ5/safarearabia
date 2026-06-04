@@ -27,9 +27,9 @@ export default async function AdminLayout({ children }) {
   return (
     <AdminUserProvider value={userCtx}>
       <AdminSidebarProvider>
-      <div className={`admin-wrapper ${inter.variable}`} style={{ display: 'flex', minHeight: '100vh', background: '#F1F4F9', fontFamily: 'var(--font-admin, "Inter", -apple-system, BlinkMacSystemFont, sans-serif)' }}>
+      <div className={`admin-wrapper ${inter.variable}`} style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#F1F4F9', fontFamily: 'var(--font-admin, "Inter", -apple-system, BlinkMacSystemFont, sans-serif)' }}>
         <AdminSidebar userRole={role} />
-        <div className="admin-main" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+        <div className="admin-main" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden', marginLeft: 248 }}>
           <AdminHeader user={session.user} />
           <main className="admin-content" style={{ flex: 1, padding: '26px 28px', overflowY: 'auto' }}>
             {children}
@@ -186,7 +186,10 @@ export default async function AdminLayout({ children }) {
           @keyframes spin { to { transform: rotate(360deg); } }
 
           /* ── Responsive ── */
-          @media (max-width: 768px) { .admin-content { padding: 16px !important; } }
+          @media (max-width: 768px) {
+            .admin-content { padding: 16px !important; }
+            .admin-main { margin-left: 0 !important; }
+          }
         `}</style>
       </div>
       </AdminSidebarProvider>
