@@ -943,83 +943,38 @@ img, video, iframe, embed { max-width: 100%; }
   .mobile-menu-logo { display: none !important; }
 }
 
-/* ── 3. Mobile Slide-in Menu ──────────────────────────────────────────── */
+/* ── 3. Mobile Slide-in Menu ─────────────────────────────────────────────
+   The TripRex style.css already handles the drawer via transform.
+   We only add width cap and sub-menu display tweaks here.
+   ─────────────────────────────────────────────────────────────────────── */
 @media (max-width: 991px) {
-  .main-menu {
-    position: fixed !important;
-    top: 0 !important;
-    left: -110% !important;
-    width: min(300px, 88vw) !important;
-    height: 100vh !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    background: #fff !important;
-    z-index: 9999 !important;
-    transition: left 0.3s cubic-bezier(0.4,0,0.2,1) !important;
-    padding-bottom: 60px !important;
-    box-shadow: 4px 0 24px rgba(0,0,0,0.18) !important;
-    display: block !important;
-  }
-  .main-menu.show-menu { left: 0 !important; }
-
-  /* Nav links stacked */
-  .main-menu > ul {
-    display: flex !important;
-    flex-direction: column !important;
-    padding: 8px 0 !important;
-    margin: 0 !important;
-  }
-  .main-menu > ul > li {
-    width: 100% !important;
-    border-bottom: 1px solid #f3f3f3 !important;
-  }
-  .main-menu > ul > li > a {
-    display: block !important;
-    padding: 13px 20px !important;
-    font-size: 15px !important;
+  /* Cap width on very small screens (theme default is 280px) */
+  header.style-1 .main-menu {
+    width: min(280px, 90vw) !important;
+    padding: 20px 16px !important;
   }
 
-  /* Sub-menus inline on mobile */
-  .main-menu .sub-menu {
+  /* Keep sub-menus always visible (inline) on mobile */
+  header.style-1 .main-menu ul li ul.sub-menu {
     position: static !important;
     opacity: 1 !important;
     visibility: visible !important;
     transform: none !important;
     box-shadow: none !important;
-    border-radius: 0 !important;
-    background: #fafafa !important;
-    padding: 0 !important;
     min-width: unset !important;
-    border-top: 1px solid #f0f0f0 !important;
     display: block !important;
-  }
-  .main-menu .sub-menu li { border-bottom: none !important; }
-  .main-menu .sub-menu li a {
-    padding: 10px 20px 10px 36px !important;
-    font-size: 14px !important;
-    color: #555 !important;
+    padding-left: 14px !important;
+    border-top: 1px solid #f0f0f0 !important;
   }
 
-  /* Logo row inside mobile menu */
-  .mobile-menu-logo {
+  /* Mobile menu logo bar */
+  header.style-1 .main-menu .mobile-menu-logo {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 14px 18px !important;
+    padding-bottom: 14px !important;
+    margin-bottom: 10px !important;
     border-bottom: 1px solid #eee !important;
-    position: sticky !important;
-    top: 0 !important;
-    background: #fff !important;
-    z-index: 1 !important;
-  }
-  .menu-close-btn {
-    background: none !important;
-    border: 1px solid #e0e0e0 !important;
-    border-radius: 6px !important;
-    padding: 4px 10px !important;
-    cursor: pointer !important;
-    font-size: 18px !important;
-    line-height: 1 !important;
   }
 }
 

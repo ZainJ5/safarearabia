@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useSession, signOut, signIn, getSession } from 'next-auth/react';
+import { useSession, signIn, getSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { defaultSettings } from '@/lib/defaultSettings';
 import { useLanguage } from '@/providers/LanguageProvider';
@@ -245,28 +245,21 @@ export default function Navbar() {
         {/* Nav Right */}
         <div className="nav-right d-flex align-items-center">
           {session ? (
-            /* Logged-in: circular logo badge + Hello, NAME */
-            <div className="hotline-area" style={{ gap: '12px' }}>
-              <div className="icon" style={{
-                width: '44px', height: '44px', borderRadius: '50%',
-                overflow: 'hidden', background: '#2c2c2c',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
-              }}>
+            /* Logged-in: circular avatar + Hello, NAME */
+            <div className="hotline-area nav-user-area">
+              <div className="icon nav-avatar">
                 <img
                   src={session.user?.image || '/uploads/users/dpa-1750432270.png'}
                   alt="avatar"
-                  style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '50%' }}
+                  className="nav-avatar-img"
                 />
               </div>
-              <div className="content" style={{ lineHeight: 1 }}>
-                <span style={{ fontSize: '12px', fontWeight: 400, display: 'block', marginBottom: '4px' }}>
-                  {t('Hello')},
-                </span>
+              <div className="content nav-user-content">
+                <span className="nav-greeting">{t('Hello')},</span>
                 <h6 style={{ margin: 0 }}>
                   <Link
                     href={session.user?.role === 1 ? '/admin/dashboard' : '/dashboard'}
-                    style={{ fontSize: '16px', fontWeight: 700, color: 'var(--primary-color1)' }}
+                    className="nav-username"
                   >
                     {session.user?.name?.split(' ')[0]?.toUpperCase() || 'ACCOUNT'}
                   </Link>
@@ -277,13 +270,12 @@ export default function Navbar() {
             /* Logged-out: Account button → opens login modal */
             <button
               onClick={() => setShowLoginModal(true)}
-              className="primary-btn1"
-              style={{ padding: '10px 22px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '7px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}
+              className="primary-btn1 nav-account-btn"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 18 18" fill="white">
                 <path d="M9 0a4.5 4.5 0 110 9 4.5 4.5 0 010-9zM9 11.25c5.01 0 9 2.015 9 4.5V18H0v-2.25c0-2.485 3.99-4.5 9-4.5z"/>
               </svg>
-              {t('Account')}
+              <span className="nav-btn-text">{t('Account')}</span>
             </button>
           )}
 
@@ -291,7 +283,6 @@ export default function Navbar() {
           <div
             className="mobile-menu-btn"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            style={{ marginLeft: '15px' }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="18" viewBox="0 0 25 18">
               <rect width="25" height="2" rx="1" fill="currentColor"/>
@@ -405,6 +396,39 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      <style>{`
+        /* Nav user area */
+        .nav-user-area { display: flex; align-items: center; gap: 12px; }
+        .nav-avatar {
+          width: 44px; height: 44px; border-radius: 50%;
+          overflow: hidden; background: #2c2c2c; flex-shrink: 0;
+          display: flex; align-items: center; justify-content: center;
+        }
+        .nav-avatar-img { width: 44px; height: 44px; object-fit: cover; border-radius: 50%; display: block; }
+        .nav-user-content { line-height: 1; }
+        .nav-greeting { font-size: 12px; font-weight: 400; display: block; margin-bottom: 4px; }
+        .nav-username { font-size: 16px; font-weight: 700; color: var(--primary-color1); }
+
+        /* Account button */
+        .nav-account-btn {
+          padding: 10px 22px; font-size: 14px; display: inline-flex;
+          align-items: center; gap: 7px; border-radius: 5px; border: none; cursor: pointer;
+        }
+
+        /* Responsive shrinking */
+        @media (max-width: 576px) {
+          .nav-user-content { display: none; }
+          .nav-user-area { gap: 0; }
+          .nav-account-btn { padding: 8px 12px; font-size: 12px; }
+          .nav-btn-text { display: none; }
+          .nav-account-btn { padding: 9px; border-radius: 50%; }
+        }
+        @media (max-width: 380px) {
+          .nav-avatar { width: 36px; height: 36px; }
+          .nav-avatar-img { width: 36px; height: 36px; }
+        }
+      `}</style>
     </>
   );
 }
