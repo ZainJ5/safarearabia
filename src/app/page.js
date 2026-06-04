@@ -459,7 +459,7 @@ export default function HomePage() {
           <div className="row align-items-center g-4" style={{position:'relative',zIndex:2}}>
             <div className="col-lg-6">
               <span className="eyebrow" style={{color:'#f5d9b3'}}>Newsletter</span>
-              <h2 className="display-5 fw-bold mt-3">Join the journey.</h2>
+              <h2 className="display-5 fw-bold mt-3" style={{color:'#fff'}}>Join the journey.</h2>
               <p className="text-light opacity-75 mb-0">Receive our best monthly deals — Hajj packages, hotel offers and curated tours straight to your inbox.</p>
             </div>
             <div className="col-lg-6">
