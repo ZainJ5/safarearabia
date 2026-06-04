@@ -25,6 +25,7 @@ const I = {
   agent:      <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.7"/><path d="M2 21v-1a7 7 0 0114 0v1" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><path d="M19 8v6m3-3h-6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>,
   agentAdd:   <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.7"/><path d="M2 21v-1a7 7 0 0114 0v1" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><path d="M17 11h6M20 8v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>,
   customer:   <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.7"/><path d="M4 20v-1a8 8 0 0116 0v1" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>,
+  users:      <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.7"/><circle cx="17" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.7"/><path d="M1 20v-1a7 7 0 0113.93-1.37M17 21v-.5a5.5 5.5 0 00-3-4.9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><path d="M19.5 16h3M21 14.5v3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>,
   chart:      <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   gear:       <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" strokeWidth="1.7"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" strokeWidth="1.7"/></svg>,
   mail:       <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="1.7"/><polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>,
@@ -96,6 +97,9 @@ const NAV = [
   { type: 'divider', label: 'CUSTOMERS' },
   { key: 'all-customers', label: 'All Customers', href: '/admin/customers', icon: I.customer, soon: true },
   { key: 'add-customer',  label: 'Add Customer',  href: '/admin/customers', icon: I.customer, soon: true },
+
+  { type: 'divider', label: 'USERS' },
+  { key: 'all-users',  label: 'All Users',  href: '/admin/users', icon: I.users, exact: true },
 
   { type: 'divider', label: 'REPORTS' },
   { key: 'daily-rpt',    label: 'Daily Report',        href: '/admin/reports', icon: I.chart, soon: true },
