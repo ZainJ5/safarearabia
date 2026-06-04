@@ -10,6 +10,4 @@ const SettingSchema = new mongoose.Schema(
   }
 );
 
-SettingSchema.index({ type: 1 }, { unique: true });
-
 export default mongoose.models.Setting || mongoose.model('Setting', SettingSchema);

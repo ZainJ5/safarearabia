@@ -7,40 +7,44 @@ const { auth } = NextAuth(authConfig);
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
-  const userRole = Number(req.auth?.user?.role);
-  const isAdmin = isLoggedIn && userRole === 1;
+  const userRole   = Number(req.auth?.user?.role);
+  const isAdmin    = isLoggedIn && userRole === 1;
+  const isAgent    = isLoggedIn && userRole === 2;
+  // Admins and agents both use the admin portal
+  const isStaff    = isAdmin || isAgent;
 
-  // Protected routes that require authentication
   const protectedPaths = ['/dashboard', '/checkout'];
-  const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
-
-  // Admin routes
-  const isAdminRoute = pathname.startsWith('/admin');
-
-  // Merchant routes
+  const isProtected    = protectedPaths.some((p) => pathname.startsWith(p));
+  const isAdminRoute   = pathname.startsWith('/admin');
   const isMerchantRoute = pathname.startsWith('/merchant');
+  const authPaths      = ['/login', '/user-login', '/register', '/forgot-password'];
+  const isAuthPage     = authPaths.some((p) => pathname.startsWith(p));
 
-  // Auth pages (login, register) — redirect if already logged in
-  const authPaths = ['/login', '/register', '/forgot-password'];
-  const isAuthPage = authPaths.some((path) => pathname.startsWith(path));
-
+  // Logged-in users visiting auth pages → redirect to their portal
   if (isAuthPage && isLoggedIn) {
-    const dest = isAdmin ? '/admin/dashboard' : '/dashboard';
+    const dest = isStaff ? '/admin/dashboard' : '/dashboard';
     return NextResponse.redirect(new URL(dest, req.url));
   }
 
-  // Redirect admins away from the user dashboard to the admin dashboard
-  if (pathname.startsWith('/dashboard') && isAdmin) {
+  // Staff visiting the customer dashboard → send to admin
+  if (pathname.startsWith('/dashboard') && isStaff) {
     return NextResponse.redirect(new URL('/admin/dashboard', req.url));
   }
 
+  // Staff visiting checkout → not needed, redirect to admin
+  if (pathname.startsWith('/checkout') && isStaff) {
+    return NextResponse.redirect(new URL('/admin/dashboard', req.url));
+  }
+
+  // Customer protected routes
   if (isProtected && !isLoggedIn) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAdminRoute && !isAdmin) {
+  // Admin routes: require admin OR agent
+  if (isAdminRoute && !isStaff) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
@@ -60,6 +64,7 @@ export const config = {
     '/admin/:path*',
     '/merchant/:path*',
     '/login',
+    '/user-login',
     '/register',
     '/forgot-password',
   ],

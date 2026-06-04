@@ -3,256 +3,155 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
-const API = '/api/admin/transport-inquiries';
-
-const STATUS_CFG = {
-  new:       { bg: '#fff8e1', color: '#f57f17', label: 'New' },
-  contacted: { bg: '#e3f2fd', color: '#1565c0', label: 'Contacted' },
-  confirmed: { bg: '#e8f5e9', color: '#2e7d32', label: 'Confirmed' },
-  cancelled: { bg: '#ffebee', color: '#c62828', label: 'Cancelled' },
+const STATUS = {
+  1: { bg: '#EFF6FF', color: '#2563EB', border: '#BFDBFE', label: 'Processing' },
+  2: { bg: '#ECFDF5', color: '#059669', border: '#A7F3D0', label: 'Completed'  },
+  3: { bg: '#FEF2F2', color: '#DC2626', border: '#FECACA', label: 'Cancelled'  },
 };
 
-export default function TransportInquiriesPage() {
-  const [items, setItems]         = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [search, setSearch]       = useState('');
-  const [page, setPage]           = useState(1);
-  const [pagination, setPagination] = useState({ total: 0, pages: 1 });
-  const [detailItem, setDetailItem] = useState(null);
-  const [confirmId, setConfirmId] = useState(null);
-  const [updatingId, setUpdatingId] = useState(null);
+const IcoSearch = () => <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="1.8"/><path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>;
+const IcoEye   = () => <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="1.8"/><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8"/></svg>;
+const IcoEdit  = () => <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>;
+const IcoTrash = () => <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6m4-6v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>;
+const IcoPlus  = () => <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg>;
+
+export default function TransportBookingsPage() {
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [search, setSearch]     = useState('');
+  const [page, setPage]         = useState(1);
+  const [pagination, setPag]    = useState(null);
+  const [deleting, setDeleting] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const p = new URLSearchParams({ page, limit: 20 });
-      if (search) p.set('search', search);
-      const r = await fetch(`${API}?${p}`);
+      const p = new URLSearchParams({ page, limit: 15, ...(search ? { search } : {}) });
+      const r = await fetch(`/api/admin/transport-invoices?${p}`);
       const d = await r.json();
-      if (d.success) { setItems(d.data); setPagination(d.pagination || { total: d.data.length, pages: 1 }); }
+      if (d.success) { setInvoices(d.data); setPag(d.pagination); }
     } catch { /**/ }
-    finally { setLoading(false); }
+    setLoading(false);
   }, [page, search]);
 
   useEffect(() => { load(); }, [load]);
 
-  const updateStatus = async (id, status) => {
-    setUpdatingId(id);
+  const changeStatus = async (id, status) => {
     try {
-      const r = await fetch(`${API}/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
+      const r = await fetch(`/api/admin/transport-invoices/${id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
       const d = await r.json();
       if (d.success) {
         toast.success('Status updated');
-        setItems(prev => prev.map(i => i._id === id ? { ...i, status } : i));
-        if (detailItem?._id === id) setDetailItem(prev => ({ ...prev, status }));
+        setInvoices(prev => prev.map(i => i._id === id ? { ...i, status } : i));
       } else toast.error(d.error || 'Failed');
     } catch (e) { toast.error(e.message); }
-    finally { setUpdatingId(null); }
   };
 
-  const handleDelete = async (id) => {
-    setConfirmId(null);
-    const tid = toast.loading('Deleting...');
+  const handleDelete = async (id, num) => {
+    if (!confirm(`Delete invoice #${num}? This cannot be undone.`)) return;
+    setDeleting(id);
     try {
-      const r = await fetch(`${API}/${id}`, { method: 'DELETE' });
+      const r = await fetch(`/api/admin/transport-invoices/${id}`, { method: 'DELETE' });
       const d = await r.json();
-      if (d.success) { toast.success('Deleted', { id: tid }); load(); }
-      else toast.error(d.error || 'Failed', { id: tid });
-    } catch (e) { toast.error(e.message, { id: tid }); }
+      if (d.success) { toast.success('Deleted'); load(); }
+      else toast.error(d.error || 'Failed');
+    } catch (e) { toast.error(e.message); }
+    setDeleting(null);
   };
+
+  const total = pagination?.total ?? invoices.length;
 
   return (
     <>
-      {/* Delete confirm */}
-      {confirmId && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: '32px 36px', maxWidth: 380, width: '90%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
-            <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#fff3f3', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-              <i className="bi bi-trash" style={{ fontSize: 26, color: '#dc3545' }}></i>
-            </div>
-            <h5 style={{ fontWeight: 700, marginBottom: 8 }}>Delete Inquiry</h5>
-            <p style={{ color: '#666', fontSize: 14, marginBottom: 24 }}>This action cannot be undone.</p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-              <button onClick={() => setConfirmId(null)} className="admin-btn" style={{ background: '#f0f0f0', minWidth: 90 }}>Cancel</button>
-              <button onClick={() => handleDelete(confirmId)} className="admin-btn admin-btn-danger" style={{ minWidth: 90 }}>
-                <i className="bi bi-trash"></i> Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Detail modal */}
-      {detailItem && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div style={{ background: '#fff', borderRadius: 14, width: '100%', maxWidth: 580, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
-            <div style={{ background: 'linear-gradient(135deg, #B1723C, #6D4100)', padding: '20px 24px', borderRadius: '14px 14px 0 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h5 style={{ color: '#fff', fontWeight: 700, margin: 0 }}>Inquiry Detail</h5>
-              <button onClick={() => setDetailItem(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, padding: '4px 10px', color: '#fff', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
-            </div>
-            <div style={{ padding: 24 }}>
-              {/* Transport info */}
-              <div style={{ background: '#f8f4f0', borderRadius: 8, padding: '14px 16px', marginBottom: 20, borderLeft: '4px solid #B1723C' }}>
-                <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>Transport</div>
-                <div style={{ fontWeight: 700, fontSize: 16, color: '#333' }}>{detailItem.transport_title}</div>
-                {detailItem.vehicle_type && (
-                  <div style={{ fontSize: 13, color: '#666', marginTop: 4 }}>
-                    <i className="bi bi-car-front" style={{ marginRight: 5, color: '#B1723C' }}></i>
-                    {detailItem.vehicle_type}
-                  </div>
-                )}
-              </div>
-
-              {/* Inquiry fields */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-                {[
-                  { label: 'Full Name',     value: detailItem.name,        icon: 'person' },
-                  { label: 'Email',         value: detailItem.email,       icon: 'envelope' },
-                  { label: 'Phone',         value: detailItem.phone,       icon: 'telephone' },
-                  { label: 'Passengers',    value: detailItem.passengers,  icon: 'people' },
-                  { label: 'Travel Date',   value: detailItem.travel_date, icon: 'calendar3' },
-                  { label: 'Vehicle Type',  value: detailItem.vehicle_type,icon: 'car-front' },
-                ].map(({ label, value, icon }) => value ? (
-                  <div key={label} style={{ padding: '11px 14px', background: '#f9f9f9', borderRadius: 8, border: '1px solid #eee' }}>
-                    <div style={{ fontSize: 11, color: '#888', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>
-                      <i className={`bi bi-${icon}`} style={{ marginRight: 4 }}></i>{label}
-                    </div>
-                    <div style={{ fontSize: 14, color: '#333', fontWeight: 500 }}>{value}</div>
-                  </div>
-                ) : null)}
-              </div>
-
-              {detailItem.message && (
-                <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontSize: 12, color: '#666', fontWeight: 600, marginBottom: 8 }}>
-                    <i className="bi bi-chat-text" style={{ marginRight: 5 }}></i>Message
-                  </div>
-                  <div style={{ padding: '12px 16px', background: '#f9f9f9', borderRadius: 8, border: '1px solid #eee', fontSize: 14, color: '#555', lineHeight: 1.6 }}>
-                    {detailItem.message}
-                  </div>
-                </div>
-              )}
-
-              {/* Status buttons */}
-              <div>
-                <div style={{ fontSize: 12, color: '#666', fontWeight: 600, marginBottom: 10 }}>Update Status</div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {Object.entries(STATUS_CFG).map(([key, { bg, color, label }]) => (
-                    <button
-                      key={key}
-                      onClick={() => updateStatus(detailItem._id, key)}
-                      disabled={updatingId === detailItem._id}
-                      style={{
-                        padding: '8px 18px', border: `2px solid ${color}`, borderRadius: 6,
-                        cursor: 'pointer', fontWeight: 600, fontSize: 13,
-                        background: detailItem.status === key ? color : bg,
-                        color: detailItem.status === key ? '#fff' : color,
-                        transition: 'all 0.2s', fontFamily: 'inherit',
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ marginTop: 18, fontSize: 12, color: '#aaa' }}>
-                Submitted: {new Date(detailItem.created_at).toLocaleString()}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Page header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
         <div>
-          <h4 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Transport Inquiries</h4>
-          <p style={{ color: '#888', fontSize: 13, margin: '4px 0 0' }}>{pagination.total} total inquiries</p>
+          <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: '#0F172A', letterSpacing: '-0.3px' }}>Transport Bookings</h2>
+          <p style={{ color: '#9CA3AF', fontSize: 13, margin: '3px 0 0', fontWeight: 500 }}>{total} total invoices</p>
         </div>
-        <Link href="/admin/transport" className="admin-btn admin-btn-sm" style={{ background: '#f0f0f0' }}>
-          <i className="bi bi-arrow-left"></i> Go Back
+        <Link href="/admin/transport/invoice/create"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 20px', background: '#B1723C', color: '#fff', borderRadius: 9, textDecoration: 'none', fontSize: 13, fontWeight: 600, boxShadow: '0 2px 8px rgba(177,114,60,0.2)' }}>
+          <IcoPlus /> Generate Invoice
         </Link>
       </div>
 
-      {/* Search */}
-      <div className="admin-card" style={{ padding: 16, marginBottom: 16 }}>
-        <form onSubmit={e => { e.preventDefault(); setPage(1); load(); }} style={{ display: 'flex', gap: 10 }}>
-          <input
-            type="text" value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name, email, or transport..."
-            style={{ flex: 1, padding: '8px 14px', border: '1px solid #ddd', borderRadius: 6, fontSize: 14 }}
+      <div style={{ background: '#fff', borderRadius: 12, padding: '14px 16px', marginBottom: 16, border: '1px solid #ECEEF2', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
+        <div style={{ position: 'relative', maxWidth: 360 }}>
+          <div style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }}><IcoSearch /></div>
+          <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Search invoices…"
+            style={{ width: '100%', padding: '9px 14px 9px 36px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 13.5, fontFamily: 'inherit', outline: 'none', background: '#FAFAFA', color: '#111827', boxSizing: 'border-box' }}
+            onFocus={e => { e.target.style.borderColor = '#B1723C'; e.target.style.background = '#fff'; }}
+            onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.background = '#FAFAFA'; }}
           />
-          <button type="submit" className="admin-btn admin-btn-primary admin-btn-sm">
-            <i className="bi bi-search"></i> Search
-          </button>
-          {search && (
-            <button type="button" onClick={() => { setSearch(''); setPage(1); }} className="admin-btn admin-btn-sm" style={{ background: '#f0f0f0' }}>
-              Clear
-            </button>
-          )}
-        </form>
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #ECEEF2', boxShadow: '0 1px 2px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 48, color: '#888' }}>
-            <i className="bi bi-arrow-repeat" style={{ fontSize: 28, display: 'block', marginBottom: 8, animation: 'spin 1s linear infinite' }}></i>
-            Loading...
+          <div style={{ padding: '60px 0', textAlign: 'center', color: '#9CA3AF' }}>
+            <div style={{ width: 36, height: 36, border: '3px solid #F3F4F6', borderTopColor: '#B1723C', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+            <p style={{ margin: 0, fontSize: 13 }}>Loading…</p>
           </div>
-        ) : items.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 64, color: '#888' }}>
-            <i className="bi bi-inbox" style={{ fontSize: 40, display: 'block', marginBottom: 12 }}></i>
-            <h5 style={{ color: '#555' }}>No inquiries yet</h5>
-            <p style={{ fontSize: 14 }}>Inquiries submitted from the website will appear here.</p>
+        ) : invoices.length === 0 ? (
+          <div style={{ padding: '64px 20px', textAlign: 'center', color: '#9CA3AF' }}>
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" style={{ display: 'block', margin: '0 auto 14px', color: '#D1D5DB' }}><rect x="2" y="8" width="20" height="10" rx="2" stroke="currentColor" strokeWidth="1.3"/><path d="M7 8V5a1 1 0 011-1h8a1 1 0 011 1v3M6 18v2m12-2v2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>
+            <h4 style={{ color: '#6B7280', fontWeight: 700, marginBottom: 8, fontSize: 16 }}>No transport invoices yet</h4>
+            <Link href="/admin/transport/invoice/create"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 24px', background: '#B1723C', color: '#fff', borderRadius: 9, fontWeight: 600, textDecoration: 'none', fontSize: 13 }}>
+              <IcoPlus /> Create Invoice
+            </Link>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table className="admin-table">
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr>
-                  <th>Inquirer</th>
-                  <th>Transport</th>
-                  <th>Vehicle / Date</th>
-                  <th>Submitted</th>
-                  <th>Status</th>
-                  <th style={{ width: 100 }}>Actions</th>
+                <tr style={{ background: '#F8FAFC' }}>
+                  {['#', 'Invoice No.', 'Reservation No', 'Customer / Agent', 'Vehicle', 'Amount', 'Status', 'Actions'].map((h, i) => (
+                    <th key={h} style={{ padding: '11px 14px', color: '#6B7280', fontSize: 10.5, fontWeight: 700, textAlign: i <= 1 ? 'center' : 'left', whiteSpace: 'nowrap', borderBottom: '1px solid #ECEEF2', textTransform: 'uppercase', letterSpacing: '0.6px' }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {items.map(item => {
-                  const sc = STATUS_CFG[item.status] || STATUS_CFG.new;
+                {invoices.map((inv, idx) => {
+                  const sc = STATUS[inv.status] || STATUS[1];
                   return (
-                    <tr key={item._id}>
-                      <td>
-                        <div style={{ fontWeight: 600 }}>{item.name}</div>
-                        <div style={{ fontSize: 12, color: '#888' }}>{item.email}</div>
-                        {item.phone && <div style={{ fontSize: 12, color: '#888' }}>{item.phone}</div>}
-                      </td>
-                      <td>
-                        <div style={{ fontWeight: 500, fontSize: 14, maxWidth: 160 }}>{item.transport_title}</div>
-                      </td>
-                      <td style={{ fontSize: 13, color: '#555' }}>
-                        {item.vehicle_type && <div>{item.vehicle_type}</div>}
-                        {item.travel_date && <div style={{ color: '#888', fontSize: 12 }}>{item.travel_date}</div>}
-                        {item.passengers && <div style={{ color: '#888', fontSize: 12 }}>{item.passengers} pax</div>}
-                      </td>
-                      <td style={{ fontSize: 13, color: '#888' }}>
-                        {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </td>
-                      <td>
-                        <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: sc.bg, color: sc.color }}>
-                          {sc.label}
+                    <tr key={inv._id} style={{ borderBottom: '1px solid #F3F5F8', transition: 'background 0.12s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FAFBFD'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      <td style={{ padding: '12px 14px', textAlign: 'center', color: '#9CA3AF', fontSize: 12 }}>{(page - 1) * 15 + idx + 1}</td>
+                      <td style={{ padding: '12px 14px', textAlign: 'center' }}>
+                        <span style={{ display: 'inline-block', padding: '3px 10px', background: '#FEF3EA', color: '#B1723C', border: '1px solid #F3D9C0', borderRadius: 6, fontSize: 12.5, fontWeight: 700 }}>
+                          T-{inv.invoice_no || '—'}
                         </span>
                       </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button onClick={() => setDetailItem(item)} className="admin-btn admin-btn-sm" style={{ background: '#e3f2fd', color: '#1565c0' }} title="View">
-                            <i className="bi bi-eye"></i>
-                          </button>
-                          <button onClick={() => setConfirmId(item._id)} className="admin-btn admin-btn-danger admin-btn-sm" title="Delete">
-                            <i className="bi bi-trash"></i>
+                      <td style={{ padding: '12px 14px', fontSize: 13, color: '#374151', fontWeight: 500 }}>{inv.reservation_no || '—'}</td>
+                      <td style={{ padding: '12px 14px' }}>
+                        <div style={{ fontWeight: 700, fontSize: 13, color: '#111827' }}>{inv.agent_name || '—'}</div>
+                      </td>
+                      <td style={{ padding: '12px 14px', fontSize: 13, color: '#6B7280' }}>{inv.vehicle_type || inv.transport_title || '—'}</td>
+                      <td style={{ padding: '12px 14px', fontWeight: 700, fontSize: 13.5, color: '#10B981' }}>SAR {Number(inv.net_total_with_tax || inv.total || 0).toFixed(2)}</td>
+                      <td style={{ padding: '12px 14px' }}>
+                        <select value={inv.status || 1} onChange={e => changeStatus(inv._id, Number(e.target.value))}
+                          style={{ padding: '5px 10px', borderRadius: 7, border: `1.5px solid ${sc.border}`, background: sc.bg, color: sc.color, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}>
+                          {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                        </select>
+                      </td>
+                      <td style={{ padding: '12px 14px' }}>
+                        <div style={{ display: 'flex', gap: 5 }}>
+                          <Link href={`/admin/transport/invoice/${inv._id}`}
+                            style={{ width: 30, height: 30, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#EFF6FF', color: '#2563EB', border: '1px solid #BFDBFE', borderRadius: 7, textDecoration: 'none' }} title="View">
+                            <IcoEye />
+                          </Link>
+                          <Link href={`/admin/transport/invoice/${inv._id}/edit`}
+                            style={{ width: 30, height: 30, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#F0FDF4', color: '#059669', border: '1px solid #A7F3D0', borderRadius: 7, textDecoration: 'none' }} title="Edit">
+                            <IcoEdit />
+                          </Link>
+                          <button onClick={() => handleDelete(inv._id, inv.invoice_no)} disabled={deleting === inv._id}
+                            style={{ width: 30, height: 30, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 7, cursor: 'pointer' }} title="Delete">
+                            <IcoTrash />
                           </button>
                         </div>
                       </td>
@@ -264,8 +163,8 @@ export default function TransportInquiriesPage() {
           </div>
         )}
 
-        {pagination.pages > 1 && (
-          <div className="admin-pagination" style={{ padding: '16px 0' }}>
+        {pagination?.pages > 1 && (
+          <div className="admin-pagination" style={{ borderTop: '1px solid #F3F4F6' }}>
             <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Prev</button>
             {Array.from({ length: Math.min(pagination.pages, 7) }, (_, i) => (
               <button key={i + 1} onClick={() => setPage(i + 1)} className={page === i + 1 ? 'active' : ''}>{i + 1}</button>

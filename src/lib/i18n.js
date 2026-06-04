@@ -1,8 +1,25 @@
 /**
  * Minimal EN / AR translation dictionary for the frontend.
  * Keys are English strings; values are Arabic translations.
+ * Short-code keys (e.g. wc_desc) must be listed in `en` because returning
+ * the key itself would render the raw code instead of real text.
  */
 export const translations = {
+  en: {
+    // Why Choose section - card descriptions
+    'wc_desc': 'Explore the best destinations around the world with our trusted travel network. From iconic landmarks to hidden gems, your journey is in safe hands.',
+    'cp_desc': 'Enjoy premium travel experiences at unbeatable prices. We bring you the best deals without compromising on quality or comfort.',
+    'fb_desc': 'Book your trip in minutes with our fast and easy booking system. Travel planning has never been this effortless.',
+    'gt_desc': 'Discover every destination with our guided tours designed for a rich and immersive experience. Learn, explore, and enjoy with confidence.',
+    'bs_desc': 'Our dedicated team is at your service anytime, anywhere. Get instant assistance before, during, and after your trip.',
+    'uf_desc': 'Plans changed? No problem. We offer flexible booking options and customisable itineraries that fit your schedule and preferences.',
+    // Footer description
+    'footer_desc': 'With years of experience, we provide tailored packages, swift visa processing, comfortable accommodation, and round-the-clock support to ensure every step of your sacred journey is seamless and unforgettable.',
+    // About tab content
+    'tab_mission': 'Safar e Arabian is a trusted name in spiritual travel, specialising in Hajj and Umrah services with the highest standards of comfort, care, and integrity. Rooted in Islamic values, we strive to make your sacred journey to Makkah and Madinah smooth, safe, and spiritually enriching. We understand the significance of this once-in-a-lifetime experience and ensure every aspect is handled with the utmost professionalism and respect.',
+    'tab_focus': 'From visa assistance and flight bookings to luxury accommodation near the Haram, guided Ziyarat tours, and 24/7 support — we take care of every detail so you can focus entirely on your worship. Our experienced team excels in managing individual pilgrims, family groups, and large convoys with personal attention and warm hospitality.',
+    'tab_enjoy': 'At Safar e Arabian, we do not just organise trips — we guide you on your spiritual journey. With competitive pricing, reliable service, and an unwavering commitment to excellence, we aspire to be your trusted companion on your path to Allah. Choose us for a journey that is not just organised — but truly blessed.',
+  },
   ar: {
     // General
     'Hello': 'أهلاً',
@@ -129,6 +146,6 @@ export const translations = {
 
 /** Return translated string or fallback to English */
 export function t(key, lang = 'en') {
-  if (lang === 'en') return key;
+  if (lang === 'en') return translations.en?.[key] ?? key;
   return translations.ar?.[key] ?? key;
 }

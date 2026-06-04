@@ -68,7 +68,7 @@ export default function DynamicListInput({
                 borderRadius: 4, padding: '6px 8px', cursor: 'pointer', fontSize: 14, marginTop: 20,
               }}
             >
-              <i className="bi bi-trash"></i>
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6m4-6v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
             </button>
           </div>
         ))}
@@ -78,7 +78,7 @@ export default function DynamicListInput({
           className="admin-btn admin-btn-primary admin-btn-sm"
           style={{ alignSelf: 'flex-start' }}
         >
-          <i className="bi bi-plus-lg"></i> {addLabel}
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg> {addLabel}
         </button>
       </div>
     </div>

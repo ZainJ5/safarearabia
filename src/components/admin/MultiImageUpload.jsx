@@ -65,7 +65,7 @@ export default function MultiImageUpload({ value = [], onChange, label = 'Image 
           if (dt.files.length) handleUpload({ target: { files: dt.files } });
         }}
       >
-        <i className="bi bi-images" style={{ fontSize: 28, color: '#888', display: 'block', marginBottom: 8 }} />
+        <svg width="28" height="28" fill="none" viewBox="0 0 24 24" style={{ display: 'block', margin: '0 auto 8px', color: '#ccc' }}><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.4"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><polyline points="21 15 16 10 5 21" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
         <p style={{ margin: 0, color: '#888', fontSize: 13 }}>
           {uploading ? 'Uploading...' : 'Choose image files or drag it here'}
         </p>

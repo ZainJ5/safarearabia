@@ -78,8 +78,8 @@ export default function AdminContactsPage() {
           {loading ? (
             <div style={{ textAlign: 'center', padding: 48, color: '#888' }}>Loading...</div>
           ) : items.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 48, color: '#888' }}>
-              <i className="bi bi-envelope" style={{ fontSize: 40, display: 'block', marginBottom: 12 }}></i>
+            <div style={{ textAlign: 'center', padding: 48, color: '#9CA3AF' }}>
+              <svg width="40" height="40" fill="none" viewBox="0 0 24 24" style={{ display: 'block', margin: '0 auto 12px', color: '#D1D5DB' }}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/><polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
               No contact messages yet
             </div>
           ) : (
@@ -122,11 +122,10 @@ export default function AdminContactsPage() {
                       <td onClick={e => e.stopPropagation()}>
                         <button
                           onClick={() => deleteContact(item._id)}
-                          className="admin-btn admin-btn-sm"
-                          style={{ background: '#fde8e8', color: '#c0392b' }}
+                          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 30, height: 30, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 7, cursor: 'pointer' }}
                           title="Delete"
                         >
-                          <i className="bi bi-trash"></i>
+                          <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6m4-6v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
                         </button>
                       </td>
                     </tr>
@@ -194,17 +193,17 @@ export default function AdminContactsPage() {
             <div style={{ display: 'flex', gap: 8 }}>
               <a
                 href={`mailto:${selected.email}?subject=Re: ${selected.subject || 'Your Inquiry'}`}
-                className="admin-btn"
-                style={{ background: 'var(--primary-color1)', color: '#fff', flex: 1, textAlign: 'center' }}
+                style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '10px 16px', background: '#B1723C', color: '#fff', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}
               >
-                <i className="bi bi-reply me-1"></i> Reply
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><polyline points="9 17 4 21 4 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M20 3H9a2 2 0 00-2 2v9a2 2 0 002 2h11a2 2 0 002-2V5a2 2 0 00-2-2z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                Reply
               </a>
               <button
                 onClick={() => deleteContact(selected._id)}
-                className="admin-btn"
-                style={{ background: '#fde8e8', color: '#c0392b' }}
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 16px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: 'inherit' }}
               >
-                <i className="bi bi-trash"></i>
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+                Delete
               </button>
             </div>
 

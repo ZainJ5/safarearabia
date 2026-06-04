@@ -44,8 +44,8 @@ export default function AdminOrderDetailPage({ params }) {
           <h4 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Order: {order.order_number}</h4>
           <p style={{ color: '#888', fontSize: 13 }}>{order.created_at ? new Date(order.created_at).toLocaleString() : ''}</p>
         </div>
-        <Link href="/admin/orders" className="admin-btn admin-btn-sm" style={{ background: '#f0f0f0' }}>
-          <i className="bi bi-arrow-left"></i> Back
+        <Link href="/admin/orders" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', border: '1.5px solid #E5E7EB', borderRadius: 8, background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', textDecoration: 'none' }}>
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> Back
         </Link>
       </div>
 

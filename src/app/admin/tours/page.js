@@ -5,7 +5,6 @@ const columns = [
   { key: 'title', label: 'Title', render: (item) => (
     <div>
       <strong style={{ fontSize: 14 }}>{item.title}</strong>
-      <br /><span style={{ fontSize: 12, color: '#888' }}>/{item.slug}</span>
     </div>
   )},
   { key: 'category.name', label: 'Category' },

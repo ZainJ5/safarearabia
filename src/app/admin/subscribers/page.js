@@ -81,10 +81,9 @@ export default function AdminSubscribersPage() {
                     <td>
                       <button
                         onClick={() => handleDelete(sub._id)}
-                        className="admin-btn admin-btn-sm"
-                        style={{ background: '#ffebee', color: '#c62828' }}
+                        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 30, height: 30, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 7, cursor: 'pointer' }}
                       >
-                        <i className="bi bi-trash"></i>
+                        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6m4-6v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
                       </button>
                     </td>
                   </tr>

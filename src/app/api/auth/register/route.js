@@ -28,12 +28,17 @@ export async function POST(req) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Generate unique username (avoids sparse-index conflict on null)
+    const base = email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 15);
+    const username = `${base}_${Math.random().toString(36).slice(2, 7)}`;
+
     // Create user
     const newUser = await User.create({
       fname,
       lname,
       email,
       phone,
+      username,
       password: hashedPassword,
       role: 3, // Customer
       status: 1, // Active

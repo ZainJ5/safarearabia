@@ -178,7 +178,7 @@ export default function AdminHotelCreatePage() {
             </div>
             <div style={{ textAlign: 'center', marginTop: 14 }}>
               <button type="button" onClick={addPolicy} style={{ background: '#222', color: '#fff', border: 'none', borderRadius: 4, padding: '10px 28px', cursor: 'pointer', fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                <i className="bi bi-bookmark" /> Add New
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg> Add New
               </button>
             </div>
           </div>
@@ -327,7 +327,7 @@ export default function AdminHotelCreatePage() {
             <div onClick={() => document.getElementById('_featImg').click()} style={{ border: '2px dashed #c8e6c9', borderRadius: 8, padding: '32px 16px', textAlign: 'center', cursor: 'pointer', background: '#f9fffe' }}>
               {form.feature_img
                 ? <img src={form.feature_img} alt="feature" style={{ maxWidth: '100%', maxHeight: 110, objectFit: 'cover', borderRadius: 4 }} />
-                : <><i className="bi bi-image" style={{ fontSize: 28, color: '#aaa', display: 'block', marginBottom: 8 }} /><p style={{ margin: 0, color: '#aaa', fontSize: 13 }}>Choose an image file or drag it here</p></>
+                : <><svg width="28" height="28" fill="none" viewBox="0 0 24 24" style={{ display: 'block', margin: '0 auto 8px', color: '#ccc' }}><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.4"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><polyline points="21 15 16 10 5 21" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg><p style={{ margin: 0, color: '#aaa', fontSize: 13 }}>Choose an image file or drag it here</p></>
               }
             </div>
             <input id="_featImg" type="file" accept="image/*" style={{ display: 'none' }} onChange={uploadFeatImg} />

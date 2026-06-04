@@ -36,7 +36,7 @@ function ListSection({ label, items, placeholder, newVal, setNewVal, onAdd, onRe
             )}
           </div>
           <button type="button" onClick={() => onRemove(i)} style={{ background: '#ffebee', color: '#c62828', border: 'none', borderRadius: 4, padding: '6px 8px', cursor: 'pointer', fontSize: 14, marginTop: 4 }}>
-            <i className="bi bi-trash"></i>
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6m4-6v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
           </button>
         </div>
       ))}
@@ -49,7 +49,7 @@ function ListSection({ label, items, placeholder, newVal, setNewVal, onAdd, onRe
           style={{ flex: 1, padding: '9px 12px', border: '1px solid #ddd', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }}
         />
         <button type="button" onClick={onAdd} style={{ padding: '9px 18px', background: '#212529', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <i className="bi bi-plus-circle"></i> Add New
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg> Add New
         </button>
       </div>
     </div>
@@ -157,7 +157,7 @@ export default function AdminVisaEditPage({ params }) {
   if (!form) {
     return (
       <div style={{ textAlign: 'center', padding: 80, color: '#888' }}>
-        <i className="bi bi-arrow-repeat" style={{ fontSize: 32, display: 'block', marginBottom: 10, animation: 'spin 1s linear infinite' }}></i>
+        <div style={{ width: 36, height: 36, border: '3px solid #F3F4F6', borderTopColor: '#B1723C', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
         Loading visa...
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -176,7 +176,7 @@ export default function AdminVisaEditPage({ params }) {
           <p style={{ color: '#888', fontSize: 13, margin: '4px 0 0' }}>{form.title}</p>
         </div>
         <Link href="/admin/visa" className="admin-btn admin-btn-sm" style={{ background: '#f0f0f0' }}>
-          <i className="bi bi-arrow-left"></i> Go Back
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> Go Back
         </Link>
       </div>
 

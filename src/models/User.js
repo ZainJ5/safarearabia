@@ -3,13 +3,13 @@ import mongoose from 'mongoose';
 const UserSchema = new mongoose.Schema(
   {
     custom_id: { type: String, default: null },
-    provider: { type: String, default: null }, // null | "google"
+    provider: { type: String, default: null }, 
     provider_id: { type: String, default: null },
     refresh_token: { type: String, default: null },
     access_token: { type: String, default: null },
     fname: { type: String, required: true },
     lname: { type: String, default: '' },
-    username: { type: String, default: null },
+    username: { type: String, default: null, index: false }, // sparse unique applied below
     email: {
       type: String,
       required: true,
@@ -19,7 +19,7 @@ const UserSchema = new mongoose.Schema(
     },
     email_verified_at: { type: Date, default: null },
     verify_token: { type: String, default: null },
-    password: { type: String, default: null }, // bcrypt hash (null for OAuth)
+    password: { type: String, default: null }, 
     phone: { type: String, default: null },
     address: { type: String, default: null },
     country_id: { type: Number, default: null },
@@ -58,7 +58,7 @@ UserSchema.virtual('full_name').get(function () {
 UserSchema.set('toJSON', { virtuals: true });
 UserSchema.set('toObject', { virtuals: true });
 
-// Index for email lookups
-UserSchema.index({ email: 1 }, { unique: true });
+// Username sparse+unique: allows multiple null values but enforces uniqueness when set
+UserSchema.index({ username: 1 }, { unique: true, sparse: true });
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);

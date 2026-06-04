@@ -1,20 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Breadcrumb from '@/components/Breadcrumb';
 
 export default function CheckoutPage({ params }) {
-  const { type, id } = params;
+  const { type, id } = use(params);
   const { data: session, status } = useSession();
   const router = useRouter();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('wallet');
 
   const [form, setForm] = useState({
     first_name: '',
@@ -108,7 +107,7 @@ export default function CheckoutPage({ params }) {
         body: JSON.stringify({
           product_type: type,
           product_id: id,
-          payment_method: paymentMethod,
+          payment_method: 'unpaid',
           adults: form.adults,
           children: form.children,
           check_in: form.check_in,
@@ -357,68 +356,18 @@ export default function CheckoutPage({ params }) {
                   </div>
                 </div>
 
-                {/* Payment Method */}
+                {/* Payment info */}
                 <div className="checkout-form-wrap mb-30">
                   <h4 className="checkout-title">
-                    <i className="bi bi-credit-card me-2"></i>
-                    Payment Method
+                    <i className="bi bi-info-circle me-2"></i>
+                    Payment Information
                   </h4>
-                  <div className="payment-method-list">
-                    {[
-                      { value: 'wallet', label: 'Wallet Balance', icon: 'bi-wallet2', desc: `Available: $${session?.user?.wallet_balance || '0.00'}` },
-                      { value: 'stripe', label: 'Credit / Debit Card', icon: 'bi-credit-card', desc: 'Visa, Mastercard, Amex' },
-                      { value: 'paypal', label: 'PayPal', icon: 'bi-paypal', desc: 'Pay securely with PayPal' },
-                    ].map((method) => (
-                      <label
-                        key={method.value}
-                        className={`payment-method-item ${paymentMethod === method.value ? 'active' : ''}`}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '15px',
-                          padding: '15px 20px',
-                          border: `2px solid ${paymentMethod === method.value ? 'var(--primary-color1)' : '#eee'}`,
-                          borderRadius: '8px',
-                          marginBottom: '12px',
-                          cursor: 'pointer',
-                          background: paymentMethod === method.value ? 'rgba(177,114,60,0.05)' : '#fff',
-                          transition: '0.3s',
-                        }}
-                      >
-                        <input
-                          type="radio"
-                          name="payment_method"
-                          value={method.value}
-                          checked={paymentMethod === method.value}
-                          onChange={() => setPaymentMethod(method.value)}
-                          style={{ display: 'none' }}
-                        />
-                        <div style={{
-                          width: '20px',
-                          height: '20px',
-                          borderRadius: '50%',
-                          border: `2px solid ${paymentMethod === method.value ? 'var(--primary-color1)' : '#ccc'}`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                        }}>
-                          {paymentMethod === method.value && (
-                            <div style={{
-                              width: '10px',
-                              height: '10px',
-                              borderRadius: '50%',
-                              background: 'var(--primary-color1)',
-                            }} />
-                          )}
-                        </div>
-                        <i className={`bi ${method.icon}`} style={{ fontSize: '22px', color: 'var(--primary-color1)' }}></i>
-                        <div>
-                          <div style={{ fontWeight: 600, fontSize: '15px' }}>{method.label}</div>
-                          <div style={{ fontSize: '13px', color: 'var(--text-color, #787878)' }}>{method.desc}</div>
-                        </div>
-                      </label>
-                    ))}
+                  <div style={{ background: '#FFF7ED', border: '1.5px solid #FED7AA', borderRadius: 8, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <i className="bi bi-clock" style={{ fontSize: 22, color: '#EA580C' }}></i>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 15, color: '#9A3412' }}>Pay Later</div>
+                      <div style={{ fontSize: 13, color: '#C2410C', marginTop: 2 }}>Your booking will be confirmed and our team will contact you for payment arrangements.</div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -1,6 +1,31 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Contact from '@/models/Contact';
+import Setting from '@/models/Setting';
+
+async function getRecaptchaSecret() {
+  // Try DB settings first, fall back to env
+  try {
+    const rows = await Setting.find({ type: 'recaptcha_secret' }).lean();
+    if (rows.length && rows[0].value) return rows[0].value;
+  } catch { /* ignore */ }
+  return process.env.RECAPTCHA_SECRET_KEY || '';
+}
+
+async function verifyRecaptcha(token, secret) {
+  if (!secret || !token) return false;
+  try {
+    const res = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `secret=${encodeURIComponent(secret)}&response=${encodeURIComponent(token)}`,
+    });
+    const data = await res.json();
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(request) {
   try {
@@ -13,13 +38,23 @@ export async function POST(request) {
       data = Object.fromEntries(formData);
     }
 
-    const { name, email, phone, subject, message } = data;
+    const { name, email, phone, subject, message, recaptchaToken } = data;
 
     if (!name || !email || !message) {
       return NextResponse.json({ success: false, error: 'Name, email, and message are required.' }, { status: 400 });
     }
 
     await dbConnect();
+
+    // Verify reCAPTCHA if a secret key is configured
+    const secret = await getRecaptchaSecret();
+    if (secret) {
+      const valid = await verifyRecaptcha(recaptchaToken, secret);
+      if (!valid) {
+        return NextResponse.json({ success: false, error: 'reCAPTCHA verification failed. Please try again.' }, { status: 400 });
+      }
+    }
+
     await Contact.create({ name, email, phone, subject, message });
 
     return NextResponse.json({ success: true, message: 'Thank you for contacting us. We will get back to you shortly.' });

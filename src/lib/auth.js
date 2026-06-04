@@ -1,10 +1,20 @@
-import NextAuth from 'next-auth';
+import NextAuth, { CredentialsSignin } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
 import { authConfig } from './auth.config';
+
+class AccountInactiveError extends CredentialsSignin {
+  code = 'account_inactive';
+}
+class InvalidPasswordError extends CredentialsSignin {
+  code = 'invalid_password';
+}
+class NoUserFoundError extends CredentialsSignin {
+  code = 'no_user_found';
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -26,11 +36,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const user = await User.findOne({ email: credentials.email });
 
         if (!user) {
-          throw new Error('No user found with this email');
+          throw new NoUserFoundError();
         }
 
         if (user.status !== 1) {
-          throw new Error('Your account is inactive');
+          throw new AccountInactiveError();
         }
 
         const isPasswordValid = await bcrypt.compare(
@@ -39,7 +49,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         );
 
         if (!isPasswordValid) {
-          throw new Error('Invalid password');
+          throw new InvalidPasswordError();
         }
 
         return {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import Breadcrumb from '@/components/Breadcrumb';
 import { defaultSettings } from '@/lib/defaultSettings';
@@ -29,22 +29,91 @@ const infoCards = [
 export default function ContactUsPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
   const [loading, setLoading] = useState(false);
+  const [recaptchaSiteKey, setRecaptchaSiteKey] = useState('');
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+  const recaptchaRef = useRef(null);
+  const widgetIdRef = useRef(null);
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(r => r.json())
+      .then(d => {
+        const key = d.data?.recaptcha_key || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+        if (key) setRecaptchaSiteKey(key);
+      })
+      .catch(() => {
+        const key = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+        if (key) setRecaptchaSiteKey(key);
+      });
+  }, []);
+
+  const renderWidget = useCallback(() => {
+    if (recaptchaRef.current && window.grecaptcha && recaptchaSiteKey && widgetIdRef.current === null) {
+      widgetIdRef.current = window.grecaptcha.render(recaptchaRef.current, {
+        sitekey: recaptchaSiteKey,
+        theme: 'light',
+      });
+      setRecaptchaLoaded(true);
+    }
+  }, [recaptchaSiteKey]);
+
+  useEffect(() => {
+    if (!recaptchaSiteKey) return;
+
+    if (window.grecaptcha && window.grecaptcha.render) {
+      renderWidget();
+      return;
+    }
+
+    window.onRecaptchaLoad = renderWidget;
+
+    const existing = document.getElementById('recaptcha-script');
+    if (!existing) {
+      const script = document.createElement('script');
+      script.id = 'recaptcha-script';
+      script.src = 'https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit';
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      window.onRecaptchaLoad = null;
+    };
+  }, [recaptchaSiteKey, renderWidget]);
 
   const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    let recaptchaToken = '';
+    if (recaptchaSiteKey) {
+      if (!recaptchaLoaded || widgetIdRef.current === null) {
+        toast.error('reCAPTCHA is still loading. Please wait and try again.');
+        return;
+      }
+      recaptchaToken = window.grecaptcha?.getResponse(widgetIdRef.current) || '';
+      if (!recaptchaToken) {
+        toast.error('Please complete the reCAPTCHA verification.');
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, recaptchaToken }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
         toast.success('Your message has been sent! We\'ll get back to you shortly.');
         setForm({ name: '', email: '', phone: '', subject: '', message: '' });
+        if (recaptchaSiteKey && widgetIdRef.current !== null) {
+          window.grecaptcha?.reset(widgetIdRef.current);
+        }
       } else {
         toast.error(data.error || data.message || 'Failed to send message. Please try again.');
       }
@@ -117,6 +186,11 @@ export default function ContactUsPage() {
                       <label style={{ fontSize: '14px', fontWeight: 500, marginBottom: '8px', display: 'block' }}>Message *</label>
                       <textarea name="message" value={form.message} onChange={handleChange} required rows={6} placeholder="Write your message..." style={{ ...inputStyle, height: 'auto', padding: '15px', resize: 'vertical' }} />
                     </div>
+                    {recaptchaSiteKey && (
+                      <div className="col-12 mb-3">
+                        <div ref={recaptchaRef}></div>
+                      </div>
+                    )}
                     <div className="col-12">
                       <button type="submit" className="primary-btn1" disabled={loading} style={{ opacity: loading ? 0.75 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
                         {loading ? 'Sending...' : 'Send Message'}

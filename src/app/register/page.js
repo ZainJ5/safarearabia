@@ -53,7 +53,7 @@ export default function RegisterPage() {
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Something went wrong');
-      router.push('/login?message=Registration successful. Please login.');
+      router.push('/user-login?message=Registration successful. Please log in.');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -161,7 +161,7 @@ export default function RegisterPage() {
 
         <p style={{ fontSize: '14px', color: '#666', marginTop: '20px' }}>
           Already have an account?{' '}
-          <Link href="/login" style={{ color: '#b07542', fontWeight: 600, textDecoration: 'none' }}>Login Here</Link>
+          <Link href="/user-login" style={{ color: '#b07542', fontWeight: 600, textDecoration: 'none' }}>Login Here</Link>
         </p>
       </div>
     </div>
