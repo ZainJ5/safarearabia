@@ -42,7 +42,7 @@ export default function Footer() {
   const dir = isRTL ? 'rtl' : 'ltr';
 
   return (
-    <footer style={{ background: FOOTER_BG, paddingTop: '148px' }} dir={dir}>
+    <footer className="footer-pt" style={{ background: FOOTER_BG }} dir={dir}>
       <style>{`
         .ft-link { color: ${MUTED}; text-decoration: none; font-size: 14px; line-height: 2; transition: color 0.2s; }
         .ft-link:hover { color: #b07542; }
@@ -168,7 +168,7 @@ export default function Footer() {
         </div>
 
         {/* ── Bottom Bar ── */}
-        <div style={{
+        <div className="footer-bottom-bar" style={{
           borderTop: '1px solid rgba(255,255,255,0.1)',
           padding: '22px 0',
           display: 'flex',

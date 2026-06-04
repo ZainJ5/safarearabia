@@ -16,25 +16,25 @@ export default function AboutUsPage() {
         <div className="container">
           <div className="row align-items-center">
             <div className="col-lg-6 mb-5 mb-lg-0">
-              <div style={{ position: 'relative' }}>
-                <img src="/uploads/sliders/egens-S8KiKhpF01.webp" alt="About Safar E Arabia" style={{ width: '100%', height: '450px', objectFit: 'cover', borderRadius: '10px' }} />
-                <div style={{
+              <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '10px' }}>
+                <img src="/uploads/sliders/egens-S8KiKhpF01.webp" alt="About Safar E Arabia" style={{ width: '100%', height: 'clamp(220px, 40vw, 450px)', objectFit: 'cover', borderRadius: '10px', display: 'block' }} />
+                <div className="about-stat-badge" style={{
                   position: 'absolute',
-                  bottom: '-30px',
-                  right: '-20px',
+                  bottom: '16px',
+                  right: '16px',
                   background: 'var(--primary-color1)',
                   color: '#fff',
-                  padding: '20px 30px',
+                  padding: '16px 24px',
                   borderRadius: '10px',
                   textAlign: 'center',
                 }}>
-                  <h3 style={{ fontSize: '36px', fontWeight: 700, marginBottom: '5px', color: '#fff' }}>10+</h3>
-                  <span style={{ fontSize: '14px' }}>Years Experience</span>
+                  <h3 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '4px', color: '#fff' }}>10+</h3>
+                  <span style={{ fontSize: '13px' }}>Years Experience</span>
                 </div>
               </div>
             </div>
-            <div className="col-lg-6">
-              <div style={{ paddingLeft: '30px' }}>
+            <div className="col-lg-6 mt-4 mt-lg-0">
+              <div style={{ paddingLeft: 'clamp(0px, 3vw, 30px)' }}>
                 <div className="section-title mb-30">
                   <span>About Us</span>
                   <h2>Welcome to Safar E Arabia</h2>
@@ -69,7 +69,7 @@ export default function AboutUsPage() {
       </div>
 
       {/* Mission & Vision Section */}
-      <div style={{ background: '#f8f9fa', padding: '100px 0 70px' }}>
+      <div className="mission-section" style={{ background: '#f8f9fa', padding: 'clamp(40px, 8vw, 100px) 0 clamp(30px, 6vw, 70px)' }}>
         <div className="container">
           <div className="row justify-content-center text-center mb-50">
             <div className="col-lg-8">
@@ -89,7 +89,7 @@ export default function AboutUsPage() {
                 <div style={{
                   background: '#fff',
                   borderRadius: '10px',
-                  padding: '40px 30px',
+                  padding: 'clamp(22px, 4vw, 40px) clamp(18px, 3vw, 30px)',
                   textAlign: 'center',
                   boxShadow: '0 4px 15px rgba(0,0,0,0.06)',
                   height: '100%',

@@ -116,6 +116,8 @@ export default function HomePage() {
 
         /* ── Section spacing ── */
         .section{padding:6rem 0}
+        @media(max-width:767px){.section{padding:3.5rem 0}}
+        @media(max-width:576px){.section{padding:2.5rem 0}}
 
         /* ── Hero ── */
         .hero{
@@ -136,6 +138,7 @@ export default function HomePage() {
         .service-strip .s-item{display:flex;gap:.9rem;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:1rem 1.1rem}
         .service-strip .s-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand-dark);font-size:1.2rem;flex-shrink:0}
         @media(max-width:992px){.service-strip{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:576px){.service-strip{grid-template-columns:1fr}}
 
         /* ── About accordion ── */
         .about-img-wrap{position:relative;border-radius:28px;overflow:hidden}
@@ -191,6 +194,7 @@ export default function HomePage() {
         .nl-input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:999px;padding:1rem 1.4rem;outline:none;font-family:inherit;font-size:.95rem;flex:1}
         .nl-input::placeholder{color:#bbb1a3}
         @media(max-width:992px){.newsletter{padding:2.5rem}}
+        @media(max-width:576px){.newsletter{padding:1.75rem 1.25rem;border-radius:20px}}
 
         /* ── Footer ── */
         .sf-footer{background:#0e0c0a;color:#cfc8bd;padding:5rem 0 2rem;margin-top:5rem}
