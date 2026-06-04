@@ -128,7 +128,7 @@ export default function HomePage() {
         }
         .hero::after{content:"";position:absolute;inset:auto 0 0 0;height:60%;background:radial-gradient(120% 100% at 50% 100%,rgba(196,122,44,.35),transparent 60%);pointer-events:none}
         .hero .hero-pill{display:inline-flex;gap:.5rem;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:.4rem .9rem;border-radius:999px;backdrop-filter:blur(8px);font-size:.85rem}
-        .hero h1{font-size:clamp(2.4rem,5vw,4.4rem);font-weight:900;line-height:1.02;font-family:'Fraunces',serif}
+        .hero h1{font-size:clamp(2.4rem,5vw,4.4rem);font-weight:900;line-height:1.02;font-family:'Fraunces',serif;color:#fff}
         .hero .lede{max-width:640px;color:#e7e0d5}
         .rating-chip{display:inline-flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:.5rem .9rem;border-radius:999px;color:#fff}
         .rating-chip .stars{color:#ffd166}
