@@ -160,7 +160,6 @@ export default function AdminSidebar({ userRole = 1 }) {
         position: 'fixed',
         top: 0,
         left: 0,
-        zIndex: 200,
         overflowY: 'auto',
         overflowX: 'hidden',
         scrollbarWidth: 'thin',
