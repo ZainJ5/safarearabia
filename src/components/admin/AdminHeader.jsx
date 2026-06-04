@@ -4,6 +4,7 @@ import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { useAdminSidebar } from './AdminSidebarContext';
 
 const BREADCRUMBS = {
   '/admin/dashboard':                       ['Dashboard'],
@@ -70,6 +71,7 @@ const IcoGrid = () => (
 export default function AdminHeader({ user }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { setOpen } = useAdminSidebar();
 
   const isObjectId = (s) => /^[a-f0-9]{24}$/i.test(s);
 
@@ -84,6 +86,7 @@ export default function AdminHeader({ user }) {
   const roleLabel = Number(user?.role) === 2 ? 'Agent' : 'Administrator';
 
   return (
+    <>
     <header style={{
       background: '#fff',
       height: 56,
@@ -98,8 +101,26 @@ export default function AdminHeader({ user }) {
       zIndex: 100,
       gap: 16,
     }}>
+      {/* Hamburger — mobile only */}
+      <button
+        className="admin-hamburger"
+        onClick={() => setOpen(o => !o)}
+        style={{
+          background: 'none', border: '1px solid #ECEEF2', borderRadius: 8,
+          width: 36, height: 36, cursor: 'pointer',
+          display: 'none', // shown via CSS on mobile
+          alignItems: 'center', justifyContent: 'center',
+          color: '#374151', flexShrink: 0,
+        }}
+        aria-label="Open menu"
+      >
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      </button>
+
       {/* Left: breadcrumb only — page provides its own h2 title */}
-      <div style={{ minWidth: 0 }}>
+      <div style={{ minWidth: 0, flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <Link href="/admin/dashboard" style={{ color: '#6B7280', fontSize: 13.5, textDecoration: 'none', fontWeight: 600, transition: 'color 0.15s' }}>Admin</Link>
           {crumbs.map((c, i) => (
@@ -204,5 +225,12 @@ export default function AdminHeader({ user }) {
         </div>
       </div>
     </header>
+
+    <style>{`
+      @media (max-width: 768px) {
+        .admin-hamburger { display: flex !important; }
+      }
+    `}</style>
+  </>
   );
 }

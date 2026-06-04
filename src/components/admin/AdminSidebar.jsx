@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAdminSidebar } from './AdminSidebarContext';
 
 /* ─── Icons ──────────────────────────────────────────────────────────── */
 const I = {
@@ -126,16 +127,30 @@ export default function AdminSidebar({ userRole = 1 }) {
   const isAgent   = userRole === 2;
   const nav       = isAgent ? AGENT_NAV : NAV;
   const [hovered, setHovered] = useState(null);
+  const { open, setOpen } = useAdminSidebar();
+
+  // Close sidebar on route change (mobile navigation)
+  useEffect(() => { setOpen(false); }, [pathname]);
 
   const isActive = (item) => {
-    if (item.soon) return false;               // SOON items are never highlighted
+    if (item.soon) return false;
     if (item.exact) return pathname === item.href;
     return pathname === item.href || pathname.startsWith(item.href + '/');
   };
 
   return (
     <>
-      <aside style={{
+      {/* Mobile backdrop */}
+      {open && (
+        <div
+          className="admin-sidebar-backdrop"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`admin-sidebar${open ? ' sidebar-open' : ''}`}
+        style={{
         width: 248,
         flexShrink: 0,
         background: '#0A1628',
@@ -152,7 +167,7 @@ export default function AdminSidebar({ userRole = 1 }) {
       }}>
 
         {/* Logo */}
-        <div style={{ padding: '20px 18px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 }}>
+        <div style={{ padding: '20px 18px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/admin/dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 11 }}>
             <div style={{
               width: 36, height: 36, borderRadius: 10,
@@ -170,10 +185,29 @@ export default function AdminSidebar({ userRole = 1 }) {
               <div style={{ color: '#C8844A', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.2, marginTop: 1 }}>Admin Portal</div>
             </div>
           </Link>
+
+          {/* Mobile close button */}
+          <button
+            className="admin-sidebar-close"
+            onClick={() => setOpen(false)}
+            style={{
+              background: 'rgba(255,255,255,0.07)',
+              border: 'none', borderRadius: 7,
+              width: 30, height: 30,
+              display: 'none',
+              alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'rgba(255,255,255,0.6)',
+              flexShrink: 0,
+            }}
+          >
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </button>
         </div>
 
         {/* Navigation */}
-        <nav style={{ flex: 1, padding: '8px 8px 20px' }}>
+        <nav onClick={() => setOpen(false)} style={{ flex: 1, padding: '8px 8px 20px' }}>
           {nav.map((item, idx) => {
             if (item.type === 'divider') {
               return (
@@ -253,9 +287,38 @@ export default function AdminSidebar({ userRole = 1 }) {
       </aside>
 
       <style>{`
-        aside::-webkit-scrollbar { width: 3px; }
-        aside::-webkit-scrollbar-track { background: transparent; }
-        aside::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+        .admin-sidebar::-webkit-scrollbar { width: 3px; }
+        .admin-sidebar::-webkit-scrollbar-track { background: transparent; }
+        .admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+        /* Backdrop */
+        .admin-sidebar-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.5);
+          z-index: 299;
+          backdrop-filter: blur(1px);
+        }
+
+        /* Mobile behaviour */
+        @media (max-width: 768px) {
+          .admin-sidebar {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            z-index: 300;
+            transform: translateX(-100%);
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: none;
+          }
+          .admin-sidebar.sidebar-open {
+            transform: translateX(0) !important;
+            box-shadow: 8px 0 32px rgba(0,0,0,0.35);
+          }
+          .admin-sidebar-close {
+            display: flex !important;
+          }
+        }
       `}</style>
     </>
   );
