@@ -209,7 +209,7 @@ export default function AdminTransportCreatePage() {
               <label style={lS}>Content <span style={{ color: '#dc3545' }}>*</span></label>
               <RichEditor value={form.content} onChange={v => set('content', v)} minHeight={200} />
             </div>
-            <div style={{ marginBottom: 14 }}>
+            <div style={{ marginBottom: 14, display: 'none' }}>
               <label style={lS}>Youtube Video</label>
               <input style={iS} placeholder="Youtube Video Link" value={form.youtube_url}
                 onChange={e => set('youtube_url', e.target.value)} />
@@ -366,16 +366,18 @@ export default function AdminTransportCreatePage() {
                 <a href="https://www.latlong.net/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#2196f3', marginTop: 4, display: 'block' }}>Go Here to get Longitude from address</a>
               </div>
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: '#444' }}>
-              <input type="checkbox" checked={form.seo?.enable_seo || false} onChange={e => setN('seo', 'enable_seo', e.target.checked)} style={{ width: 14, height: 14 }} />
-              Allow SEO
-            </label>
-            {form.seo?.enable_seo && (
-              <div style={{ marginTop: 14 }}>
-                <div style={{ marginBottom: 12 }}><label style={lS}>Meta Title</label><input style={iS} value={form.seo?.meta_title || ''} onChange={e => setN('seo', 'meta_title', e.target.value)} /></div>
-                <div><label style={lS}>Meta Description</label><textarea style={{ ...iS, height: 80, resize: 'vertical' }} value={form.seo?.meta_desc || ''} onChange={e => setN('seo', 'meta_desc', e.target.value)} /></div>
-              </div>
-            )}
+            <div style={{ display: 'none' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: '#444' }}>
+                <input type="checkbox" checked={form.seo?.enable_seo || false} onChange={e => setN('seo', 'enable_seo', e.target.checked)} style={{ width: 14, height: 14 }} />
+                Allow SEO
+              </label>
+              {form.seo?.enable_seo && (
+                <div style={{ marginTop: 14 }}>
+                  <div style={{ marginBottom: 12 }}><label style={lS}>Meta Title</label><input style={iS} value={form.seo?.meta_title || ''} onChange={e => setN('seo', 'meta_title', e.target.value)} /></div>
+                  <div><label style={lS}>Meta Description</label><textarea style={{ ...iS, height: 80, resize: 'vertical' }} value={form.seo?.meta_desc || ''} onChange={e => setN('seo', 'meta_desc', e.target.value)} /></div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

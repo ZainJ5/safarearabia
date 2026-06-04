@@ -22,8 +22,10 @@ function BlogFormFields(formData, setFormData) {
         <ImageUpload label="Featured Image" value={formData.image} onChange={v => set('image', v)} folder="uploads/blogs" />
         <div className="admin-form-group"><label>Category</label><input value={formData.category?.name || ''} onChange={e => setNested('category', 'name', e.target.value)} /></div>
         <div className="admin-form-group"><label>Status</label><select value={formData.status ?? 1} onChange={e => set('status', Number(e.target.value))}><option value={1}>Published</option><option value={0}>Draft</option></select></div>
-        <div className="admin-form-group"><label>SEO Title</label><input value={formData.seo?.meta_title || ''} onChange={e => setNested('seo', 'meta_title', e.target.value)} /></div>
-        <div className="admin-form-group"><label>SEO Description</label><textarea value={formData.seo?.meta_description || ''} onChange={e => setNested('seo', 'meta_description', e.target.value)} rows={3} /></div>
+        <div style={{ display: 'none' }}>
+          <div className="admin-form-group"><label>SEO Title</label><input value={formData.seo?.meta_title || ''} onChange={e => setNested('seo', 'meta_title', e.target.value)} /></div>
+          <div className="admin-form-group"><label>SEO Description</label><textarea value={formData.seo?.meta_description || ''} onChange={e => setNested('seo', 'meta_description', e.target.value)} rows={3} /></div>
+        </div>
       </div>
     </div>
   );

@@ -92,13 +92,15 @@ function TourFormFields(formData, setFormData) {
             <option value={0}>Inactive</option>
           </select>
         </div>
-        <div className="admin-form-group">
-          <label>SEO Title</label>
-          <input value={formData.seo?.meta_title || ''} onChange={e => setNested('seo', 'meta_title', e.target.value)} />
-        </div>
-        <div className="admin-form-group">
-          <label>SEO Description</label>
-          <textarea value={formData.seo?.meta_desc || ''} onChange={e => setNested('seo', 'meta_desc', e.target.value)} rows={3} />
+        <div style={{ display: 'none' }}>
+          <div className="admin-form-group">
+            <label>SEO Title</label>
+            <input value={formData.seo?.meta_title || ''} onChange={e => setNested('seo', 'meta_title', e.target.value)} />
+          </div>
+          <div className="admin-form-group">
+            <label>SEO Description</label>
+            <textarea value={formData.seo?.meta_desc || ''} onChange={e => setNested('seo', 'meta_desc', e.target.value)} rows={3} />
+          </div>
         </div>
       </div>
     </div>

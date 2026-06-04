@@ -148,7 +148,7 @@ export default function AdminHotelEditPage({ params }) {
               <label style={lS}>Content *</label>
               <RichEditor value={form.content || ''} onChange={v => set('content', v)} minHeight={200} />
             </div>
-            <div style={row2}>
+            <div style={{ ...row2, display: 'none' }}>
               <div>
                 <label style={lS}>YouTube Video Thumbnail</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -265,7 +265,7 @@ export default function AdminHotelEditPage({ params }) {
           </div>
 
           {/* SEO */}
-          <div style={sS}>
+          <div style={{ ...sS, display: 'none' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: '#444' }}>
               <input type="checkbox" checked={form.seo?.enable_seo || false} onChange={e => setN('seo', 'enable_seo', e.target.checked)} style={{ width: 14, height: 14 }} />
               Allow SEO

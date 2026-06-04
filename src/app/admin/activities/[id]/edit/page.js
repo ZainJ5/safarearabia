@@ -159,7 +159,7 @@ export default function AdminActivityEditPage({ params }) {
             <div style={sT}>Activity Content</div>
             <div style={{ marginBottom: 14 }}><label style={lS}>Title *</label><input style={iS} placeholder="Name of the activity" value={form.title || ''} onChange={e => set('title', e.target.value)} required /></div>
             <div style={{ marginBottom: 14 }}><label style={lS}>Content *</label><RichEditor value={form.content || ''} onChange={v => set('content', v)} minHeight={180} /></div>
-            <div style={row2}>
+            <div style={{ ...row2, display: 'none' }}>
               <div>
                 <label style={lS}>YouTube Video Thumbnail</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -228,7 +228,7 @@ export default function AdminActivityEditPage({ params }) {
             </div>
           </div>
 
-          <div style={sS}>
+          <div style={{ ...sS, display: 'none' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: '#444' }}>
               <input type="checkbox" checked={form.seo?.enable_seo || false} onChange={e => setN('seo', 'enable_seo', e.target.checked)} style={{ width: 14, height: 14 }} />
               Allow SEO
