@@ -27,12 +27,14 @@ export async function GET(request, { params }) {
 
     // Attach agent merchant ID from User record
     let agent_no = '';
+    let agent_phone = '';
     if (item.agent_user_id) {
-      const agent = await User.findById(item.agent_user_id).select('custom_id').lean();
+      const agent = await User.findById(item.agent_user_id).select('custom_id phone').lean();
       agent_no = agent?.custom_id || '';
+      agent_phone = agent?.phone || '';
     }
 
-    return NextResponse.json({ success: true, data: { ...item, agent_no } });
+    return NextResponse.json({ success: true, data: { ...item, agent_no, agent_phone } });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
