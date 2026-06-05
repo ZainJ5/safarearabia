@@ -41,6 +41,113 @@ const BrandFooter = ({ inv, contacts }) => (
   </div>
 );
 
+/* ═══════════════════════════════════════════════════════════════════════
+   PREMIUM INVOICE DESIGN SYSTEM (gold / brown enterprise theme)
+   Used only by the Hotel Invoice PDF (#inv-print). Everything below uses
+   html2canvas-safe CSS: solid colors, simple 2-stop gradients, inline SVG
+   with explicit colors — no box-shadow / clip-path / filters.
+   ═══════════════════════════════════════════════════════════════════════ */
+const GOLD     = '#C49A2E';
+const GOLD_LT  = '#E6C25A';
+const GOLD_DK  = '#9A7414';
+const BROWN     = '#3B2509';
+const BROWN_LT  = '#5A3A12';
+const CREAM_BG  = '#FFFDF8';
+const INK_TX    = '#3A2A12';
+const DOT_LINE  = '#E7D8B5';
+const serif     = 'Georgia, "Times New Roman", serif';
+
+/* Minimal 24×24 glyph paths (stroke-drawn) */
+const G = {
+  user:    'M12 12.5a4 4 0 100-8 4 4 0 000 8zM4.5 20c0-3.6 3.4-5.5 7.5-5.5s7.5 1.9 7.5 5.5',
+  globe:   'M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 4.5 3 13.5 0 18M12 3c-3 4.5-3 13.5 0 18',
+  hash:    'M9 3L7 21M17 3l-2 18M4 9h16M3 15h16',
+  calendar:'M5 5h14v15H5zM5 9h14M8 3v4M16 3v4',
+  badge:   'M5 4h14v16H5zM9 8h6M9 12h6M9 16h4',
+  check:   'M4 12.5l5 5 11-12',
+  building:'M5 21V4h9v17M14 9h5v12M8 8h2M8 12h2M8 16h2M16 12h1M16 16h1',
+  bed:     'M3 18v-7M3 18h18M21 18v-5a3 3 0 00-3-3h-7v4M3 13h8M6 7.5h2.5a1.5 1.5 0 010 3H6z',
+  moon:    'M21 12.8A8 8 0 1111.2 3 6.5 6.5 0 0021 12.8z',
+  door:    'M6 21V3.5h9V21M15 3.5h3V21M11 12h.6',
+  guests:  'M8.5 11a3 3 0 100-6 3 3 0 000 6zM2.5 20c0-3.3 2.7-5 6-5s6 1.7 6 5M16 5.5a3 3 0 010 6M15 15.2c2.7.2 5 1.9 5 4.8',
+  meal:    'M12 3a9 9 0 100 18 9 9 0 000-18zM7.5 7v3.5a2 2 0 004 0V7M9.5 7v10M15.5 7c-1.2 0-2 1.8-2 4s.8 3 2 3v3',
+  money:   'M9.5 3h5l-1 3h-3zM6.5 9c.4-1.4 2.4-3 5.5-3s5.1 1.6 5.5 3c1.6 3.6 1 11-5.5 11S4.9 12.6 6.5 9zM12 9.5v8M10 11.5h3a1.4 1.4 0 010 2.8h-3.2m2.2-2.8v-1.3m0 5.6v1.3',
+  bank:    'M3 9.5l9-5 9 5M4 9.5h16M5.5 10.5v7M9.5 10.5v7M14.5 10.5v7M18.5 10.5v7M3.5 19.5h17',
+  card:    'M3 6h18v12H3zM3 10h18M6 14h4',
+  iban:    'M4 7h16v10H4zM4 11h16M7 14h3M14 14h3',
+  pin:     'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  phone:   'M5 4h3.6l1.8 4.5-2.3 1.7a12 12 0 005 5l1.7-2.3 4.5 1.8V18a2 2 0 01-2 2A15 15 0 013 6a2 2 0 012-2z',
+  mail:    'M3 6h18v12H3zM3.5 7l8.5 6 8.5-6',
+  receipt: 'M6 3h12v18l-2.5-1.5L13 21l-2.5-1.5L8 21l-2.5-1.5L6 21zM9 8h6M9 12h6',
+};
+
+const Ico = ({ d, size = 15, color = GOLD, sw = 1.7, fill = 'none' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: 'block' }}>
+    <path d={d} fill={fill} stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+/* Gold-ringed circular icon badge */
+const Badge = ({ d, size = 30, ring = GOLD, glyph = GOLD, bg = '#fff' }) => (
+  <span style={{ width: size, height: size, borderRadius: '50%', border: `1.5px solid ${ring}`, background: bg, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+    <Ico d={d} color={glyph} size={Math.round(size * 0.52)} />
+  </span>
+);
+
+/* One labelled row inside an information card */
+const InfoRow = ({ d, label, value, valueColor, last }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 2px', borderBottom: last ? 'none' : `1px dotted ${DOT_LINE}` }}>
+    <Badge d={d} size={30} />
+    <div style={{ width: 118, fontSize: 12.5, fontWeight: 700, color: INK_TX, letterSpacing: 0.2 }}>{label}</div>
+    <div style={{ color: '#B9A77E', fontWeight: 700 }}>:</div>
+    <div style={{ flex: 1, fontSize: 12.5, color: valueColor || '#2C2113', fontWeight: 600 }}>{value || '—'}</div>
+  </div>
+);
+
+/* Dark ribbon header for cards / summary */
+const Ribbon = ({ d, title }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 11, background: BROWN, borderRadius: '8px 8px 0 0', padding: '9px 15px' }}>
+    <span style={{ width: 30, height: 30, borderRadius: '50%', border: `2px solid ${GOLD}`, background: BROWN_LT, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Ico d={d} color={GOLD} size={15} />
+    </span>
+    <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', letterSpacing: 1.2 }}>{title}</span>
+  </div>
+);
+
+/* Small horizontal flourish for section titles / footer */
+const Flourish = ({ flip }) => (
+  <svg width="92" height="14" viewBox="0 0 92 14" style={{ display: 'block', transform: flip ? 'scaleX(-1)' : 'none' }}>
+    <path d="M2 7h44c8 0 8-5 16-5" fill="none" stroke={GOLD} strokeWidth="1.4" strokeLinecap="round" />
+    <path d="M62 2c6 0 6 10 12 10s6-8 14-5" fill="none" stroke={GOLD} strokeWidth="1.4" strokeLinecap="round" />
+    <circle cx="90" cy="7" r="2" fill={GOLD} />
+  </svg>
+);
+
+/* Decorative gold/brown corner arc (top-left), full-bleed over capture padding */
+const CornerDecor = () => (
+  <div style={{ position: 'absolute', top: -28, left: -28, width: 168, height: 150, zIndex: 0, pointerEvents: 'none' }}>
+    <svg width="168" height="150" viewBox="0 0 168 150">
+      <path d="M168 0 A168 150 0 0 1 0 150 L0 132 A150 132 0 0 0 150 0 Z" fill={GOLD} />
+      <path d="M142 0 A142 126 0 0 1 0 126 L0 88 A104 88 0 0 0 104 0 Z" fill={BROWN} />
+      <path d="M84 0 A84 74 0 0 1 0 74 L0 64 A74 64 0 0 0 74 0 Z" fill={GOLD_LT} />
+    </svg>
+  </div>
+);
+
+/* Hotel-detail table body cell */
+const tdC = { borderTop: `1px solid ${DOT_LINE}`, padding: '11px 6px', fontSize: 11.5, textAlign: 'center', color: '#3A2F1C', verticalAlign: 'middle' };
+
+/* Format a stored date string → { main:'04 Jun 2026', wd:'(Thu)' } */
+const fmtDate = (s) => {
+  if (!s) return { main: '', wd: '' };
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return { main: String(s), wd: '' };
+  const day = String(d.getDate()).padStart(2, '0');
+  const mon = d.toLocaleDateString('en-US', { month: 'short' });
+  const wd  = d.toLocaleDateString('en-US', { weekday: 'short' });
+  return { main: `${day} ${mon} ${d.getFullYear()}`, wd: `(${wd})` };
+};
+
 /* ─── Reusable bordered cell ─── */
 const TC = ({ children, label, w, center, bg }) => (
   <td style={{
@@ -302,92 +409,175 @@ export default function HotelInvoiceDetailPage({ params }) {
       {/* ═══════════════════════════════════════════════════════
           INVOICE PRINT AREA  (hidden on screen, A4 on print)
           ═══════════════════════════════════════════════════════ */}
-      <div id="inv-print" style={{ fontFamily: 'Arial, sans-serif', color: '#111', background: '#fff' }}>
-        {/* Brand header band — logo left, company + invoice no right */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, background: BRAND.cream, border: `1px solid ${BRAND.line}`, borderTop: `4px solid ${BRAND.gold}`, borderRadius: 6, padding: '14px 20px', marginBottom: 16 }}>
-          <img src={logo} alt="logo" style={{ height: 180, objectFit: 'contain' }} />
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: BRAND.gold, marginBottom: 6, letterSpacing: 0.3 }}>Safar e Arabian</div>
-            <div style={{ width: 56, height: 3, background: BRAND.gold, marginLeft: 'auto', marginBottom: 8, borderRadius: 2 }} />
-            <div style={{ fontSize: 11, color: BRAND.ink, lineHeight: 1.8 }}>
-              <strong>Telephone :</strong> {phone}<br />
-              <strong>Email :</strong> {email}<br />
-              <strong>VAT Reg No :</strong><br />
-              <strong>Invoice No :</strong> {inv.invoice_no || inv.reserve_no}
+      <div id="inv-print" style={{ fontFamily: 'Arial, sans-serif', color: INK_TX, background: '#fff' }}>
+        <CornerDecor />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+
+          {/* ── HEADER ── */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+            <div style={{ paddingTop: 12, paddingLeft: 92 }}>
+              <img src={logo} alt="Safar e Arabian" style={{ height: 168, objectFit: 'contain' }} />
+            </div>
+            <div style={{ textAlign: 'right', minWidth: 320 }}>
+              <div style={{ fontFamily: serif, fontSize: 42, fontWeight: 700, color: INK_TX, letterSpacing: 4, lineHeight: 1, marginBottom: 12 }}>INVOICE</div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
+                <div style={{ display: 'flex', borderRadius: 7, overflow: 'hidden', border: `1px solid ${GOLD}` }}>
+                  <div style={{ background: BROWN, color: '#fff', padding: '9px 18px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 10, letterSpacing: 1.5 }}>INVOICE NO.</div>
+                    <div style={{ fontSize: 17, fontWeight: 700, color: GOLD_LT, marginTop: 2 }}>{inv.invoice_no || inv.reserve_no}</div>
+                  </div>
+                  <div style={{ backgroundColor: GOLD, backgroundImage: `linear-gradient(to bottom, ${GOLD_LT}, ${GOLD})`, color: BROWN, padding: '9px 18px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 10, letterSpacing: 1.5 }}>INVOICE DATE</div>
+                    <div style={{ fontSize: 17, fontWeight: 700, marginTop: 2 }}>{fmtDate(new Date()).main}</div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 7, fontSize: 12.5, color: INK_TX }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}><span>{phone}</span><Badge d={G.phone} size={25} /></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}><span>{email}</span><Badge d={G.mail} size={25} /></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}><span>{(email && email.includes('@')) ? email.split('@')[1] : 'safararabiantravel.com'}</span><Badge d={G.globe} size={25} /></div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Confirmed Performa Invoice table (row 1 = header banner) */}
-        <table style={{ width: '100%', borderCollapse: 'collapse', border: `1px solid ${BRAND.line}`, marginBottom: 0 }}>
-          <thead>
-            <tr>
-              <td colSpan={4} style={{ border: `1px solid ${BRAND.emerald}`, padding: '8px 0', textAlign: 'center', fontWeight: 700, fontSize: 12.5, letterSpacing: 0.8, textTransform: 'uppercase', color: '#fff', background: BRAND.emerald }}>
-                Confirmed Performa Invoice
-              </td>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ['Reservation No', inv.reserve_no,  'Option Date',  inv.option_date],
-              ['Agent Name',     inv.agent_name,  'Agent No',     inv.agent_no || '—'],
-              ['Guest Name',     inv.guest_name,  'VAT Number',   inv.vat_number],
-              ['Client Ref No',  inv.client_ref_no,'Nationality', inv.nationality],
-              ['Print Date',     nowStr(),         '',             ''],
-            ].map((r, i) => (
-              <tr key={i}>
-                <td style={{ border: `1px solid ${BRAND.line}`, padding: '6px 10px', fontSize: 11, fontWeight: 700, color: BRAND.ink, background: BRAND.cream, width: '18%' }}>{r[0]}</td>
-                <td style={{ border: `1px solid ${BRAND.line}`, padding: '6px 10px', fontSize: 11, width: '32%' }}>{r[1] ?? ''}</td>
-                <td style={{ border: `1px solid ${BRAND.line}`, padding: '6px 10px', fontSize: 11, fontWeight: 700, color: BRAND.ink, background: BRAND.cream, width: '18%' }}>{r[2]}</td>
-                <td style={{ border: `1px solid ${BRAND.line}`, padding: '6px 10px', fontSize: 11, width: '32%' }}>{r[3] ?? ''}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          <div style={{ height: 1.5, background: GOLD, opacity: 0.55, margin: '6px 0 20px' }} />
 
-        {/* Hotel Details */}
-        <div style={{ background: BRAND.ink, color: '#fff', padding: '8px 0', textAlign: 'center', fontWeight: 700, fontSize: 12, letterSpacing: 0.6, textTransform: 'uppercase', borderBottom: `2px solid ${BRAND.gold}`, marginTop: 14 }}>
-          {inv.city || 'Hotel'} Hotel Details
-        </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #CBD5E1', marginBottom: 14 }}>
-          <thead><HotelTableHead forPrint /></thead>
-          <tbody>{rooms.map((r, i) => <HotelTableRow key={i} inv={r} forPrint />)}</tbody>
-        </table>
+          {/* ── INFO CARDS ── */}
+          <div style={{ display: 'flex', gap: 22, marginBottom: 4, alignItems: 'stretch' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <Ribbon d={G.user} title="GUEST INFORMATION" />
+              <div style={{ flex: 1, border: `1px solid ${DOT_LINE}`, borderTop: 'none', borderRadius: '0 0 10px 10px', background: CREAM_BG, padding: '4px 16px' }}>
+                <InfoRow d={G.user}  label="Guest Name"    value={inv.guest_name} />
+                <InfoRow d={G.globe} label="Nationality"   value={inv.nationality} />
+                <InfoRow d={G.hash}  label="Client Ref No" value={inv.client_ref_no} />
+                <InfoRow d={G.badge} label="VAT Number"    value={inv.vat_number} last />
+              </div>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <Ribbon d={G.calendar} title="BOOKING INFORMATION" />
+              <div style={{ flex: 1, border: `1px solid ${DOT_LINE}`, borderTop: 'none', borderRadius: '0 0 10px 10px', background: CREAM_BG, padding: '4px 16px' }}>
+                <InfoRow d={G.hash}     label="Reservation No"  value={inv.reserve_no} />
+                <InfoRow d={G.user}     label="Agent Name"      value={inv.agent_name} />
+                <InfoRow d={G.badge}    label="Agent No"        value={inv.agent_no} />
+                <InfoRow d={G.calendar} label="Option Date"     value={inv.option_date} />
+                <InfoRow d={G.check}    label="Invoice Status"  value="Confirmed" valueColor={BRAND.emerald} last />
+              </div>
+            </div>
+          </div>
 
-        {/* Bank + summary */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 20 }}>
-          <div style={{ flex: 1 }}>
-            <table style={{ fontSize: 11, lineHeight: 1.9 }}>
+          {/* ── HOTEL DETAILS ── */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, margin: '26px 0 12px' }}>
+            <Flourish flip />
+            <Badge d={G.building} size={30} />
+            <span style={{ fontFamily: serif, fontSize: 19, fontWeight: 700, color: BROWN, letterSpacing: 1.5, textTransform: 'uppercase' }}>{inv.city ? `${inv.city} ` : ''}Hotel Details</span>
+            <Flourish />
+          </div>
+
+          <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${GOLD}` }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: BROWN }}>
+                  {[
+                    { l: 'HOTEL', d: G.building }, { l: 'ROOM TYPE', d: G.bed }, { l: 'CHECK-IN', d: G.calendar },
+                    { l: 'CHECK-OUT', d: G.calendar }, { l: 'NIGHTS', d: G.moon }, { l: 'ROOMS', d: G.door },
+                    { l: 'GUESTS', d: G.guests }, { l: 'MEAL PLAN', d: G.meal }, { l: 'AMOUNT (SAR)', d: G.money },
+                  ].map((c, ci) => (
+                    <th key={ci} style={{ padding: '9px 5px', borderRight: ci < 8 ? '1px solid rgba(255,255,255,0.12)' : 'none', color: '#fff' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                        <Ico d={c.d} color={GOLD_LT} size={16} />
+                        <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4 }}>{c.l}</span>
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
               <tbody>
-                {[['Account Name', inv.account_name], ['Bank', inv.bank], ['Bank Account No', inv.bank_account_no], ['Bank Address', inv.bank_address || ''], ['IBN', inv.ibn]].map(([l, v]) => (
-                  <tr key={l}><td style={{ fontWeight: 700, paddingRight: 14, color: '#374151', whiteSpace: 'nowrap' }}>{l}</td><td>{v || ''}</td></tr>
-                ))}
+                {rooms.map((r, i) => {
+                  const cin = fmtDate(r.check_in), cout = fmtDate(r.check_out);
+                  return (
+                    <tr key={i} style={{ background: i % 2 ? '#FBF5E8' : '#fff' }}>
+                      <td style={tdC}>
+                        <div style={{ fontWeight: 700, color: INK_TX }}>{r.hotel_name || ''}</div>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}><Ico d={G.building} color={GOLD} size={17} /></div>
+                      </td>
+                      <td style={tdC}>{r.room_type || ''}</td>
+                      <td style={tdC}><div>{cin.main}</div><div style={{ fontSize: 9.5, color: '#8A7A55' }}>{cin.wd}</div></td>
+                      <td style={tdC}><div>{cout.main}</div><div style={{ fontSize: 9.5, color: '#8A7A55' }}>{cout.wd}</div></td>
+                      <td style={tdC}>{r.no_of_nights || 0}</td>
+                      <td style={tdC}>{r.no_of_rooms || 0}</td>
+                      <td style={tdC}>
+                        <div>{Number(r.no_of_adults || 0)} Adult</div>
+                        <div style={{ fontSize: 10, color: '#8A7A55' }}>{Number(r.no_of_children || 0)} Child</div>
+                      </td>
+                      <td style={tdC}>{r.meals || ''}</td>
+                      <td style={{ ...tdC, fontWeight: 700, color: BROWN, fontSize: 12.5 }}>{fmt2(r.room_amount)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
-            {inv.important_contact && (
-              <p style={{ margin: '8px 0 3px', fontSize: 11 }}>
-                <strong>Important Contact:</strong> {inv.important_contact}
-              </p>
-            )}
-            <div style={{ marginTop: 10 }}>
-              <p style={{ color: '#DC2626', fontSize: 11, margin: '0 0 2px' }}><strong>Cancellation Policy :</strong> {inv.cancellation_policy}</p>
-              <p style={{ color: '#DC2626', fontSize: 11, margin: 0 }}><strong>No Show Policy :</strong> {inv.no_show_policy}</p>
+          </div>
+
+          {/* ── BANK + PAYMENT SUMMARY ── */}
+          <div style={{ display: 'flex', gap: 26, marginTop: 24, alignItems: 'flex-start' }}>
+            <div style={{ flex: 1.1, paddingTop: 2 }}>
+              {[
+                { d: G.bank, l: 'Account Name',    v: inv.account_name },
+                { d: G.bank, l: 'Bank',            v: inv.bank },
+                { d: G.card, l: 'Bank Account No', v: inv.bank_account_no },
+                { d: G.iban, l: 'IBAN',            v: inv.ibn },
+                { d: G.pin,  l: 'Bank Address',    v: inv.bank_address },
+              ].map((b, bi) => (
+                <div key={bi} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 11 }}>
+                  <Badge d={b.d} size={30} />
+                  <div style={{ width: 116, fontSize: 12.5, fontWeight: 700, color: INK_TX, paddingTop: 6 }}>{b.l}</div>
+                  <div style={{ color: '#B9A77E', fontWeight: 700, paddingTop: 6 }}>:</div>
+                  <div style={{ flex: 1, fontSize: 12.5, color: '#2C2113', paddingTop: 6 }}>{b.v || '—'}</div>
+                </div>
+              ))}
+              {inv.important_contact ? (
+                <div style={{ fontSize: 11.5, marginTop: 8 }}><strong style={{ color: BROWN }}>Important Contact:</strong> {inv.important_contact}</div>
+              ) : null}
+            </div>
+
+            <div style={{ width: 348, flexShrink: 0 }}>
+              <Ribbon d={G.receipt} title="PAYMENT SUMMARY" />
+              <div style={{ border: `1px solid ${DOT_LINE}`, borderTop: 'none', background: CREAM_BG, padding: '12px 18px 2px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0 12px' }}>
+                  <span style={{ fontSize: 13, color: INK_TX }}>Subtotal</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: INK_TX }}>SAR {fmt2(hotelTotal)}</span>
+                </div>
+                <div style={{ borderTop: `1px dotted ${DOT_LINE}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
+                  <span style={{ fontSize: 13, color: INK_TX }}>VAT (0%)</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: INK_TX }}>SAR 0.00</span>
+                </div>
+              </div>
+              <div style={{ backgroundColor: GOLD, backgroundImage: `linear-gradient(to bottom, ${GOLD_LT}, ${GOLD})`, borderRadius: '0 0 10px 10px', padding: '13px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontFamily: serif, fontSize: 20, fontWeight: 700, color: BROWN, letterSpacing: 0.5 }}>TOTAL</span>
+                <span style={{ fontSize: 13, color: BROWN }}>SAR <strong style={{ fontSize: 23 }}>{fmt2(hotelTotal)}</strong></span>
+              </div>
             </div>
           </div>
-          <table style={{ borderCollapse: 'collapse', minWidth: 210, flexShrink: 0 }}>
-            <tbody>
-              <tr>
-                <td style={{ border: `1px solid ${BRAND.line}`, padding: '8px 14px', fontWeight: 600, fontSize: 12, color: BRAND.ink }}>Hotel</td>
-                <td style={{ border: `1px solid ${BRAND.line}`, padding: '8px 14px', textAlign: 'right', fontSize: 12 }}>{fmt2(hotelTotal)}</td>
-              </tr>
-              <tr>
-                <td style={{ border: `1px solid ${BRAND.ink}`, padding: '9px 14px', fontWeight: 700, fontSize: 12, color: '#fff', background: BRAND.ink }}>Sub Total</td>
-                <td style={{ border: `1px solid ${BRAND.ink}`, padding: '9px 14px', textAlign: 'right', fontWeight: 800, fontSize: 13.5, color: '#fff', background: BRAND.ink }}>{fmt2(hotelTotal)}</td>
-              </tr>
-            </tbody>
-          </table>
+
+          {/* ── POLICIES ── */}
+          <div style={{ marginTop: 18 }}>
+            <p style={{ color: '#B23B2E', fontSize: 10.5, margin: '0 0 2px' }}><strong>Cancellation Policy :</strong> {inv.cancellation_policy}</p>
+            <p style={{ color: '#B23B2E', fontSize: 10.5, margin: 0 }}><strong>No Show Policy :</strong> {inv.no_show_policy}</p>
+          </div>
+
+          {/* ── FOOTER ── */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 20 }}>
+            <Flourish flip />
+            <Ico d="M12 2l4 5-4 5-4-5z" color={GOLD} fill={GOLD} size={14} />
+            <Flourish />
+          </div>
+          <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: '#6B5C3E' }}>
+            <strong style={{ color: BROWN }}>Generated by:</strong> {inv.agent_name || '—'}
+            {inv.agent_no ? `  ·  Agent No: ${inv.agent_no}` : ''}
+            {inv.agent_phone ? `  ·  ${inv.agent_phone}` : ''}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: 3, fontSize: 10.5, fontStyle: 'italic', color: '#9B8A6A' }}>Thank you for choosing Safar e Arabian</div>
         </div>
-        <BrandFooter inv={inv} />
       </div>
 
       {/* ═══════════════════════════════════════════════════════
