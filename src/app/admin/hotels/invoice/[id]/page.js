@@ -149,7 +149,7 @@ export default function HotelInvoiceDetailPage({ params }) {
 
         {/* Company header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, paddingBottom: 24, borderBottom: '1px solid #F3F4F6' }}>
-          <img src={logo} alt="Safar e Arabian" style={{ height: 110, objectFit: 'contain', maxWidth: 300 }} onError={e => { e.target.style.display = 'none'; }} />
+          <img src={logo} alt="Safar e Arabian" style={{ height: 180, objectFit: 'contain', maxWidth: 300 }} onError={e => { e.target.style.display = 'none'; }} />
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#B1723C', lineHeight: 1.1 }}>Safar e Arabian</div>
             <div style={{ fontSize: 13, color: '#6B7280', marginTop: 6, lineHeight: 1.8 }}>
@@ -266,7 +266,7 @@ export default function HotelInvoiceDetailPage({ params }) {
       <div id="inv-print" style={{ fontFamily: 'Arial, sans-serif', color: '#111', background: '#fff' }}>
         {/* Header — logo left, company + invoice no right */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-          <img src={logo} alt="logo" style={{ height: 110, objectFit: 'contain' }} />
+          <img src={logo} alt="logo" style={{ height: 180, objectFit: 'contain' }} />
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#B1723C', marginBottom: 4 }}>Safar e Arabian</div>
             <div style={{ fontSize: 11, color: '#333', lineHeight: 1.7 }}>
@@ -362,7 +362,7 @@ export default function HotelInvoiceDetailPage({ params }) {
       <div id="vch-print" style={{ fontFamily: 'Arial, sans-serif', color: '#111', background: '#fff' }}>
         {/* Header: logo left, company info right */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-          <img src={logo} alt="logo" style={{ height: 110, objectFit: 'contain' }} />
+          <img src={logo} alt="logo" style={{ height: 180, objectFit: 'contain' }} />
           <div style={{ textAlign: 'right', fontSize: 11, lineHeight: 1.8 }}>
             <strong style={{ fontSize: 13 }}>Safar e Arabian</strong><br />
             Print Date: {nowStr()}<br />

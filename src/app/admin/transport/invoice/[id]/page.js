@@ -305,7 +305,7 @@ export default function TransportInvoiceDetailPage({ params }) {
       <div id="trn-vch-print" style={{ fontFamily: 'Arial, sans-serif', color: '#111', background: '#fff' }}>
         {/* Header: logo left, company info right */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
-          <img src={logo} alt="logo" style={{ height: 110, objectFit: 'contain' }} />
+          <img src={logo} alt="logo" style={{ height: 180, objectFit: 'contain' }} />
           <div style={{ textAlign: 'right', fontSize: 11, lineHeight: 1.7 }}>
             <strong style={{ fontSize: 12 }}>Safar e Arabian</strong><br />
             Print Date: {nowStr()}<br />
