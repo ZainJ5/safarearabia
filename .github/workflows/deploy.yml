@@ -18,27 +18,50 @@ concurrency:
 
 jobs:
   deploy:
-    name: Redeploy on server (76.13.17.93)
+    name: Redeploy on server
     runs-on: ubuntu-latest
     steps:
       - name: Checkout (provides the deploy script)
         uses: actions/checkout@v4
 
-      - name: Configure SSH
+      - name: Write SSH key
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # Validate the private key parses (catches a mangled secret paste).
+          if ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null 2>&1; then
+            echo "DEPLOY_SSH_KEY: valid private key"
+          else
+            echo "::error::DEPLOY_SSH_KEY is not a valid private key — re-paste the whole BEGIN/END block."
+            exit 1
+          fi
 
       - name: Redeploy over SSH
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes \
-            "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' < .github/deploy/remote-deploy.sh
+          # Strip any stray whitespace/CR a copy-paste may have left in the secrets.
+          HOST="$(printf '%s' "$DEPLOY_HOST" | tr -d '[:space:]')"
+          USER="$(printf '%s' "$DEPLOY_USER" | tr -d '[:space:]')"
+          echo "host length: ${#HOST} | user length: ${#USER}"
+          if [ -z "$HOST" ] || [ -z "$USER" ]; then
+            echo "::error::DEPLOY_HOST or DEPLOY_USER secret is empty."
+            exit 1
+          fi
+          # Diagnostic: is the server's SSH port reachable from the runner?
+          if timeout 10 bash -c "</dev/tcp/$HOST/22" 2>/dev/null; then
+            echo "port 22: reachable"
+          else
+            echo "::error::port 22 on the server is not reachable from the GitHub runner."
+            exit 1
+          fi
+          ssh -i ~/.ssh/id_ed25519 \
+            -o StrictHostKeyChecking=accept-new \
+            -o UserKnownHostsFile=~/.ssh/known_hosts \
+            -o ConnectTimeout=20 \
+            "$USER@$HOST" 'bash -s' < .github/deploy/remote-deploy.sh
