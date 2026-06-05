@@ -15,6 +15,20 @@ function isAdminOnly(session) {
   return Number(session?.user?.role) === 1;
 }
 
+const fmtAgentCode = (n) => `MC${String(n).padStart(4, '0')}`;
+
+// Highest existing MC#### code across all users — the server-authoritative source
+// for the next agent id (the client preview cannot be trusted: paginated + races).
+async function maxAgentCodeNumber() {
+  const docs = await User.find({ custom_id: { $type: 'string' } }).select('custom_id').lean();
+  let max = 0;
+  for (const d of docs) {
+    const m = /^MC(\d+)$/.exec(d.custom_id || '');
+    if (m) { const n = parseInt(m[1], 10); if (n > max) max = n; }
+  }
+  return max;
+}
+
 export async function GET(request) {
   try {
     const session = await checkAdmin();
@@ -69,7 +83,25 @@ export async function POST(request) {
     }
 
     const hashed = await bcrypt.hash(body.password, 10);
-    const user = await User.create({ ...body, password: hashed });
+
+    // Agents (role 2) get a server-assigned, guaranteed-unique merchant code.
+    // Never trust a client-supplied custom_id — that is what produced duplicate MC numbers.
+    let user;
+    if (Number(body.role) === 2) {
+      let n = (await maxAgentCodeNumber()) + 1;
+      for (let attempt = 0; attempt < 5 && !user; attempt++) {
+        try {
+          user = await User.create({ ...body, role: 2, custom_id: fmtAgentCode(n), password: hashed });
+        } catch (e) {
+          // Concurrent insert grabbed this code first — try the next one.
+          if (e?.code === 11000 && e?.keyPattern?.custom_id) { n += 1; continue; }
+          throw e;
+        }
+      }
+      if (!user) return NextResponse.json({ error: 'Could not allocate a unique agent code' }, { status: 500 });
+    } else {
+      user = await User.create({ ...body, password: hashed });
+    }
 
     const { password: _, ...safe } = user.toObject();
     return NextResponse.json({ success: true, data: safe }, { status: 201 });

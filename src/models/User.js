@@ -61,4 +61,8 @@ UserSchema.set('toObject', { virtuals: true });
 // Username sparse+unique: allows multiple null values but enforces uniqueness when set
 UserSchema.index({ username: 1 }, { unique: true, sparse: true });
 
+// Agent/merchant code (e.g. MC0359) must be unique. Partial on string type so the
+// many null custom_ids (customers) are exempt — only real MC codes are constrained.
+UserSchema.index({ custom_id: 1 }, { unique: true, partialFilterExpression: { custom_id: { $type: 'string' } } });
+
 export default mongoose.models.User || mongoose.model('User', UserSchema);
