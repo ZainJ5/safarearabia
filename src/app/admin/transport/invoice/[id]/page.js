@@ -1,5 +1,5 @@
 'use client';
-import { use, useState, useEffect } from 'react';
+import { use, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { defaultSettings } from '@/lib/defaultSettings';
 
@@ -15,8 +15,9 @@ const BCell = ({ children, bold, bg, w }) => (
 
 export default function TransportInvoiceDetailPage({ params }) {
   const { id } = use(params);
-  const [inv, setInv]         = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [inv, setInv]           = useState(null);
+  const [loading, setLoading]   = useState(true);
+  const [downloading, setDownloading] = useState(null);
 
   useEffect(() => {
     fetch(`/api/admin/transport-invoices/${id}`)
@@ -25,34 +26,47 @@ export default function TransportInvoiceDetailPage({ params }) {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const handlePrint = (mode) => {
+  const handleDownload = async (mode) => {
+    if (downloading) return;
     const elId = mode === 'trn-inv' ? 'trn-inv-print' : 'trn-vch-print';
     const el   = document.getElementById(elId);
     if (!el) return;
 
-    const frame = document.createElement('iframe');
-    frame.style.cssText = 'position:absolute;width:0;height:0;top:-9999px;left:-9999px;border:none;';
-    document.body.appendChild(frame);
+    setDownloading(mode);
+    const prevStyle = el.getAttribute('style') || '';
+    el.setAttribute('style', 'display:block;position:fixed;left:-9999px;top:0;width:794px;background:#ffffff;padding:28px;box-sizing:border-box;font-family:Arial,sans-serif;color:#111;');
 
-    const doc = frame.contentDocument;
-    doc.open();
-    doc.write(
-      '<!DOCTYPE html><html><head>' +
-      '<base href="' + window.location.origin + '">' +
-      '<style>' +
-      '*,*::before,*::after{box-sizing:border-box;}' +
-      'body{font-family:Arial,sans-serif;padding:12mm;margin:0;background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
-      '@page{size:A4;margin:0;}' +
-      'table{border-collapse:collapse;}img{max-width:100%;height:auto;}' +
-      'p{margin:0 0 4px;}hr{border:none;border-top:1.5px solid #CBD5E1;margin:8px 0 10px;}' +
-      '</style></head><body>' + el.innerHTML + '</body></html>'
-    );
-    doc.close();
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF }   = await import('jspdf');
 
-    setTimeout(() => {
-      frame.contentWindow.print();
-      setTimeout(() => frame.parentNode && frame.parentNode.removeChild(frame), 1000);
-    }, 250);
+      const canvas = await html2canvas(el, {
+        scale: 2, useCORS: true, allowTaint: true,
+        backgroundColor: '#ffffff', logging: false,
+      });
+
+      const pdf    = new jsPDF('p', 'mm', 'a4');
+      const pdfW   = pdf.internal.pageSize.getWidth();
+      const pdfH   = pdf.internal.pageSize.getHeight();
+      const imgH   = (canvas.height * pdfW) / canvas.width;
+
+      let y = 0;
+      while (y < imgH) {
+        if (y > 0) pdf.addPage();
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.93), 'JPEG', 0, -y, pdfW, imgH);
+        y += pdfH;
+      }
+
+      const suffix = mode === 'trn-inv' ? 'Invoice' : 'Voucher';
+      const refNo  = inv?.invoice_no || id.slice(-6);
+      pdf.save(`Transport_${suffix}_T${refNo}_${Date.now()}.pdf`);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      alert('PDF generation failed. Please try again.');
+    } finally {
+      el.setAttribute('style', prevStyle || 'display:none;');
+      setDownloading(null);
+    }
   };
 
 
@@ -91,15 +105,15 @@ export default function TransportInvoiceDetailPage({ params }) {
             <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
             Edit Invoice
           </Link>
-          <button onClick={() => handlePrint('trn-inv')}
-            style={{ padding: '9px 18px', background: '#2563EB', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-            Invoice PDF
+          <button onClick={() => handleDownload('trn-inv')} disabled={!!downloading}
+            style={{ padding: '9px 18px', background: downloading === 'trn-inv' ? '#1D4ED8' : '#2563EB', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: downloading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6, opacity: downloading && downloading !== 'trn-inv' ? 0.6 : 1 }}>
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            {downloading === 'trn-inv' ? 'Generating...' : 'Invoice PDF'}
           </button>
-          <button onClick={() => handlePrint('trn-vch')}
-            style={{ padding: '9px 18px', background: '#059669', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-            Voucher PDF
+          <button onClick={() => handleDownload('trn-vch')} disabled={!!downloading}
+            style={{ padding: '9px 18px', background: downloading === 'trn-vch' ? '#047857' : '#059669', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: downloading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6, opacity: downloading && downloading !== 'trn-vch' ? 0.6 : 1 }}>
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            {downloading === 'trn-vch' ? 'Generating...' : 'Voucher PDF'}
           </button>
           <Link href="/admin/transport/invoice"
             style={{ padding: '9px 18px', background: '#374151', color: '#fff', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -276,8 +290,12 @@ export default function TransportInvoiceDetailPage({ params }) {
           <p style={{ color: '#DC2626', fontWeight: 700, fontSize: 10, margin: '0 0 2px' }}>Cancellation Policy: <span style={{ fontWeight: 400 }}>{inv.cancellation_policy}</span></p>
           <p style={{ color: '#DC2626', fontWeight: 700, fontSize: 10, margin: 0 }}>No Show Policy: <span style={{ fontWeight: 400 }}>{inv.no_show_policy}</span></p>
         </div>
-        <div style={{ marginTop: 12, paddingTop: 8, borderTop: '1px solid #CBD5E1', fontSize: 10, color: '#374151' }}>
-          <strong>Generated by:</strong> {inv.agent_name || '—'}{inv.agent_no ? ` (${inv.agent_no})` : ''}
+        <div style={{ marginTop: 10, paddingTop: 8, borderTop: '1px solid #CBD5E1', fontSize: 10, color: '#374151' }}>
+          <div style={{ display: 'flex', gap: 28, marginBottom: 4 }}>
+            <div><strong>ZAIN:</strong> +966 53 653 3827</div>
+            <div><strong>ALI HAIDER:</strong> +966 51 158 8203</div>
+          </div>
+          <div><strong>Generated by:</strong> {inv.agent_name || '—'}{inv.agent_no ? ` (${inv.agent_no})` : ''}</div>
         </div>
       </div>
 
@@ -287,7 +305,7 @@ export default function TransportInvoiceDetailPage({ params }) {
       <div id="trn-vch-print" style={{ fontFamily: 'Arial, sans-serif', color: '#111', background: '#fff' }}>
         {/* Header: logo left, company info right */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
-          <img src={logo} alt="logo" style={{ height: 50, objectFit: 'contain' }} />
+          <img src={logo} alt="logo" style={{ height: 110, objectFit: 'contain' }} />
           <div style={{ textAlign: 'right', fontSize: 11, lineHeight: 1.7 }}>
             <strong style={{ fontSize: 12 }}>Safar e Arabian</strong><br />
             Print Date: {nowStr()}<br />
@@ -342,9 +360,13 @@ export default function TransportInvoiceDetailPage({ params }) {
         <p style={{ color: '#333', fontSize: 11, margin: '0 0 12px' }}>{inv.cancellation_policy}</p>
         <p style={{ color: '#DC2626', fontWeight: 700, fontSize: 11, margin: '0 0 3px' }}>No Show Policy :</p>
         <p style={{ color: '#333', fontSize: 11, margin: '0 0 0' }}>{inv.no_show_policy}</p>
-        <p style={{ fontSize: 11, color: '#374151', margin: '14px 0 0', paddingTop: 8, borderTop: '1px solid #E5E7EB' }}>
-          <strong>Generated by:</strong> {inv.agent_name || '—'}{inv.agent_no ? ` (${inv.agent_no})` : ''}
-        </p>
+        <div style={{ marginTop: 14, paddingTop: 8, borderTop: '1px solid #E5E7EB', fontSize: 11, color: '#374151' }}>
+          <div style={{ display: 'flex', gap: 28, marginBottom: 4 }}>
+            <div><strong>ZAIN:</strong> +966 53 653 3827</div>
+            <div><strong>ALI HAIDER:</strong> +966 51 158 8203</div>
+          </div>
+          <div><strong>Generated by:</strong> {inv.agent_name || '—'}{inv.agent_no ? ` (${inv.agent_no})` : ''}</div>
+        </div>
       </div>
     </>
   );

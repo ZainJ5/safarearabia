@@ -20,8 +20,9 @@ const TC = ({ children, label, w, center, bg }) => (
 
 export default function HotelInvoiceDetailPage({ params }) {
   const { id } = use(params);
-  const [inv, setInv]       = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [inv, setInv]             = useState(null);
+  const [loading, setLoading]     = useState(true);
+  const [downloading, setDownloading] = useState(null);
 
   useEffect(() => {
     fetch(`/api/admin/hotel-invoices/${id}`)
@@ -30,34 +31,47 @@ export default function HotelInvoiceDetailPage({ params }) {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const handlePrint = (mode) => {
+  const handleDownload = async (mode) => {
+    if (downloading) return;
     const elId = mode === 'invoice' ? 'inv-print' : 'vch-print';
     const el   = document.getElementById(elId);
     if (!el) return;
 
-    const frame = document.createElement('iframe');
-    frame.style.cssText = 'position:absolute;width:0;height:0;top:-9999px;left:-9999px;border:none;';
-    document.body.appendChild(frame);
+    setDownloading(mode);
+    const prevStyle = el.getAttribute('style') || '';
+    el.setAttribute('style', 'display:block;position:fixed;left:-9999px;top:0;width:794px;background:#ffffff;padding:28px;box-sizing:border-box;font-family:Arial,sans-serif;color:#111;');
 
-    const doc = frame.contentDocument;
-    doc.open();
-    doc.write(
-      '<!DOCTYPE html><html><head>' +
-      '<base href="' + window.location.origin + '">' +
-      '<style>' +
-      '*,*::before,*::after{box-sizing:border-box;}' +
-      'body{font-family:Arial,sans-serif;padding:12mm;margin:0;background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
-      '@page{size:A4;margin:0;}' +
-      'table{border-collapse:collapse;}img{max-width:100%;height:auto;}' +
-      'p{margin:0 0 4px;}hr{border:none;border-top:1.5px solid #CBD5E1;margin:8px 0 10px;}' +
-      '</style></head><body>' + el.innerHTML + '</body></html>'
-    );
-    doc.close();
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF }   = await import('jspdf');
 
-    setTimeout(() => {
-      frame.contentWindow.print();
-      setTimeout(() => frame.parentNode && frame.parentNode.removeChild(frame), 1000);
-    }, 250);
+      const canvas = await html2canvas(el, {
+        scale: 2, useCORS: true, allowTaint: true,
+        backgroundColor: '#ffffff', logging: false,
+      });
+
+      const pdf  = new jsPDF('p', 'mm', 'a4');
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = pdf.internal.pageSize.getHeight();
+      const imgH = (canvas.height * pdfW) / canvas.width;
+
+      let y = 0;
+      while (y < imgH) {
+        if (y > 0) pdf.addPage();
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.93), 'JPEG', 0, -y, pdfW, imgH);
+        y += pdfH;
+      }
+
+      const suffix = mode === 'invoice' ? 'Invoice' : 'Voucher';
+      const refNo  = inv?.reserve_no || id.slice(-6);
+      pdf.save(`Hotel_${suffix}_${refNo}_${Date.now()}.pdf`);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      alert('PDF generation failed. Please try again.');
+    } finally {
+      el.setAttribute('style', prevStyle || 'display:none;');
+      setDownloading(null);
+    }
   };
 
   if (loading) return (
@@ -135,7 +149,7 @@ export default function HotelInvoiceDetailPage({ params }) {
 
         {/* Company header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, paddingBottom: 24, borderBottom: '1px solid #F3F4F6' }}>
-          <img src={logo} alt="Safar e Arabian" style={{ height: 64, objectFit: 'contain', maxWidth: 220 }} onError={e => { e.target.style.display = 'none'; }} />
+          <img src={logo} alt="Safar e Arabian" style={{ height: 110, objectFit: 'contain', maxWidth: 300 }} onError={e => { e.target.style.display = 'none'; }} />
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#B1723C', lineHeight: 1.1 }}>Safar e Arabian</div>
             <div style={{ fontSize: 13, color: '#6B7280', marginTop: 6, lineHeight: 1.8 }}>
@@ -234,15 +248,15 @@ export default function HotelInvoiceDetailPage({ params }) {
 
       {/* ─── Print buttons ─── */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 40 }}>
-        <button onClick={() => handlePrint('invoice')}
-          style={{ padding: '13px 44px', background: '#2563EB', color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(37,99,235,0.3)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          Hotel Invoice
+        <button onClick={() => handleDownload('invoice')} disabled={!!downloading}
+          style={{ padding: '13px 44px', background: downloading === 'invoice' ? '#1D4ED8' : '#2563EB', color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: downloading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(37,99,235,0.3)', display: 'flex', alignItems: 'center', gap: 8, opacity: downloading && downloading !== 'invoice' ? 0.6 : 1 }}>
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          {downloading === 'invoice' ? 'Generating...' : 'Hotel Invoice'}
         </button>
-        <button onClick={() => handlePrint('voucher')}
-          style={{ padding: '13px 44px', background: '#2563EB', color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(37,99,235,0.3)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          Hotel Voucher
+        <button onClick={() => handleDownload('voucher')} disabled={!!downloading}
+          style={{ padding: '13px 44px', background: downloading === 'voucher' ? '#047857' : '#059669', color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: downloading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(5,150,105,0.3)', display: 'flex', alignItems: 'center', gap: 8, opacity: downloading && downloading !== 'voucher' ? 0.6 : 1 }}>
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          {downloading === 'voucher' ? 'Generating...' : 'Hotel Voucher'}
         </button>
       </div>
 
@@ -252,7 +266,7 @@ export default function HotelInvoiceDetailPage({ params }) {
       <div id="inv-print" style={{ fontFamily: 'Arial, sans-serif', color: '#111', background: '#fff' }}>
         {/* Header — logo left, company + invoice no right */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-          <img src={logo} alt="logo" style={{ height: 60, objectFit: 'contain' }} />
+          <img src={logo} alt="logo" style={{ height: 110, objectFit: 'contain' }} />
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#B1723C', marginBottom: 4 }}>Safar e Arabian</div>
             <div style={{ fontSize: 11, color: '#333', lineHeight: 1.7 }}>
@@ -334,7 +348,11 @@ export default function HotelInvoiceDetailPage({ params }) {
           </table>
         </div>
         <div style={{ marginTop: 14, paddingTop: 8, borderTop: '1px solid #E5E7EB', fontSize: 11, color: '#374151' }}>
-          <strong>Generated by:</strong> {inv.agent_name || '—'}{inv.agent_no ? ` (${inv.agent_no})` : ''}
+          <div style={{ display: 'flex', gap: 28, marginBottom: 4 }}>
+            <div><strong>ZAIN:</strong> +966 53 653 3827</div>
+            <div><strong>ALI HAIDER:</strong> +966 51 158 8203</div>
+          </div>
+          <div><strong>Generated by:</strong> {inv.agent_name || '—'}{inv.agent_no ? ` (${inv.agent_no})` : ''}</div>
         </div>
       </div>
 
@@ -344,7 +362,7 @@ export default function HotelInvoiceDetailPage({ params }) {
       <div id="vch-print" style={{ fontFamily: 'Arial, sans-serif', color: '#111', background: '#fff' }}>
         {/* Header: logo left, company info right */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-          <img src={logo} alt="logo" style={{ height: 52, objectFit: 'contain' }} />
+          <img src={logo} alt="logo" style={{ height: 110, objectFit: 'contain' }} />
           <div style={{ textAlign: 'right', fontSize: 11, lineHeight: 1.8 }}>
             <strong style={{ fontSize: 13 }}>Safar e Arabian</strong><br />
             Print Date: {nowStr()}<br />
@@ -384,9 +402,13 @@ export default function HotelInvoiceDetailPage({ params }) {
         <p style={{ color: '#333', fontSize: 11, margin: '0 0 12px' }}>{inv.cancellation_policy}</p>
         <p style={{ color: '#DC2626', fontWeight: 700, fontSize: 11, margin: '0 0 3px' }}>No Show Policy :</p>
         <p style={{ color: '#333', fontSize: 11, margin: '0 0 0' }}>{inv.no_show_policy}</p>
-        <p style={{ fontSize: 11, color: '#374151', margin: '14px 0 0', paddingTop: 8, borderTop: '1px solid #E5E7EB' }}>
-          <strong>Generated by:</strong> {inv.agent_name || '—'}{inv.agent_no ? ` (${inv.agent_no})` : ''}
-        </p>
+        <div style={{ marginTop: 14, paddingTop: 8, borderTop: '1px solid #E5E7EB', fontSize: 11, color: '#374151' }}>
+          <div style={{ display: 'flex', gap: 28, marginBottom: 4 }}>
+            <div><strong>ZAIN:</strong> +966 53 653 3827</div>
+            <div><strong>ALI HAIDER:</strong> +966 51 158 8203</div>
+          </div>
+          <div><strong>Generated by:</strong> {inv.agent_name || '—'}{inv.agent_no ? ` (${inv.agent_no})` : ''}</div>
+        </div>
       </div>
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
