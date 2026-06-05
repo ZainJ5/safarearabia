@@ -69,7 +69,7 @@ export default function CreateHotelInvoicePage() {
       setForm(prev => recalc({ ...prev, agent_name: name, agent_no: customId || '' }));
       setAgentsLoading(false);
     } else {
-      fetch('/api/admin/users?role=2&limit=200')
+      fetch('/api/admin/users?role=2&limit=10000')
         .then(r => r.json())
         .then(d => { if (d.success) setAgents(d.data || []); })
         .catch(() => {})
