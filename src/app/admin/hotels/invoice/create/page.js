@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useAdminUser } from '@/components/admin/AdminUserContext';
+import AgentSearchSelect from '@/components/admin/AgentSearchSelect';
 
 const NATIONALITIES = [
   'Pakistani', 'Saudi Arabian', 'Indian', 'Bangladeshi', 'Egyptian',
@@ -26,7 +27,7 @@ function Field({ label, required: r, children }) {
 }
 
 const INIT = {
-  agent_name: '', nationality: '', guest_name: '', option_date: '',
+  agent_name: '', agent_no: '', nationality: '', guest_name: '', option_date: '',
   client_ref_no: '', vat_number: '', contact_name: '', group_no: '',
   mobile_no: '', local_refno: '',
   hotel_name: '', city: '', room_type: '', check_in: '', check_out: '',
@@ -54,7 +55,7 @@ const recalc = (f) => {
 
 export default function CreateHotelInvoicePage() {
   const router  = useRouter();
-  const { role, fname, lname } = useAdminUser();
+  const { role, fname, lname, customId } = useAdminUser();
   const isAgent = role === 2;
   const [saving, setSaving] = useState(false);
   const [form, setForm]     = useState(INIT);
@@ -65,7 +66,7 @@ export default function CreateHotelInvoicePage() {
   useEffect(() => {
     if (isAgent) {
       const name = `${fname} ${lname}`.trim();
-      setForm(prev => recalc({ ...prev, agent_name: name }));
+      setForm(prev => recalc({ ...prev, agent_name: name, agent_no: customId || '' }));
       setAgentsLoading(false);
     } else {
       fetch('/api/admin/users?role=2&limit=200')
@@ -149,19 +150,27 @@ export default function CreateHotelInvoicePage() {
         {/* ── SECTION 1: Invoice Info ── */}
         <div style={sec}>Hotel Invoice Information</div>
 
-        {/* Agent Name — dropdown for admin, read-only for agent */}
-        <div style={row2}>
+        {/* Agent Name/No — dropdown for admin, read-only for agent */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20, marginBottom: 20 }}>
           <Field label="Agent Name" required>
             {isAgent ? (
               <input value={form.agent_name} readOnly style={{ ...inp, background: '#F0FDF4', color: '#059669', fontWeight: 700 }} />
             ) : (
-              <select value={form.agent_name} onChange={e => set('agent_name', e.target.value)} style={inp} disabled={agentsLoading}>
-                <option value="">{agentsLoading ? 'Loading agents...' : 'Select Agent'}</option>
-                {agents.map(a => {
-                  const name = `${a.fname || ''} ${a.lname || ''}`.trim();
-                  return <option key={a._id} value={name}>{name}{a.custom_id ? ` (${a.custom_id})` : ''}</option>;
-                })}
-              </select>
+              <AgentSearchSelect
+                agents={agents}
+                value={form.agent_name}
+                onChange={(name, ag) => setForm(prev => recalc({ ...prev, agent_name: name, agent_no: ag?.custom_id || prev.agent_no }))}
+                disabled={agentsLoading}
+                placeholder={agentsLoading ? 'Loading agents...' : 'Select Agent'}
+                style={inp}
+              />
+            )}
+          </Field>
+          <Field label="Agent No">
+            {isAgent ? (
+              <input value={form.agent_no} readOnly style={{ ...inp, background: '#F0FDF4', color: '#059669', fontWeight: 700 }} />
+            ) : (
+              <input value={form.agent_no} onChange={e => set('agent_no', e.target.value)} placeholder="Agent reference number" style={inp} />
             )}
           </Field>
           <Field label="Nationality" required>

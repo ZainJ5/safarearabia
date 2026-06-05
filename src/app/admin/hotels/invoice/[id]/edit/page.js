@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useAdminUser } from '@/components/admin/AdminUserContext';
+import AgentSearchSelect from '@/components/admin/AgentSearchSelect';
 
 const NATIONALITIES = [
   'Pakistani', 'Saudi Arabian', 'Indian', 'Bangladeshi', 'Egyptian',
@@ -140,19 +141,25 @@ export default function EditHotelInvoicePage({ params }) {
       <div className="admin-card">
         <div style={sec}>Hotel Invoice Information</div>
 
-        {/* Agent Name */}
-        <div style={row2}>
+        {/* Agent Name / No */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20, marginBottom: 20 }}>
           <Field label="Agent Name" required>
             {isAgent ? (
               <input value={form.agent_name || ''} readOnly style={{ ...inp, background: '#F0FDF4', color: '#059669', fontWeight: 700 }} />
             ) : (
-              <select value={form.agent_name || ''} onChange={e => set('agent_name', e.target.value)} style={inp}>
-                <option value="">Select Agent</option>
-                {agents.map(a => {
-                  const name = `${a.fname || ''} ${a.lname || ''}`.trim();
-                  return <option key={a._id} value={name}>{name}{a.custom_id ? ` (${a.custom_id})` : ''}</option>;
-                })}
-              </select>
+              <AgentSearchSelect
+                agents={agents}
+                value={form.agent_name || ''}
+                onChange={(name, ag) => setForm(prev => recalc({ ...prev, agent_name: name, agent_no: ag?.custom_id || prev.agent_no || '' }))}
+                style={inp}
+              />
+            )}
+          </Field>
+          <Field label="Agent No">
+            {isAgent ? (
+              <input value={form.agent_no || ''} readOnly style={{ ...inp, background: '#F0FDF4', color: '#059669', fontWeight: 700 }} />
+            ) : (
+              <input value={form.agent_no || ''} onChange={e => set('agent_no', e.target.value)} placeholder="Agent reference number" style={inp} />
             )}
           </Field>
           <Field label="Nationality" required>
