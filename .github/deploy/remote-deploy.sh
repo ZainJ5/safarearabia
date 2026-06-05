@@ -38,8 +38,13 @@ fi
 
 # Install dependencies only when the lockfile or manifest actually changed.
 if ! git diff --quiet "$BEFORE" "$AFTER" -- package.json package-lock.json; then
-  echo "↳ Dependencies changed → npm ci"
-  npm ci --no-audit --no-fund
+  echo "↳ Dependencies changed → installing"
+  # Prefer a clean, reproducible install; fall back to npm install if the
+  # lockfile is out of sync, so a deploy is never hard-blocked by lock drift.
+  npm ci --no-audit --no-fund || {
+    echo "↳ npm ci failed (lockfile out of sync) → npm install"
+    npm install --no-audit --no-fund
+  }
 else
   echo "↳ Dependencies unchanged → skipping install"
 fi
