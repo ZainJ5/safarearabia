@@ -27,7 +27,7 @@ function Field({ label, required: r, children }) {
 }
 
 const INIT = {
-  agent_name: '', agent_no: '', nationality: '', guest_name: '', option_date: '',
+  agent_name: '', agent_no: '', agent_phone: '', nationality: '', guest_name: '', option_date: '',
   client_ref_no: '', vat_number: '', contact_name: '', group_no: '',
   mobile_no: '', local_refno: '',
   hotel_name: '', city: '', room_type: '', check_in: '', check_out: '',
@@ -53,12 +53,36 @@ const recalc = (f) => {
   return { ...f, room_amount: amt, total_amount: total, sub_amount: sub };
 };
 
+/* ── Multi-hotel helpers (an invoice may bundle several hotels/rooms) ── */
+const HOTEL_KEYS = ['hotel_name', 'city', 'room_type', 'check_in', 'check_out',
+  'no_of_nights', 'no_of_rooms', 'no_of_adults', 'no_of_children', 'meals',
+  'day_rate', 'ml_srate', 'room_amount', 'conformation_no'];
+
+const BLANK_HOTEL = {
+  hotel_name: '', city: '', room_type: '', check_in: '', check_out: '',
+  no_of_nights: 0, no_of_rooms: 1, no_of_adults: 1, no_of_children: 0,
+  meals: '', day_rate: '', ml_srate: '', room_amount: 0, conformation_no: '',
+};
+
+const pickHotel = (o) => Object.fromEntries(HOTEL_KEYS.map(k => [k, o[k]]));
+
+// Recalc a single hotel row: nights from dates, amount from nights × rooms × rate.
+const recalcHotel = (h) => {
+  let nights = Number(h.no_of_nights) || 0;
+  if (h.check_in && h.check_out) {
+    nights = Math.max(0, Math.round((new Date(h.check_out) - new Date(h.check_in)) / 86400000));
+  }
+  const amt = nights * (Number(h.no_of_rooms) || 0) * (Number(h.day_rate) || 0);
+  return { ...h, no_of_nights: nights, room_amount: amt };
+};
+
 export default function CreateHotelInvoicePage() {
   const router  = useRouter();
   const { role, fname, lname, customId } = useAdminUser();
   const isAgent = role === 2;
   const [saving, setSaving] = useState(false);
   const [form, setForm]     = useState(INIT);
+  const [extraHotels, setExtraHotels] = useState([]);   // hotels #2..N in the same invoice
   const [agents, setAgents] = useState([]);
   const [agentsLoading, setAgentsLoading] = useState(true);
 
@@ -89,15 +113,36 @@ export default function CreateHotelInvoicePage() {
     }
   }, [form.check_in, form.check_out]);
 
+  /* ── Additional-hotel handlers ── */
+  const setExtraHotel = (idx, key, val) =>
+    setExtraHotels(prev => prev.map((h, i) => (i === idx ? recalcHotel({ ...h, [key]: val }) : h)));
+  const addHotel    = () => setExtraHotels(prev => [...prev, { ...BLANK_HOTEL }]);
+  const removeHotel = (idx) => setExtraHotels(prev => prev.filter((_, i) => i !== idx));
+
+  const extrasTotal = extraHotels.reduce((s, h) => s + Number(h.room_amount || 0), 0);
+  const grandTotal  = Number(form.room_amount || 0) + extrasTotal;
+
   const handleSubmit = async () => {
     if (!form.guest_name.trim()) { toast.error('Guest Name is required'); return; }
     if (!form.hotel_name.trim()) { toast.error('Hotel Name is required'); return; }
+    if (extraHotels.some(h => !String(h.hotel_name || '').trim())) {
+      toast.error('Each added hotel needs a Hotel Name'); return;
+    }
     setSaving(true);
     try {
+      const payload = { ...form };
+      // When more than one hotel is bundled, persist them all in items[] and
+      // total the invoice across every hotel. A single hotel keeps the flat shape.
+      if (extraHotels.length > 0) {
+        const allHotels = [pickHotel(form), ...extraHotels.map(pickHotel)];
+        payload.items        = allHotels;
+        payload.total_amount = grandTotal;
+        payload.sub_amount   = grandTotal;
+      }
       const res = await fetch('/api/admin/hotel-invoices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success) {
@@ -159,7 +204,7 @@ export default function CreateHotelInvoicePage() {
               <AgentSearchSelect
                 agents={agents}
                 value={form.agent_name}
-                onChange={(name, ag) => setForm(prev => recalc({ ...prev, agent_name: name, agent_no: ag?.custom_id || prev.agent_no }))}
+                onChange={(name, ag) => setForm(prev => recalc({ ...prev, agent_name: name, agent_no: ag?.custom_id || prev.agent_no, agent_phone: ag?.phone || prev.agent_phone || '' }))}
                 disabled={agentsLoading}
                 placeholder={agentsLoading ? 'Loading agents...' : 'Select Agent'}
                 style={inp}
@@ -236,14 +281,80 @@ export default function CreateHotelInvoicePage() {
           </Field>
         </div>
 
+        {/* ── Additional hotels in the same invoice ── */}
+        {extraHotels.map((h, idx) => (
+          <div key={idx} style={{ border: '1px solid #E5E7EB', borderRadius: 10, padding: '18px 20px 4px', marginBottom: 20, background: '#FBFAF8' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#B1723C' }}>Hotel #{idx + 2}</span>
+              <button type="button" onClick={() => removeHotel(idx)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg>
+                Remove
+              </button>
+            </div>
+            <div style={row2}>
+              <Field label="Hotel Name" required><input value={h.hotel_name} onChange={e => setExtraHotel(idx, 'hotel_name', e.target.value)} placeholder="Hotel Name" style={inp} /></Field>
+              <Field label="City">
+                <select value={h.city} onChange={e => setExtraHotel(idx, 'city', e.target.value)} style={inp}>
+                  <option value="">Select Option</option>
+                  {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </Field>
+            </div>
+            <div style={row2}>
+              <Field label="Room Type"><input value={h.room_type} onChange={e => setExtraHotel(idx, 'room_type', e.target.value)} placeholder="e.g. QUAD, TRIPLE, DOUBLE" style={inp} /></Field>
+              <Field label="Check In"><input type="date" value={h.check_in} onChange={e => setExtraHotel(idx, 'check_in', e.target.value)} style={inp} /></Field>
+            </div>
+            <div style={row2}>
+              <Field label="Check Out"><input type="date" value={h.check_out} onChange={e => setExtraHotel(idx, 'check_out', e.target.value)} style={inp} /></Field>
+              <Field label="No. of Nights"><input type="number" value={h.no_of_nights} readOnly style={readonlyInp} /></Field>
+            </div>
+            <div style={row2}>
+              <Field label="No. of Rooms"><input type="number" min="1" value={h.no_of_rooms} onChange={e => setExtraHotel(idx, 'no_of_rooms', e.target.value)} style={inp} /></Field>
+              <Field label="No. of Adults"><input type="number" min="1" value={h.no_of_adults} onChange={e => setExtraHotel(idx, 'no_of_adults', e.target.value)} style={inp} /></Field>
+            </div>
+            <div style={row2}>
+              <Field label="Meals"><input value={h.meals} onChange={e => setExtraHotel(idx, 'meals', e.target.value)} placeholder="e.g. R,O / BB / HB / FB" style={inp} /></Field>
+              <Field label="No. of Children"><input type="number" min="0" value={h.no_of_children} onChange={e => setExtraHotel(idx, 'no_of_children', e.target.value)} style={inp} /></Field>
+            </div>
+            <div style={row2}>
+              <Field label="Day Rate"><input type="number" step="0.01" min="0" value={h.day_rate} onChange={e => setExtraHotel(idx, 'day_rate', e.target.value)} placeholder="Rate per night" style={inp} /></Field>
+              <Field label="ML Srate"><input type="number" step="0.01" min="0" value={h.ml_srate} onChange={e => setExtraHotel(idx, 'ml_srate', e.target.value)} placeholder="ML Srate" style={inp} /></Field>
+            </div>
+            <div style={row2}>
+              <Field label="Room Amount"><input value={Number(h.room_amount).toFixed(2)} readOnly style={readonlyInp} /></Field>
+              <Field label="Conformation No"><input value={h.conformation_no} onChange={e => setExtraHotel(idx, 'conformation_no', e.target.value)} placeholder="Confirmation Number" style={inp} /></Field>
+            </div>
+          </div>
+        ))}
+
+        {/* Add hotel + running grand total */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 20 }}>
+          <button type="button" onClick={addHotel}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', background: '#FEF3EA', color: '#B1723C', border: '1.5px dashed #E3B98C', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg>
+            Add Another Hotel
+          </button>
+          {extraHotels.length > 0 && (
+            <div style={{ fontSize: 13, color: '#374151' }}>
+              Grand Total ({extraHotels.length + 1} hotels):{' '}
+              <strong style={{ color: '#059669', fontSize: 15 }}>{grandTotal.toFixed(2)}</strong>
+            </div>
+          )}
+        </div>
+
         <div style={row2}>
           <Field label="Total Amount" required>
-            <input type="number" step="0.01" min="0" value={form.total_amount}
-              onChange={e => setForm(p => ({ ...p, total_amount: e.target.value }))} style={inp} />
+            {extraHotels.length > 0
+              ? <input value={grandTotal.toFixed(2)} readOnly style={readonlyInp} />
+              : <input type="number" step="0.01" min="0" value={form.total_amount}
+                  onChange={e => setForm(p => ({ ...p, total_amount: e.target.value }))} style={inp} />}
           </Field>
           <Field label="Sub Amount" required>
-            <input type="number" step="0.01" min="0" value={form.sub_amount}
-              onChange={e => setForm(p => ({ ...p, sub_amount: e.target.value }))} style={inp} />
+            {extraHotels.length > 0
+              ? <input value={grandTotal.toFixed(2)} readOnly style={readonlyInp} />
+              : <input type="number" step="0.01" min="0" value={form.sub_amount}
+                  onChange={e => setForm(p => ({ ...p, sub_amount: e.target.value }))} style={inp} />}
           </Field>
         </div>
 

@@ -22,6 +22,7 @@ const TransportInvoiceSchema = new mongoose.Schema({
   // Guest / agent info
   agent_name:             { type: String, default: '' },
   agent_no:               { type: String, default: '' },
+  agent_phone:            { type: String, default: '' },
   nationality:            { type: String, default: '' },
   guest_name:             { type: String, default: '' },
   contact_name:           { type: String, default: '' },

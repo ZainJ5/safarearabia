@@ -25,6 +25,7 @@ const HotelInvoiceSchema = new mongoose.Schema({
   // Guest / agent info
   agent_name:  { type: String, default: '' },
   agent_no:    { type: String, default: '' },
+  agent_phone: { type: String, default: '' },
   nationality: { type: String, default: '' },
   guest_name:  { type: String, default: '' },
   option_date: { type: String, default: '' },

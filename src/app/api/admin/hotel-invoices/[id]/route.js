@@ -25,13 +25,15 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Attach agent merchant ID from User record
-    let agent_no = '';
-    let agent_phone = '';
+    // Agent number/phone: prefer the live User record, but fall back to the
+    // values stamped on the invoice (admin- or legacy-created invoices may have
+    // no linked agent_user_id yet still carry an agent_no).
+    let agent_no = item.agent_no || '';
+    let agent_phone = item.agent_phone || '';
     if (item.agent_user_id) {
       const agent = await User.findById(item.agent_user_id).select('custom_id phone').lean();
-      agent_no = agent?.custom_id || '';
-      agent_phone = agent?.phone || '';
+      if (agent?.custom_id) agent_no = agent.custom_id;
+      if (agent?.phone) agent_phone = agent.phone;
     }
 
     return NextResponse.json({ success: true, data: { ...item, agent_no, agent_phone } });
