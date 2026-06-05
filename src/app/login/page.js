@@ -74,10 +74,18 @@ function LoginForm() {
       const session = await getSession();
       if (!session?.user) { setError('Sign-in failed. Please try again.'); return; }
       const role = Number(session?.user?.role);
-      const isStaff = role === 1 || role === 2;
-      const dest = isStaff
-        ? (callbackUrl.startsWith('/admin') ? callbackUrl : '/admin/dashboard')
-        : (callbackUrl.startsWith('/admin') ? '/dashboard' : callbackUrl);
+      // Normalise callbackUrl — strip host if it's a full URL so startsWith('/admin') works
+      let safeCb = callbackUrl;
+      try { safeCb = new URL(callbackUrl).pathname; } catch { /* already a path */ }
+      let dest;
+      if (role === 1) {
+        dest = safeCb.startsWith('/admin') ? safeCb : '/admin/dashboard';
+      } else if (role === 2) {
+        // Agents always land on dashboard to avoid 404 on inaccessible pages
+        dest = '/admin/dashboard';
+      } else {
+        dest = safeCb.startsWith('/admin') ? '/dashboard' : safeCb;
+      }
       window.location.href = dest;
     } catch {
       setError('Something went wrong. Please try again.');

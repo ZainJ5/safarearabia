@@ -1,11 +1,27 @@
 import mongoose from 'mongoose';
 
+const TransportSegmentSchema = new mongoose.Schema({
+  date:          { type: String, default: '' },
+  time:          { type: String, default: '' },
+  from_location: { type: String, default: '' },
+  to_location:   { type: String, default: '' },
+  vehicle:       { type: String, default: '' },
+  mov_type:      { type: String, default: '' },
+  qty:           { type: Number, default: 1 },
+  no_of_adults:  { type: Number, default: 0 },
+  packs:         { type: String, default: '' },
+  rate:          { type: Number, default: 0 },
+  total:         { type: Number, default: 0 },
+}, { _id: false });
+
 const TransportInvoiceSchema = new mongoose.Schema({
   invoice_no:             { type: Number },
+  legacy_invoice_id:      { type: Number, default: null }, // legacy MySQL invoices.id (traceability)
   agent_user_id:          { type: mongoose.Schema.Types.ObjectId, default: null, ref: 'User' },
   reservation_no:         { type: String, default: '' },
   // Guest / agent info
   agent_name:             { type: String, default: '' },
+  agent_no:               { type: String, default: '' },
   nationality:            { type: String, default: '' },
   guest_name:             { type: String, default: '' },
   contact_name:           { type: String, default: '' },
@@ -28,6 +44,8 @@ const TransportInvoiceSchema = new mongoose.Schema({
   packs:                  { type: String, default: '' },
   rate:                   { type: Number, default: 0 },
   total:                  { type: Number, default: 0 },
+  // All transport segments for this invoice (one invoice can have many movements)
+  items:                  { type: [TransportSegmentSchema], default: [] },
   // Financial summary
   transport:              { type: Number, default: 0 },
   discount:               { type: Number, default: 0 },

@@ -83,7 +83,11 @@ export default function HotelInvoiceDetailPage({ params }) {
   );
   if (!inv) return <div style={{ padding: 60, textAlign: 'center', color: '#9CA3AF' }}>Invoice not found.</div>;
 
-  const hotelTotal = Number(inv.room_amount || 0);
+  // One invoice may have several rooms. Fall back to the flat fields for
+  // invoices created via the single-room form (no items[]).
+  const rooms = (inv.items && inv.items.length) ? inv.items : [inv];
+  const roomsTotal = rooms.reduce((s, r) => s + Number(r.room_amount || 0), 0);
+  const hotelTotal = Number(inv.total_amount || roomsTotal || inv.room_amount || 0);
   const logo = defaultSettings.header_logo || '/assets/logo/newlogosafare-1750433259.png';
   const phone = defaultSettings.hotline_phone;
   const email = defaultSettings.email_address;
@@ -190,7 +194,7 @@ export default function HotelInvoiceDetailPage({ params }) {
         <div style={{ overflowX: 'auto', marginBottom: 28 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #CBD5E1' }}>
             <thead><HotelTableHead /></thead>
-            <tbody><HotelTableRow inv={inv} /></tbody>
+            <tbody>{rooms.map((r, i) => <HotelTableRow key={i} inv={r} />)}</tbody>
           </table>
         </div>
 
@@ -273,7 +277,7 @@ export default function HotelInvoiceDetailPage({ params }) {
               <strong>Telephone :</strong> {phone}<br />
               <strong>Email :</strong> {email}<br />
               <strong>VAT Reg No :</strong><br />
-              <strong>Invoice No :</strong> {inv.reserve_no}
+              <strong>Invoice No :</strong> {inv.invoice_no || inv.reserve_no}
             </div>
           </div>
         </div>
@@ -311,7 +315,7 @@ export default function HotelInvoiceDetailPage({ params }) {
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #CBD5E1', marginBottom: 14 }}>
           <thead><HotelTableHead forPrint /></thead>
-          <tbody><HotelTableRow inv={inv} forPrint /></tbody>
+          <tbody>{rooms.map((r, i) => <HotelTableRow key={i} inv={r} forPrint />)}</tbody>
         </table>
 
         {/* Bank + summary */}
@@ -395,7 +399,7 @@ export default function HotelInvoiceDetailPage({ params }) {
         <p style={{ fontWeight: 800, fontSize: 12, margin: '0 0 4px' }}>Hotel Details</p>
         <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #CBD5E1', marginBottom: 18 }}>
           <thead><HotelTableHead forVoucher /></thead>
-          <tbody><HotelTableRow inv={inv} forVoucher /></tbody>
+          <tbody>{rooms.map((r, i) => <HotelTableRow key={i} inv={r} forVoucher />)}</tbody>
         </table>
 
         <p style={{ color: '#DC2626', fontWeight: 700, fontSize: 11, margin: '0 0 3px' }}>Cancellation Policy :</p>

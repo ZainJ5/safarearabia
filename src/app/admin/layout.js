@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }) {
   const role = Number(session?.user?.role);
   if (!session?.user || (role !== 1 && role !== 2)) redirect('/login');
 
-  const userCtx = { role, id: session.user.id, fname: session.user.fname || '', lname: session.user.lname || '' };
+  const userCtx = { role, id: session.user.id, fname: session.user.fname || '', lname: session.user.lname || '', customId: session.user.custom_id || null };
 
   return (
     <AdminUserProvider value={userCtx}>

@@ -20,13 +20,23 @@ async function checkAdmin() {
   return session;
 }
 
+async function checkStaff() {
+  const session = await auth();
+  const role = Number(session?.user?.role);
+  if (!session?.user || (role !== 1 && role !== 2)) {
+    return null;
+  }
+  return session;
+}
+
 export function createCrudRoutes(Model, options = {}) {
-  const { defaultSort = { created_at: -1 }, searchFields = ['title'] } = options;
+  const { defaultSort = { created_at: -1 }, searchFields = ['title'], allowAgent = false } = options;
+  const getSession = allowAgent ? checkStaff : checkAdmin;
 
   return {
     async GET(request) {
       try {
-        const session = await checkAdmin();
+        const session = await getSession();
         if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         await dbConnect();
@@ -60,7 +70,7 @@ export function createCrudRoutes(Model, options = {}) {
 
     async POST(request) {
       try {
-        const session = await checkAdmin();
+        const session = await getSession();
         if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         await dbConnect();
@@ -75,11 +85,14 @@ export function createCrudRoutes(Model, options = {}) {
   };
 }
 
-export function createCrudDetailRoutes(Model) {
+export function createCrudDetailRoutes(Model, options = {}) {
+  const { allowAgent = false } = options;
+  const getSession = allowAgent ? checkStaff : checkAdmin;
+
   return {
     async GET(request, { params }) {
       try {
-        const session = await checkAdmin();
+        const session = await getSession();
         if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         await dbConnect();
@@ -95,7 +108,7 @@ export function createCrudDetailRoutes(Model) {
 
     async PUT(request, { params }) {
       try {
-        const session = await checkAdmin();
+        const session = await getSession();
         if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         await dbConnect();
@@ -118,7 +131,7 @@ export function createCrudDetailRoutes(Model) {
 
     async DELETE(_request, { params }) {
       try {
-        const session = await checkAdmin();
+        const session = await getSession();
         if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         await dbConnect();

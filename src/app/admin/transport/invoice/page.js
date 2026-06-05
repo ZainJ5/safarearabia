@@ -48,7 +48,7 @@ export default function TransportInvoiceListPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const p = new URLSearchParams({ page: 1, limit: 200 });
+      const p = new URLSearchParams({ page: 1, limit: 10000 });
       if (search) p.set('search', search);
       const r = await fetch(`/api/admin/transport-invoices?${p}`);
       const d = await r.json();
@@ -270,7 +270,7 @@ export default function TransportInvoiceListPage() {
                       </td>
                       <td style={{ padding: '13px 14px', fontSize: 13, color: '#374151' }}>{inv.reservation_no || '—'}</td>
                       <td style={{ padding: '13px 14px', fontSize: 13, color: '#374151', fontWeight: 500 }}>{inv.agent_name || '—'}</td>
-                      <td style={{ padding: '13px 14px', fontSize: 13, color: '#6B7280' }}>{inv.vehicle_type || inv.transport_title || '—'}</td>
+                      <td style={{ padding: '13px 14px', fontSize: 13, color: '#6B7280' }}>{inv.vehicle_type || inv.vehicle || inv.transport_title || '—'}</td>
                       <td style={{ padding: '13px 14px', fontSize: 13, fontWeight: 700, color: '#059669', fontVariantNumeric: 'tabular-nums' }}>
                         SAR {amtOf(inv).toFixed(2)}
                       </td>

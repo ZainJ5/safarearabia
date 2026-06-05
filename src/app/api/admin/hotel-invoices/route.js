@@ -75,9 +75,11 @@ export async function POST(request) {
       }
     }
 
-    // Auto-generate sequential reserve_no
+    // Auto-generate sequential reserve_no (reservation no) and invoice_no
     const last = await HotelInvoice.findOne({}, { reserve_no: 1 }).sort({ reserve_no: -1 }).lean();
     body.reserve_no = last?.reserve_no ? last.reserve_no + 1 : 31001;
+    const lastInv = await HotelInvoice.findOne({}, { invoice_no: 1 }).sort({ invoice_no: -1 }).lean();
+    body.invoice_no = lastInv?.invoice_no ? lastInv.invoice_no + 1 : 2281;
 
     const invoice = await HotelInvoice.create(body);
 

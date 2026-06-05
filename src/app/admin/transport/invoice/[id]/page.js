@@ -80,7 +80,15 @@ export default function TransportInvoiceDetailPage({ params }) {
   if (!inv) return <div style={{ padding: 60, textAlign: 'center', color: '#9CA3AF' }}>Invoice not found.</div>;
 
   const logo     = defaultSettings.header_logo || '/assets/logo/newlogosafare-1750433259.png';
-  const netBase  = Number(inv.total || 0) + Number(inv.transport || 0) - Number(inv.discount || 0);
+  // One invoice may have several transport segments. Fall back to the flat fields
+  // for invoices created via the single-segment form (no items[]).
+  const segs = (inv.items && inv.items.length)
+    ? inv.items
+    : [{ date: inv.date, time: inv.time, from_location: inv.from_location, to_location: inv.to_location,
+         vehicle: inv.vehicle, mov_type: inv.mov_type, qty: inv.qty, no_of_adults: inv.no_of_adults,
+         packs: inv.packs, rate: inv.rate, total: inv.total }];
+  const segTotal = segs.reduce((s, r) => s + Number(r.total || 0), 0);
+  const netBase  = segTotal + Number(inv.transport || 0) - Number(inv.discount || 0);
   const vatAmt   = netBase * (Number(inv.vat || 0) / 100);
 
   return (
@@ -154,11 +162,13 @@ export default function TransportInvoiceDetailPage({ params }) {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                {[inv.date, inv.time, inv.from_location, inv.to_location, inv.vehicle, inv.mov_type, inv.qty, inv.no_of_adults, inv.packs, fmt2(inv.rate), fmt2(inv.total)].map((v, i) => (
-                  <td key={i} style={{ border: '1px solid #E5E7EB', padding: '9px 10px', fontSize: 12, textAlign: 'center' }}>{v ?? ''}</td>
-                ))}
-              </tr>
+              {segs.map((s, ri) => (
+                <tr key={ri}>
+                  {[s.date, s.time, s.from_location, s.to_location, s.vehicle, s.mov_type, s.qty, s.no_of_adults, s.packs, fmt2(s.rate), fmt2(s.total)].map((v, i) => (
+                    <td key={i} style={{ border: '1px solid #E5E7EB', padding: '9px 10px', fontSize: 12, textAlign: 'center' }}>{v ?? ''}</td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -238,11 +248,13 @@ export default function TransportInvoiceDetailPage({ params }) {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              {[inv.date, inv.time, inv.from_location, inv.to_location, inv.vehicle, inv.qty, fmt2(inv.rate), fmt2(inv.total)].map((v, i) => (
-                <td key={i} style={{ border: '1px solid #CBD5E1', padding: '6px 8px', fontSize: 10, textAlign: 'center' }}>{v ?? ''}</td>
-              ))}
-            </tr>
+            {segs.map((s, ri) => (
+              <tr key={ri}>
+                {[s.date, s.time, s.from_location, s.to_location, s.vehicle, s.qty, fmt2(s.rate), fmt2(s.total)].map((v, i) => (
+                  <td key={i} style={{ border: '1px solid #CBD5E1', padding: '6px 8px', fontSize: 10, textAlign: 'center' }}>{v ?? ''}</td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
 
@@ -345,14 +357,16 @@ export default function TransportInvoiceDetailPage({ params }) {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              {[
-                inv.date && inv.time ? `${inv.date} ${inv.time}` : (inv.date || ''),
-                inv.from_location, inv.to_location, inv.mov_type, inv.vehicle, inv.qty, inv.no_of_adults, inv.packs
-              ].map((v, i) => (
-                <td key={i} style={{ border: '1px solid #CBD5E1', padding: '6px 8px', fontSize: 10, textAlign: 'center' }}>{v ?? ''}</td>
-              ))}
-            </tr>
+            {segs.map((s, ri) => (
+              <tr key={ri}>
+                {[
+                  s.date && s.time ? `${s.date} ${s.time}` : (s.date || ''),
+                  s.from_location, s.to_location, s.mov_type, s.vehicle, s.qty, s.no_of_adults, s.packs
+                ].map((v, i) => (
+                  <td key={i} style={{ border: '1px solid #CBD5E1', padding: '6px 8px', fontSize: 10, textAlign: 'center' }}>{v ?? ''}</td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
 

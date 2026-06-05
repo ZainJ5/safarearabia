@@ -1,10 +1,30 @@
 import mongoose from 'mongoose';
 
+const HotelRoomSchema = new mongoose.Schema({
+  hotel_name:     { type: String, default: '' },
+  city:           { type: String, default: '' },
+  room_type:      { type: String, default: '' },
+  check_in:       { type: String, default: '' },
+  check_out:      { type: String, default: '' },
+  no_of_nights:   { type: Number, default: 0 },
+  no_of_rooms:    { type: Number, default: 1 },
+  no_of_adults:   { type: Number, default: 0 },
+  no_of_children: { type: Number, default: 0 },
+  meals:          { type: String, default: '' },
+  day_rate:       { type: Number, default: 0 },
+  ml_srate:       { type: Number, default: 0 },
+  room_amount:    { type: Number, default: 0 },
+  conformation_no:{ type: String, default: '' },
+}, { _id: false });
+
 const HotelInvoiceSchema = new mongoose.Schema({
-  reserve_no:    { type: Number },
+  reserve_no:    { type: Number },                    // reservation no (28900..)
+  invoice_no:    { type: Number },                    // invoice no (001.. , distinct from reservation no)
+  legacy_invoice_id: { type: Number, default: null }, // legacy MySQL invoices.id (traceability)
   agent_user_id: { type: mongoose.Schema.Types.ObjectId, default: null, ref: 'User' },
   // Guest / agent info
   agent_name:  { type: String, default: '' },
+  agent_no:    { type: String, default: '' },
   nationality: { type: String, default: '' },
   guest_name:  { type: String, default: '' },
   option_date: { type: String, default: '' },
@@ -30,6 +50,8 @@ const HotelInvoiceSchema = new mongoose.Schema({
   ml_srate:   { type: Number, default: 0 },
   room_amount:    { type: Number, default: 0 },
   conformation_no:{ type: String, default: '' },
+  // All rooms for this invoice (one invoice can have many rooms)
+  items:          { type: [HotelRoomSchema], default: [] },
   total_amount:   { type: Number, default: 0 },
   sub_amount:     { type: Number, default: 0 },
   // Bank details

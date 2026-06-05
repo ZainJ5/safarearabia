@@ -60,6 +60,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           role: user.role,
           fname: user.fname,
           lname: user.lname,
+          custom_id: user.custom_id ?? null,
         };
       },
     }),
@@ -78,6 +79,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role;
         token.fname = user.fname;
         token.lname = user.lname;
+        token.custom_id = user.custom_id ?? null;
       }
 
       // Handle Google OAuth — create or find user in DB

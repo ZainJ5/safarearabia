@@ -15,6 +15,7 @@ export const authConfig = {
         token.role = user.role;
         token.fname = user.fname;
         token.lname = user.lname;
+        token.custom_id = user.custom_id ?? null;
       }
       return token;
     },
@@ -24,6 +25,7 @@ export const authConfig = {
         session.user.role = token.role;
         session.user.fname = token.fname;
         session.user.lname = token.lname;
+        session.user.custom_id = token.custom_id ?? null;
       }
       return session;
     },
