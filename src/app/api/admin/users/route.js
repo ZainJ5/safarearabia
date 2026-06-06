@@ -4,10 +4,11 @@ import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 
-async function checkAdmin() {
+// GET (e.g. the agent picker on invoice forms) is open to Admin + Employee.
+async function checkStaff() {
   const session = await auth();
   const role = Number(session?.user?.role);
-  if (!session?.user || (role !== 1 && role !== 2)) return null;
+  if (!session?.user || (role !== 1 && role !== 4)) return null;
   return session;
 }
 
@@ -31,7 +32,7 @@ async function maxAgentCodeNumber() {
 
 export async function GET(request) {
   try {
-    const session = await checkAdmin();
+    const session = await checkStaff();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     await dbConnect();
@@ -61,15 +62,18 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const session = await checkAdmin();
+    const session = await checkStaff();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!isAdminOnly(session)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     await dbConnect();
     const body = await request.json();
+    const role = Number(body.role);
 
     if (!body.email) return NextResponse.json({ error: 'Email is required' }, { status: 400 });
-    if (!body.password) return NextResponse.json({ error: 'Password is required' }, { status: 400 });
+    // Agents (role 2) are balance-only records and never log in, so a password
+    // is optional for them. Everyone who logs in (admins, employees) needs one.
+    if (role !== 2 && !body.password) return NextResponse.json({ error: 'Password is required' }, { status: 400 });
 
     const exists = await User.findOne({ email: body.email });
     if (exists) return NextResponse.json({ error: 'Email already registered' }, { status: 400 });
@@ -82,12 +86,12 @@ export async function POST(request) {
       body.username = `${base}_${Math.random().toString(36).slice(2, 7)}`;
     }
 
-    const hashed = await bcrypt.hash(body.password, 10);
+    const hashed = body.password ? await bcrypt.hash(body.password, 10) : null;
 
     // Agents (role 2) get a server-assigned, guaranteed-unique merchant code.
     // Never trust a client-supplied custom_id — that is what produced duplicate MC numbers.
     let user;
-    if (Number(body.role) === 2) {
+    if (role === 2) {
       let n = (await maxAgentCodeNumber()) + 1;
       for (let attempt = 0; attempt < 5 && !user; attempt++) {
         try {

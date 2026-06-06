@@ -83,7 +83,7 @@ export default function AdminHeader({ user }) {
   const crumbs = rawCrumbs;
   const pageTitle = crumbs[crumbs.length - 1];
   const userInitial = (user?.fname?.charAt(0) || 'A').toUpperCase();
-  const roleLabel = Number(user?.role) === 2 ? 'Agent' : 'Administrator';
+  const roleLabel = { 1: 'Administrator', 2: 'Agent', 4: 'Employee' }[Number(user?.role)] || 'Administrator';
 
   return (
     <>

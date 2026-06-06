@@ -47,9 +47,8 @@ function Field({ label, required, children }) {
 
 export default function CreateAgentPage() {
   const router = useRouter();
-  const [form, setForm]     = useState({ fname: '', lname: '', email: '', password: '', phone: '', zip_code: 'PK', address: '', status: 1, custom_id: '' });
+  const [form, setForm]     = useState({ fname: '', lname: '', email: '', phone: '', zip_code: 'PK', address: '', status: 1, custom_id: '' });
   const [saving, setSaving] = useState(false);
-  const [showPass, setShowPass] = useState(false);
 
   useEffect(() => {
     fetch('/api/admin/users?role=2&limit=10000')
@@ -66,7 +65,6 @@ export default function CreateAgentPage() {
     e.preventDefault();
     if (!form.fname.trim()) { toast.error('Agent / company name is required'); return; }
     if (!form.email.trim()) { toast.error('Email address is required'); return; }
-    if (!form.password.trim()) { toast.error('Password is required'); return; }
     setSaving(true);
     try {
       const r = await fetch('/api/admin/users', {
@@ -98,7 +96,7 @@ export default function CreateAgentPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: '#0F172A', letterSpacing: '-0.3px' }}>Add New Agent</h2>
-            <p style={{ color: '#9CA3AF', fontSize: 13, margin: '3px 0 0', fontWeight: 500 }}>Create an agent account with portal access</p>
+            <p style={{ color: '#9CA3AF', fontSize: 13, margin: '3px 0 0', fontWeight: 500 }}>Create an agent record for invoicing &amp; balance tracking</p>
           </div>
           <Link href="/admin/agents"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 16px', border: '1.5px solid #E5E7EB', borderRadius: 8, background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', textDecoration: 'none' }}>
@@ -144,24 +142,13 @@ export default function CreateAgentPage() {
 
           {/* Account */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #ECEEF2', padding: '22px 24px', marginBottom: 16, boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 16 }}>Portal Access</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              <Field label="Password" required>
-                <div style={{ position: 'relative' }}>
-                  <input style={{ ...inp, paddingRight: 60 }} type={showPass ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)} placeholder="Min. 8 characters" />
-                  <button type="button" onClick={() => setShowPass(p => !p)}
-                    style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 11.5, color: '#9CA3AF', padding: '2px 4px', fontFamily: 'inherit' }}>
-                    {showPass ? 'Hide' : 'Show'}
-                  </button>
-                </div>
-              </Field>
-              <Field label="Status">
-                <select style={inp} value={form.status} onChange={e => set('status', Number(e.target.value))}>
-                  <option value={1}>Active</option>
-                  <option value={2}>Inactive</option>
-                </select>
-              </Field>
-            </div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 16 }}>Account Status</div>
+            <Field label="Status">
+              <select style={inp} value={form.status} onChange={e => set('status', Number(e.target.value))}>
+                <option value={1}>Active</option>
+                <option value={2}>Inactive</option>
+              </select>
+            </Field>
           </div>
 
           {/* Actions */}
@@ -226,8 +213,8 @@ export default function CreateAgentPage() {
           <div style={{ fontSize: 12, fontWeight: 700, color: '#374151', marginBottom: 14 }}>What is an Agent?</div>
           {[
             ['Merchant ID', 'Auto-generated unique identifier for the agent. Cannot be changed after creation.'],
-            ['Portal Access', 'The agent will log in with their email and password to view and create invoices.'],
-            ['Status', 'Inactive agents cannot log in. You can toggle this at any time from the agents list.'],
+            ['Balance Tracking', 'Employees create invoices on behalf of an agent — each invoice total is added to that agent’s balance.'],
+            ['Status', 'Inactive agents are hidden from the invoice agent picker. You can toggle this any time from the agents list.'],
           ].map(([title, desc]) => (
             <div key={title} style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
               <div style={{ width: 28, height: 28, borderRadius: 7, background: '#FDF4EC', border: '1px solid #F3D9C0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#B1723C' }}>

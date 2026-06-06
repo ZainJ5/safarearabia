@@ -9,9 +9,9 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const userRole   = Number(req.auth?.user?.role);
   const isAdmin    = isLoggedIn && userRole === 1;
-  const isAgent    = isLoggedIn && userRole === 2;
-  // Admins and agents both use the admin portal
-  const isStaff    = isAdmin || isAgent;
+  const isEmployee = isLoggedIn && userRole === 4;
+  // Admins and employees use the admin (management) portal. Agents no longer log in.
+  const isStaff    = isAdmin || isEmployee;
 
   const protectedPaths = ['/dashboard', '/checkout'];
   const isProtected    = protectedPaths.some((p) => pathname.startsWith(p));
@@ -50,7 +50,7 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isMerchantRoute && (!isLoggedIn || (userRole !== 2 && userRole !== 1))) {
+  if (isMerchantRoute && (!isLoggedIn || (userRole !== 4 && userRole !== 1))) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 

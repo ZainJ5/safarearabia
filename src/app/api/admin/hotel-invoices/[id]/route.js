@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/dbConnect';
 import HotelInvoice from '@/models/HotelInvoice';
-import User from '@/models/User';
+import { findUserAny, incWallet } from '@/lib/userStore';
 
 async function getSession() {
   const session = await auth();
   const role = Number(session?.user?.role);
-  if (!session?.user || (role !== 1 && role !== 2)) return null;
+  if (!session?.user || (role !== 1 && role !== 4)) return null;
   return session;
 }
 
@@ -31,7 +31,7 @@ export async function GET(request, { params }) {
     let agent_no = item.agent_no || '';
     let agent_phone = item.agent_phone || '';
     if (item.agent_user_id) {
-      const agent = await User.findById(item.agent_user_id).select('custom_id phone').lean();
+      const agent = await findUserAny(item.agent_user_id);
       if (agent?.custom_id) agent_no = agent.custom_id;
       if (agent?.phone) agent_phone = agent.phone;
     }
@@ -66,7 +66,7 @@ export async function PUT(request, { params }) {
     const newTotal = Number(item.total_amount) || 0;
     const delta = newTotal - oldTotal;
     if (delta !== 0 && existing.agent_user_id) {
-      await User.findByIdAndUpdate(existing.agent_user_id, { $inc: { wallet_balance: delta } });
+      await incWallet(existing.agent_user_id, delta);
     }
 
     return NextResponse.json({ success: true, data: item });
@@ -95,7 +95,7 @@ export async function DELETE(request, { params }) {
     // Reverse balance: subtract the invoice total
     const invoiceTotal = Number(existing.total_amount) || 0;
     if (invoiceTotal > 0 && existing.agent_user_id) {
-      await User.findByIdAndUpdate(existing.agent_user_id, { $inc: { wallet_balance: -invoiceTotal } });
+      await incWallet(existing.agent_user_id, -invoiceTotal);
     }
 
     return NextResponse.json({ success: true });

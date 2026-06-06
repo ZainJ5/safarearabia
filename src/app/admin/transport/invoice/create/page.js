@@ -25,7 +25,7 @@ function Field({ label, required: r, children }) {
 }
 
 const INIT = {
-  reservation_no: '', agent_name: '', agent_no: '', nationality: '', guest_name: '',
+  reservation_no: '', agent_user_id: '', agent_name: '', agent_no: '', agent_phone: '', nationality: '', guest_name: '',
   contact_name: '', contact_number: '', client_ref_no: '', group_no: '', local_refno: '',
   reservation_date: '', username: '', payment_type: '',
   date: '', time: '', from_location: '', to_location: '',
@@ -74,6 +74,7 @@ export default function CreateTransportInvoicePage() {
   const set = (key, val) => setForm(prev => calcAmt({ ...prev, [key]: val }));
 
   const handleSubmit = async (addMore = false) => {
+    if (!isAgent && !form.agent_user_id) { toast.error('Please select an Agent'); return; }
     if (!form.guest_name.trim()) { toast.error('Guest Name is required'); return; }
     if (!form.date) { toast.error('Date is required'); return; }
     setSaving(true);
@@ -130,7 +131,7 @@ export default function CreateTransportInvoicePage() {
               <AgentSearchSelect
                 agents={agents}
                 value={form.agent_name}
-                onChange={(name, ag) => setForm(prev => calcAmt({ ...prev, agent_name: name, agent_no: ag?.custom_id || prev.agent_no }))}
+                onChange={(name, ag) => setForm(prev => calcAmt({ ...prev, agent_name: name, agent_user_id: ag?._id || '', agent_no: ag?.custom_id || '', agent_phone: ag?.phone || '' }))}
                 style={inp}
               />
             )}

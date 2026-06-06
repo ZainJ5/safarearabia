@@ -27,7 +27,7 @@ function Field({ label, required: r, children }) {
 }
 
 const INIT = {
-  agent_name: '', agent_no: '', agent_phone: '', nationality: '', guest_name: '', option_date: '',
+  agent_user_id: '', agent_name: '', agent_no: '', agent_phone: '', nationality: '', guest_name: '', option_date: '',
   client_ref_no: '', vat_number: '', contact_name: '', group_no: '',
   mobile_no: '', local_refno: '',
   hotel_name: '', city: '', room_type: '', check_in: '', check_out: '',
@@ -123,6 +123,7 @@ export default function CreateHotelInvoicePage() {
   const grandTotal  = Number(form.room_amount || 0) + extrasTotal;
 
   const handleSubmit = async () => {
+    if (!isAgent && !form.agent_user_id) { toast.error('Please select an Agent'); return; }
     if (!form.guest_name.trim()) { toast.error('Guest Name is required'); return; }
     if (!form.hotel_name.trim()) { toast.error('Hotel Name is required'); return; }
     if (extraHotels.some(h => !String(h.hotel_name || '').trim())) {
@@ -204,7 +205,7 @@ export default function CreateHotelInvoicePage() {
               <AgentSearchSelect
                 agents={agents}
                 value={form.agent_name}
-                onChange={(name, ag) => setForm(prev => recalc({ ...prev, agent_name: name, agent_no: ag?.custom_id || prev.agent_no, agent_phone: ag?.phone || prev.agent_phone || '' }))}
+                onChange={(name, ag) => setForm(prev => recalc({ ...prev, agent_name: name, agent_user_id: ag?._id || '', agent_no: ag?.custom_id || '', agent_phone: ag?.phone || '' }))}
                 disabled={agentsLoading}
                 placeholder={agentsLoading ? 'Loading agents...' : 'Select Agent'}
                 style={inp}

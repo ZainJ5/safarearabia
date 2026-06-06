@@ -20,7 +20,8 @@ export const metadata = {
 export default async function AdminLayout({ children }) {
   const session = await auth();
   const role = Number(session?.user?.role);
-  if (!session?.user || (role !== 1 && role !== 2)) redirect('/login');
+  // Only Admin (1) and Employee (4) may access the management portal.
+  if (!session?.user || (role !== 1 && role !== 4)) redirect('/login');
 
   const userCtx = { role, id: session.user.id, fname: session.user.fname || '', lname: session.user.lname || '', customId: session.user.custom_id || null };
 

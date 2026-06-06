@@ -78,11 +78,9 @@ function LoginForm() {
       let safeCb = callbackUrl;
       try { safeCb = new URL(callbackUrl).pathname; } catch { /* already a path */ }
       let dest;
-      if (role === 1) {
+      if (role === 1 || role === 4) {
+        // Admins and employees use the management portal
         dest = safeCb.startsWith('/admin') ? safeCb : '/admin/dashboard';
-      } else if (role === 2) {
-        // Agents always land on dashboard to avoid 404 on inaccessible pages
-        dest = '/admin/dashboard';
       } else {
         dest = safeCb.startsWith('/admin') ? '/dashboard' : safeCb;
       }

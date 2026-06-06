@@ -5,10 +5,11 @@ import toast from 'react-hot-toast';
 
 const API = '/api/admin/users';
 
-const ROLES = { 1: { label: 'Admin', color: '#DC2626', bg: '#FEF2F2' }, 2: { label: 'Agent', color: '#D97706', bg: '#FFFBEB' }, 3: { label: 'Customer', color: '#059669', bg: '#ECFDF5' } };
+const ROLES = { 1: { label: 'Admin', color: '#DC2626', bg: '#FEF2F2' }, 2: { label: 'Agent', color: '#D97706', bg: '#FFFBEB' }, 3: { label: 'Customer', color: '#059669', bg: '#ECFDF5' }, 4: { label: 'Employee', color: '#2563EB', bg: '#EFF6FF' } };
 const STATUS_CFG = { 1: { label: 'Active', color: '#059669', bg: '#ECFDF5' }, 0: { label: 'Inactive', color: '#DC2626', bg: '#FEF2F2' } };
 
-const emptyForm = { fname: '', lname: '', email: '', phone: '', address: '', role: 3, status: 1, password: '' };
+// New users created here are Employees (role 4) — staff who log in and generate invoices.
+const emptyForm = { fname: '', lname: '', email: '', phone: '', address: '', role: 4, status: 1, password: '' };
 
 function Badge({ cfg, value }) {
   const s = cfg[value] || { label: '—', color: '#6B7280', bg: '#F3F4F6' };
@@ -27,6 +28,7 @@ export default function AdminUsersPage() {
   const [form, setForm]           = useState(emptyForm);
   const [saving, setSaving]       = useState(false);
   const [confirmId, setConfirmId] = useState(null);
+  const [showPass, setShowPass]   = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -43,13 +45,14 @@ export default function AdminUsersPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const openCreate = () => { setForm(emptyForm); setEditItem(null); setModal('create'); };
+  const openCreate = () => { setForm(emptyForm); setEditItem(null); setShowPass(false); setModal('create'); };
   const openEdit = (item) => {
-    setForm({ fname: item.fname || '', lname: item.lname || '', email: item.email || '', phone: item.phone || '', address: item.address || '', role: item.role ?? 3, status: item.status ?? 1, password: '' });
+    setForm({ fname: item.fname || '', lname: item.lname || '', email: item.email || '', phone: item.phone || '', address: item.address || '', role: item.role ?? 4, status: item.status ?? 1, password: '' });
     setEditItem(item);
+    setShowPass(false);
     setModal('edit');
   };
-  const closeModal = () => { setModal(null); setEditItem(null); setForm(emptyForm); };
+  const closeModal = () => { setModal(null); setEditItem(null); setForm(emptyForm); setShowPass(false); };
 
   const handleSave = async () => {
     if (!form.fname.trim() || !form.email.trim()) { toast.error('Name and email are required'); return; }
@@ -117,16 +120,29 @@ export default function AdminUsersPage() {
                 <div><label style={lS}>First Name *</label><input style={iS} value={form.fname} onChange={e => setForm(f => ({ ...f, fname: e.target.value }))} placeholder="First name" /></div>
                 <div><label style={lS}>Last Name</label><input style={iS} value={form.lname} onChange={e => setForm(f => ({ ...f, lname: e.target.value }))} placeholder="Last name" /></div>
               </div>
-              <div style={{ marginBottom: 14 }}><label style={lS}>Email *</label><input style={iS} type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="user@example.com" /></div>
-              <div style={{ marginBottom: 14 }}><label style={lS}>{modal === 'create' ? 'Password *' : 'New Password (leave blank to keep current)'}</label><input style={iS} type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder={modal === 'create' ? 'Set password' : 'Leave blank to keep'} /></div>
+              <div style={{ marginBottom: 14 }}><label style={lS}>Email *</label><input style={iS} type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="employee@example.com" autoComplete="off" /></div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={lS}>{modal === 'create' ? 'Password *' : 'New Password (leave blank to keep current)'}</label>
+                <div style={{ position: 'relative' }}>
+                  <input style={{ ...iS, paddingRight: 70 }} type={showPass ? 'text' : 'password'} value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder={modal === 'create' ? 'Set password' : 'Leave blank to keep'} autoComplete="new-password" />
+                  <button type="button" onClick={() => setShowPass(p => !p)}
+                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: 0, display: 'flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontFamily: 'inherit', fontWeight: 600 }}>
+                    {showPass
+                      ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" strokeLinecap="round" strokeLinejoin="round"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" strokeLinecap="round" strokeLinejoin="round"/><line x1="1" y1="1" x2="23" y2="23" strokeLinecap="round"/></svg>
+                      : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="12" r="3"/></svg>}
+                  </button>
+                </div>
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
                 <div><label style={lS}>Phone</label><input style={iS} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+966 5X XXX XXXX" /></div>
                 <div>
                   <label style={lS}>Role</label>
                   <select style={iS} value={form.role} onChange={e => setForm(f => ({ ...f, role: Number(e.target.value) }))}>
+                    <option value={4}>Employee</option>
                     <option value={1}>Admin</option>
-                    <option value={2}>Agent</option>
-                    <option value={3}>Customer</option>
+                    {modal === 'edit' && ![1, 4].includes(Number(form.role)) && (
+                      <option value={form.role}>{ROLES[form.role]?.label || 'Other'}</option>
+                    )}
                   </select>
                 </div>
               </div>
@@ -174,6 +190,7 @@ export default function AdminUsersPage() {
           </div>
           <select value={roleFilter} onChange={e => { setRoleFilter(e.target.value); setPage(1); }} style={{ padding: '9px 12px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 13, outline: 'none', background: '#fff' }}>
             <option value="">All Roles</option>
+            <option value="4">Employee</option>
             <option value="1">Admin</option>
             <option value="2">Agent</option>
             <option value="3">Customer</option>

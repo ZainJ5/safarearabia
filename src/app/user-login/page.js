@@ -40,7 +40,7 @@ function UserLoginForm() {
         return;
       }
       const role = Number(session?.user?.role);
-      if (role === 1 || role === 2) {
+      if (role === 1 || role === 4) {
         window.location.href = '/admin/dashboard';
       } else {
         window.location.href = callbackUrl.startsWith('/admin') ? '/dashboard' : callbackUrl;

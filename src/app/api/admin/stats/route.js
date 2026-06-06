@@ -12,7 +12,8 @@ import VisaApplication from '@/models/VisaApplication';
 export async function GET() {
   try {
     const session = await auth();
-    if (!session?.user || session.user.role !== 1)
+    const role = Number(session?.user?.role);
+    if (!session?.user || (role !== 1 && role !== 4))
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     await dbConnect();
