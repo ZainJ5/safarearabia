@@ -30,10 +30,8 @@ export async function GET(request) {
 
     let query = {};
 
-    // Employees only see invoices they generated. Admins see everything.
-    if (role === 4) {
-      query.employee_user_id = session.user.id;
-    }
+    // Employees (role 4) can now see ALL invoices. The employee_user_id stamped
+    // on creation records who generated each invoice but does not restrict visibility.
 
     if (search) {
       query.$or = [

@@ -44,18 +44,18 @@ function InvoiceDoc({ inv, rooms, hotelTotal }) {
         phone={phoneNum} email={emailAddr} website={website} />
       <Divider />
       <InfoCardRow>
-        <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
-          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
-          { icon: G.globe, label: 'Nationality', value: inv.nationality },
-          { icon: G.hash, label: 'Client Ref No', value: inv.client_ref_no },
-          { icon: G.badge, label: 'VAT Number', value: inv.vat_number },
-        ]} />
         <InfoCard icon={G.calendar} title="BOOKING INFORMATION" rows={[
           { icon: G.hash, label: 'Reservation No', value: inv.reserve_no },
           { icon: G.user, label: 'Agent Name', value: inv.agent_name },
           { icon: G.badge, label: 'Agent No', value: inv.agent_no },
           { icon: G.calendar, label: 'Option Date', value: inv.option_date },
           { icon: G.check, label: 'Invoice Status', value: 'Confirmed', valueColor: EM },
+        ]} />
+        <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
+          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
+          { icon: G.globe, label: 'Nationality', value: inv.nationality },
+          { icon: G.hash, label: 'Client Ref No', value: inv.client_ref_no },
+          { icon: G.badge, label: 'VAT Number', value: inv.vat_number },
         ]} />
       </InfoCardRow>
       <DetailsTitle icon={G.building}>{inv.city ? `${inv.city} ` : ''}Hotel Details</DetailsTitle>
@@ -91,17 +91,17 @@ function VoucherDoc({ inv, rooms }) {
         phone={phoneNum} email={emailAddr} website={website} />
       <Divider />
       <InfoCardRow>
-        <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
-          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
-          { icon: G.globe, label: 'Nationality', value: inv.nationality },
-          { icon: G.user, label: 'Contact Name', value: inv.contact_name },
-          { icon: G.phone, label: 'Mobile No', value: inv.mobile_no },
-        ]} />
         <InfoCard icon={G.calendar} title="BOOKING INFORMATION" rows={[
           { icon: G.user, label: 'Agent Name', value: inv.agent_name },
           { icon: G.badge, label: 'Agent No', value: inv.agent_no },
           { icon: G.hash, label: 'Client Ref No', value: inv.client_ref_no },
           { icon: G.hash, label: 'Group No', value: inv.group_no },
+        ]} />
+        <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
+          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
+          { icon: G.globe, label: 'Nationality', value: inv.nationality },
+          { icon: G.user, label: 'Contact Name', value: inv.contact_name },
+          { icon: G.phone, label: 'Mobile No', value: inv.mobile_no },
         ]} />
       </InfoCardRow>
       <DetailsTitle icon={G.building}>{inv.city ? `${inv.city} ` : ''}Hotel Details</DetailsTitle>

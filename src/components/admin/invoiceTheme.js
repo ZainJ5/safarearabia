@@ -18,11 +18,8 @@ export const HEAD_GRAD = `linear-gradient(180deg, ${HEAD_TOP} 0%, ${HEAD_BOT} 10
 export const HEAD_DK_GRAD = `linear-gradient(180deg, #B5912E 0%, #96752A 100%)`; // deeper gold (meta box A)
 export const HEAD_LT_GRAD = `linear-gradient(180deg, #DCC07A 0%, #C6A24C 100%)`; // lighter gold (meta box B)
 
-export const HLOGO = '/IMG_6483.PNG'; // full brand lockup (emblem + wordmark)
-
-/* Non-transparent artwork bounds inside the 1024×1024 PNG (measured), used to
-   crop away the large transparent margins so the logo prints big and tight. */
-const LOGO_BBOX = { x: 119, y: 89, w: 777, h: 703, full: 1024 };
+export const HLOGO = '/Logo.png'; // horizontal brand lockup (emblem + wordmark)
+const LOGO_W = 465, LOGO_H = 148;  // intrinsic size of Logo.png
 
 export const fmt2 = (n) => Number(n || 0).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -81,19 +78,14 @@ export const Badge = ({ d, size = 28, ring = GOLD, glyph = GOLD, bg = '#fff', sw
   </span>
 );
 
-/* Brand logo cropped tight to its artwork and rendered at an explicit size.
-   Explicit width/height + maxWidth:none make it render identically in the live
-   page and in html2canvas (which otherwise mis-sizes width-less images and is
-   affected by the global `img{max-width:100%;height:auto}` reset). */
-export const BrandLogo = ({ h = 150 }) => {
-  const s = h / LOGO_BBOX.h;
-  const draw = Math.round(LOGO_BBOX.full * s);
-  const w = Math.round(LOGO_BBOX.w * s);
+/* Horizontal brand lockup, rendered at an explicit size (preserves aspect ratio).
+   Explicit width/height + maxWidth:none keep it identical in the live page and the
+   PDF (avoids the global `img{max-width:100%;height:auto}` reset mis-sizing it). */
+export const BrandLogo = ({ h = 130 }) => {
+  const w = Math.round(LOGO_W * h / LOGO_H);
   return (
-    <div style={{ position: 'relative', width: w, height: h, overflow: 'hidden', flexShrink: 0 }}>
-      <img src={HLOGO} alt="Safar e Arabian" width={draw} height={draw}
-        style={{ position: 'absolute', left: Math.round(-LOGO_BBOX.x * s), top: Math.round(-LOGO_BBOX.y * s), width: draw, height: draw, maxWidth: 'none', display: 'block' }} />
-    </div>
+    <img src={HLOGO} alt="Safar e Arabian Travel & Tours" width={w} height={h}
+      style={{ width: w, height: h, maxWidth: 'none', display: 'block', objectFit: 'contain' }} />
   );
 };
 
@@ -124,30 +116,20 @@ export const Ribbon = ({ d, title }) => (
   </div>
 );
 
+/* Elegant straight divider: a thin tapered gold line with a small diamond at the
+   outer end and a dot at the inner end (no curves). */
 export const Flourish = ({ flip }) => (
-  <svg width="84" height="13" viewBox="0 0 92 14" style={{ display: 'block', transform: flip ? 'scaleX(-1)' : 'none' }}>
-    <path d="M2 7h44c8 0 8-5 16-5" fill="none" stroke={GOLD} strokeWidth="1.4" strokeLinecap="round" />
-    <path d="M62 2c6 0 6 10 12 10s6-8 14-5" fill="none" stroke={GOLD} strokeWidth="1.4" strokeLinecap="round" />
-    <circle cx="90" cy="7" r="2" fill={GOLD} />
+  <svg width="84" height="12" viewBox="0 0 92 12" style={{ display: 'block', transform: flip ? 'scaleX(-1)' : 'none' }}>
+    <circle cx="3" cy="6" r="1.5" fill={GOLD} />
+    <line x1="7" y1="6" x2="80" y2="6" stroke={GOLD} strokeWidth="1.2" strokeLinecap="round" />
+    <rect x="83.5" y="2.5" width="7" height="7" fill={GOLD} transform="rotate(45 87 6)" />
   </svg>
 );
 
-/* Decorative gold/brown corner arc, anchored to the page's top-left */
-export const CornerDecor = () => (
-  <div style={{ position: 'absolute', top: 0, left: 0, width: 124, height: 108, zIndex: 0, pointerEvents: 'none' }}>
-    <svg width="124" height="108" viewBox="0 0 124 108">
-      <path d="M124 0 A124 108 0 0 1 0 108 L0 94 A110 94 0 0 0 110 0 Z" fill={GOLD} />
-      <path d="M104 0 A104 90 0 0 1 0 90 L0 62 A76 62 0 0 0 76 0 Z" fill={BROWN} />
-      <path d="M60 0 A60 52 0 0 1 0 52 L0 45 A53 45 0 0 0 53 0 Z" fill={GOLD_LT} />
-    </svg>
-  </div>
-);
-
-/* The 794px "page" with corner decoration and padded content */
+/* The 794px "page" with padded content (no corner decoration). */
 export const PageBox = ({ children, width = 794 }) => (
   <div style={{ width, background: '#fff', position: 'relative', overflow: 'hidden', boxSizing: 'border-box', fontFamily: 'Arial, sans-serif', color: INK_TX }}>
-    <CornerDecor />
-    <div style={{ position: 'relative', zIndex: 1, padding: '22px 30px 16px' }}>{children}</div>
+    <div style={{ position: 'relative', zIndex: 1, padding: '6px 30px 16px' }}>{children}</div>
   </div>
 );
 
@@ -155,11 +137,11 @@ export const PageBox = ({ children, width = 794 }) => (
    The two halves sit in a 2-cell table so they can never stack in the PDF; the
    inner pieces use flexbox (which html2canvas renders reliably — unlike
    inline-block, whose text it drops). */
-export const BrandHeader = ({ title, metaA, metaB, phone, email, website, logoH = 150 }) => (
+export const BrandHeader = ({ title, metaA, metaB, phone, email, website, logoH = 130 }) => (
   <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 4 }}>
     <tbody>
       <tr>
-        <td style={{ verticalAlign: 'middle', padding: '0 0 0 28px', width: 1, whiteSpace: 'nowrap' }}>
+        <td style={{ verticalAlign: 'middle', padding: 0, width: 1, whiteSpace: 'nowrap' }}>
           <BrandLogo h={logoH} />
         </td>
         <td style={{ verticalAlign: 'middle', textAlign: 'right', padding: 0 }}>

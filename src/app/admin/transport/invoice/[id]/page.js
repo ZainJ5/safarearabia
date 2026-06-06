@@ -22,17 +22,17 @@ function TransportInvoiceDoc({ inv, segs, netBase, vatAmt }) {
         phone={phoneNum} email={emailAddr} website={website} />
       <Divider />
       <InfoCardRow>
-        <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
-          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
-          { icon: G.globe, label: 'Nationality', value: inv.nationality },
-          { icon: G.phone, label: 'Mobile No', value: inv.contact_number },
-          { icon: G.tag, label: 'Payment Type', value: inv.payment_type },
-        ]} />
         <InfoCard icon={G.calendar} title="BOOKING INFORMATION" rows={[
           { icon: G.user, label: 'Agent Name', value: inv.agent_name },
           { icon: G.badge, label: 'Agent No', value: inv.agent_no },
           { icon: G.calendar, label: 'Reservation Date', value: inv.reservation_date },
           { icon: G.hash, label: 'User Id', value: inv.username },
+        ]} />
+        <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
+          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
+          { icon: G.globe, label: 'Nationality', value: inv.nationality },
+          { icon: G.phone, label: 'Mobile No', value: inv.contact_number },
+          { icon: G.tag, label: 'Payment Type', value: inv.payment_type },
         ]} />
       </InfoCardRow>
       <DetailsTitle icon={G.car}>Transport Details</DetailsTitle>
@@ -97,17 +97,17 @@ function TransportVoucherDoc({ inv, segs }) {
         phone={phoneNum} email={emailAddr} website={website} />
       <Divider />
       <InfoCardRow>
-        <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
-          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
-          { icon: G.globe, label: 'Nationality', value: inv.nationality },
-          { icon: G.user, label: 'Contact Name', value: inv.contact_name },
-          { icon: G.phone, label: 'Mobile No', value: inv.contact_number },
-        ]} />
         <InfoCard icon={G.calendar} title="BOOKING INFORMATION" rows={[
           { icon: G.user, label: 'Agent Name', value: inv.agent_name },
           { icon: G.badge, label: 'Agent No', value: inv.agent_no },
           { icon: G.hash, label: 'Client Ref No', value: inv.client_ref_no },
           { icon: G.hash, label: 'Group No', value: inv.group_no },
+        ]} />
+        <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
+          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
+          { icon: G.globe, label: 'Nationality', value: inv.nationality },
+          { icon: G.user, label: 'Contact Name', value: inv.contact_name },
+          { icon: G.phone, label: 'Mobile No', value: inv.contact_number },
         ]} />
       </InfoCardRow>
       <DetailsTitle icon={G.car}>Transport Details</DetailsTitle>

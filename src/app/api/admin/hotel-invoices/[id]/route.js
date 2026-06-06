@@ -20,10 +20,7 @@ export async function GET(request, { params }) {
     const item = await HotelInvoice.findById(id).lean();
     if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    // Employees can only access invoices they generated
-    if (Number(session.user.role) === 4 && String(item.employee_user_id) !== String(session.user.id)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    // Employees can now view any invoice (employee_user_id still records the creator)
 
     // Agent number/phone: prefer the live User record, but fall back to the
     // values stamped on the invoice (admin- or legacy-created invoices may have
@@ -54,10 +51,7 @@ export async function PUT(request, { params }) {
     const existing = await HotelInvoice.findById(id).lean();
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    // Employees can only edit invoices they generated
-    if (Number(session.user.role) === 4 && String(existing.employee_user_id) !== String(session.user.id)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    // Employees can now edit any invoice (employee_user_id still records the creator)
 
     const oldTotal = Number(existing.total_amount) || 0;
     const item = await HotelInvoice.findByIdAndUpdate(id, body, { new: true, runValidators: true });
@@ -85,10 +79,7 @@ export async function DELETE(request, { params }) {
     const existing = await HotelInvoice.findById(id).lean();
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    // Employees can only delete invoices they generated
-    if (Number(session.user.role) === 4 && String(existing.employee_user_id) !== String(session.user.id)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    // Employees can now delete any invoice (employee_user_id still records the creator)
 
     await HotelInvoice.findByIdAndDelete(id);
 
