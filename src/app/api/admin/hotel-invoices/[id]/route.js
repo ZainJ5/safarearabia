@@ -20,8 +20,8 @@ export async function GET(request, { params }) {
     const item = await HotelInvoice.findById(id).lean();
     if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    // Agents can only view their own invoices
-    if (Number(session.user.role) === 2 && String(item.agent_user_id) !== String(session.user.id)) {
+    // Employees can only access invoices they generated
+    if (Number(session.user.role) === 4 && String(item.employee_user_id) !== String(session.user.id)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -54,8 +54,8 @@ export async function PUT(request, { params }) {
     const existing = await HotelInvoice.findById(id).lean();
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    // Agents can only edit their own invoices
-    if (Number(session.user.role) === 2 && String(existing.agent_user_id) !== String(session.user.id)) {
+    // Employees can only edit invoices they generated
+    if (Number(session.user.role) === 4 && String(existing.employee_user_id) !== String(session.user.id)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -85,8 +85,8 @@ export async function DELETE(request, { params }) {
     const existing = await HotelInvoice.findById(id).lean();
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    // Agents can only delete their own invoices
-    if (Number(session.user.role) === 2 && String(existing.agent_user_id) !== String(session.user.id)) {
+    // Employees can only delete invoices they generated
+    if (Number(session.user.role) === 4 && String(existing.employee_user_id) !== String(session.user.id)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

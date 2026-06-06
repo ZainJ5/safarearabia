@@ -29,9 +29,9 @@ export async function GET(request) {
 
     let query = {};
 
-    // Agents only see their own invoices
-    if (role === 2) {
-      query.agent_user_id = session.user.id;
+    // Employees only see invoices they generated. Admins see everything.
+    if (role === 4) {
+      query.employee_user_id = session.user.id;
     }
 
     if (search) {

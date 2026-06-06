@@ -46,7 +46,12 @@ export async function GET(request) {
 
     let query = {};
     if (search) query.$or = ['fname', 'lname', 'email', 'phone'].map(f => ({ [f]: { $regex: search, $options: 'i' } }));
-    if (role)   query.role   = parseInt(role);
+    // `role` may be a single value (e.g. the agent picker passes role=2) or a
+    // comma list (the Users tab passes role=1,4 to show only admins + employees).
+    if (role) {
+      const roles = role.split(',').map(r => parseInt(r, 10)).filter(n => !Number.isNaN(n));
+      if (roles.length) query.role = roles.length > 1 ? { $in: roles } : roles[0];
+    }
     if (status !== null && status !== '') query.status = parseInt(status);
 
     const [items, total] = await Promise.all([

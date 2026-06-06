@@ -40,8 +40,10 @@ function UserLoginForm() {
         return;
       }
       const role = Number(session?.user?.role);
-      if (role === 1 || role === 4) {
+      if (role === 1) {
         window.location.href = '/admin/dashboard';
+      } else if (role === 4) {
+        window.location.href = '/admin/hotels/invoice';
       } else {
         window.location.href = callbackUrl.startsWith('/admin') ? '/dashboard' : callbackUrl;
       }

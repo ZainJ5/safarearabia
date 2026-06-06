@@ -78,9 +78,11 @@ function LoginForm() {
       let safeCb = callbackUrl;
       try { safeCb = new URL(callbackUrl).pathname; } catch { /* already a path */ }
       let dest;
-      if (role === 1 || role === 4) {
-        // Admins and employees use the management portal
+      if (role === 1) {
         dest = safeCb.startsWith('/admin') ? safeCb : '/admin/dashboard';
+      } else if (role === 4) {
+        // Employees live in the invoice screens, not the dashboard
+        dest = safeCb.startsWith('/admin') ? safeCb : '/admin/hotels/invoice';
       } else {
         dest = safeCb.startsWith('/admin') ? '/dashboard' : safeCb;
       }

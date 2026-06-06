@@ -20,7 +20,8 @@ export async function GET(request, { params }) {
     const item = await TransportInvoice.findById(id).lean();
     if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    if (Number(session.user.role) === 2 && String(item.agent_user_id) !== String(session.user.id)) {
+    // Employees can only access invoices they generated
+    if (Number(session.user.role) === 4 && String(item.employee_user_id) !== String(session.user.id)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -53,7 +54,8 @@ export async function PUT(request, { params }) {
     const existing = await TransportInvoice.findById(id).lean();
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    if (Number(session.user.role) === 2 && String(existing.agent_user_id) !== String(session.user.id)) {
+    // Employees can only modify invoices they generated
+    if (Number(session.user.role) === 4 && String(existing.employee_user_id) !== String(session.user.id)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -83,7 +85,8 @@ export async function DELETE(request, { params }) {
     const existing = await TransportInvoice.findById(id).lean();
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    if (Number(session.user.role) === 2 && String(existing.agent_user_id) !== String(session.user.id)) {
+    // Employees can only modify invoices they generated
+    if (Number(session.user.role) === 4 && String(existing.employee_user_id) !== String(session.user.id)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

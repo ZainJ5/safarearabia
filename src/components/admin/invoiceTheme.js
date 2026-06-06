@@ -378,29 +378,55 @@ export const DocFooter = ({ inv, contacts, signoff }) => (
   </div>
 );
 
-/* Shared download helper: rasterise an element → A4 PDF.
-   If the content overspills a whole number of pages by only a little, the whole
-   image is scaled down to fit — avoiding a near-empty trailing page. */
-export async function downloadDoc(el, filename) {
-  const html2canvas = (await import('html2canvas')).default;
-  const { jsPDF } = await import('jspdf');
-  const canvas = await html2canvas(el, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', logging: false });
-  const img = canvas.toDataURL('image/jpeg', 0.95);
-  const pdf = new jsPDF('p', 'mm', 'a4');
-  const pdfW = pdf.internal.pageSize.getWidth();
-  const pdfH = pdf.internal.pageSize.getHeight();
+/* PDF export via the browser's NATIVE print engine.
 
-  const fullH = (canvas.height * pdfW) / canvas.width;        // mm at full page width
-  const rawPages = fullH / pdfH;
-  // Squeeze onto fewer pages when the last page would be <14% full.
-  const target = (rawPages > 1 && rawPages - Math.floor(rawPages) < 0.14) ? Math.floor(rawPages) : Math.ceil(rawPages);
-  const drawW = target >= rawPages ? pdfW : pdfW * (target * pdfH) / fullH;
-  const drawH = (canvas.height * drawW) / canvas.width;
-  const x = (pdfW - drawW) / 2;
+   We deliberately do NOT use html2canvas here: html2canvas re-implements CSS
+   layout and mis-places flex children (badges) in the raster even when the live
+   page is correct, which caused the recurring "text below the logo" problem.
+   Printing renders with the same engine that draws the on-screen preview, so the
+   PDF is pixel-identical to the UI — and it's crisp vector text, not an image.
 
-  for (let p = 0; p < target; p++) {
-    if (p > 0) pdf.addPage();
-    pdf.addImage(img, 'JPEG', x, -(p * pdfH), drawW, drawH);
-  }
-  pdf.save(filename);
+   The target element's markup is fully self-contained (all styling is inline),
+   so we clone its outerHTML into a clean print window with an A4 @page rule and
+   colour-exact printing, then trigger Save-as-PDF. */
+export function downloadDoc(el, filename) {
+  if (!el) return;
+  const title = String(filename || 'document').replace(/\.pdf$/i, '');
+  const win = window.open('', '_blank', 'width=900,height=1200');
+  if (!win) { alert('Please allow pop-ups for this site to download the PDF.'); return; }
+
+  const base = `${window.location.origin}/`;
+  const html = `<!doctype html>
+<html><head><meta charset="utf-8"/><title>${title}</title>
+<base href="${base}"/>
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
+  #print-doc { width: 794px; margin: 0 auto; }
+  #print-doc > * { width: 794px !important; }
+  /* keep rows/cards from splitting across page breaks */
+  tr, table, img, svg { break-inside: avoid; page-break-inside: avoid; }
+  @media screen { body { background: #9aa; padding: 16px; } }
+</style></head>
+<body><div id="print-doc">${el.outerHTML}</div>
+<script>
+  (function () {
+    function go() { try { window.focus(); window.print(); } catch (e) {} }
+    var imgs = Array.prototype.slice.call(document.images || []);
+    var pending = imgs.filter(function (i) { return !i.complete; }).length;
+    if (!pending) { setTimeout(go, 350); return; }
+    imgs.forEach(function (i) {
+      if (i.complete) return;
+      i.addEventListener('load', function () { if (--pending <= 0) setTimeout(go, 250); });
+      i.addEventListener('error', function () { if (--pending <= 0) setTimeout(go, 250); });
+    });
+    setTimeout(go, 2500); // hard fallback
+  })();
+<\/script>
+</body></html>`;
+
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
 }

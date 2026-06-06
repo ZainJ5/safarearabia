@@ -125,11 +125,20 @@ const AGENT_NAV = [
   { key: 'transp-create-inv',label: 'Create Transport Invoice',href: '/admin/transport/invoice/create',icon: I.fileAdd },
 ];
 
+/* Employees only generate & manage their own invoices — invoice tabs only. */
+const EMPLOYEE_NAV = [
+  { type: 'divider', label: 'HOTEL' },
+  { key: 'hotel-my-inv',     label: 'Hotel Invoices',  href: '/admin/hotels/invoice',        icon: I.invoice, exact: true },
+  { key: 'hotel-create-inv', label: 'Create Invoice',  href: '/admin/hotels/invoice/create', icon: I.fileAdd },
+  { type: 'divider', label: 'TRANSPORT' },
+  { key: 'transp-my-inv',     label: 'Transport Invoices', href: '/admin/transport/invoice',        icon: I.invoice, exact: true },
+  { key: 'transp-create-inv', label: 'Create Invoice',     href: '/admin/transport/invoice/create', icon: I.fileAdd },
+];
+
 /* ─── Sidebar component ──────────────────────────────────────────────── */
 export default function AdminSidebar({ userRole = 1 }) {
   const pathname  = usePathname();
-  const isAgent   = userRole === 2;
-  const nav       = isAgent ? AGENT_NAV : NAV;
+  const nav       = userRole === 4 ? EMPLOYEE_NAV : (userRole === 2 ? AGENT_NAV : NAV);
   const [hovered, setHovered] = useState(null);
   const { open, setOpen } = useAdminSidebar();
 

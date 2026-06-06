@@ -35,7 +35,8 @@ export default function AdminUsersPage() {
     try {
       const p = new URLSearchParams({ page, limit: 20 });
       if (search) p.set('search', search);
-      if (roleFilter) p.set('role', roleFilter);
+      // Agents live on the Agents page — the Users tab only manages admins + employees.
+      p.set('role', roleFilter || '1,4');
       const r = await fetch(`${API}?${p}`);
       const d = await r.json();
       if (d.success) { setItems(d.data || []); setPagination(d.pagination || { total: 0, pages: 1 }); }
@@ -189,11 +190,9 @@ export default function AdminUsersPage() {
             <input value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => e.key === 'Enter' && load()} placeholder="Search users..." style={{ width: '100%', padding: '9px 12px 9px 38px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
           </div>
           <select value={roleFilter} onChange={e => { setRoleFilter(e.target.value); setPage(1); }} style={{ padding: '9px 12px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 13, outline: 'none', background: '#fff' }}>
-            <option value="">All Roles</option>
+            <option value="">All Staff</option>
             <option value="4">Employee</option>
             <option value="1">Admin</option>
-            <option value="2">Agent</option>
-            <option value="3">Customer</option>
           </select>
           <button onClick={() => { setPage(1); load(); }} className="admin-btn admin-btn-primary admin-btn-sm">Search</button>
           {(search || roleFilter) && <button onClick={() => { setSearch(''); setRoleFilter(''); setPage(1); }} className="admin-btn admin-btn-sm" style={{ background: '#F3F4F6', color: '#374151' }}>Clear</button>}
