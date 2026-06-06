@@ -219,7 +219,7 @@ export default function AdminDashboardPage() {
   const sparkData = revenueByMonth.map(m => m.count);
 
   return (
-    <div style={{ maxWidth: 1400 }}>
+    <div>
 
       {/* Welcome banner */}
       <div style={{

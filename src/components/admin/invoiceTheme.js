@@ -11,7 +11,7 @@ export const DOT_LINE = '#E7D8B5';
 export const EM       = '#0B7A57';
 export const serif    = 'Georgia, "Times New Roman", serif';
 
-export const HLOGO = '/assets/logo/newlogosafare-1750433259.png'; // horizontal lockup
+export const HLOGO = '/IMG_6483.PNG'; // full brand lockup (emblem + wordmark)
 
 export const fmt2 = (n) => Number(n || 0).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -114,8 +114,8 @@ export const PageBox = ({ children, width = 794 }) => (
 /* Header: horizontal logo (wordmark beside emblem) + big title + meta boxes + contacts */
 export const BrandHeader = ({ logo = HLOGO, title, metaA, metaB, phone, email, website }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-    <div style={{ paddingTop: 14, paddingLeft: 96 }}>
-      <img src={logo} alt="Safar e Arabian" style={{ height: 54, objectFit: 'contain' }} />
+    <div style={{ paddingTop: 0, paddingLeft: 84 }}>
+      <img src={logo} alt="Safar e Arabian" style={{ height: 180, objectFit: 'contain' }} />
     </div>
     <div style={{ textAlign: 'right', minWidth: 300 }}>
       <div style={{ fontFamily: serif, fontSize: 36, fontWeight: 700, color: INK_TX, letterSpacing: 3, lineHeight: 1, marginBottom: 10 }}>{title}</div>
