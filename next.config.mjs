@@ -31,7 +31,7 @@ const nextConfig = {
 
   // Puppeteer must not be bundled by webpack — it has native bindings and
   // spawns a separate Chrome process.
-  serverExternalPackages: ['puppeteer', 'puppeteer-core'],
+  serverExternalPackages: ['puppeteer-core'],
 };
 
 export default nextConfig;
