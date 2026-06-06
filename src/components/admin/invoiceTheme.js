@@ -336,27 +336,38 @@ export const Policies = ({ inv }) => (
 );
 
 export const DocFooter = ({ inv, contacts, signoff }) => {
-  const name = signoff || inv.employee_name || inv.agent_name || 'Safar e Arabian Travel';
+  const name = signoff || inv.employee_name || 'Safar e Arabian Travel';
+  const email = 'info@safarearabiantravel.com';
+  const site = 'safarearabiantravel.com';
   return (
     <div style={{ marginTop: 14 }}>
-      {contacts && contacts.length > 0 ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
-          <Flourish flip />
-          {contacts.map((c) => <div key={c.label} style={{ fontSize: 11, color: INK_TX }}><strong style={{ color: BROWN }}>{c.label}:</strong> {c.value}</div>)}
-          <Flourish />
+      {/* Row: contacts (left, vouchers only) + regards (right) */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          {contacts && contacts.length > 0 && (
+            <div style={{ display: 'flex', gap: 24, fontSize: 11, color: INK_TX }}>
+              {contacts.map((c) => (
+                <div key={c.label}><strong style={{ color: BROWN }}>{c.label}:</strong> {c.value}</div>
+              ))}
+            </div>
+          )}
         </div>
-      ) : (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
-          <Flourish flip />
-          <Ico d="M12 2l4 5-4 5-4-5z" color={GOLD} fill={GOLD} size={13} />
-          <Flourish />
-        </div>
-      )}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 10 }}>
-        <div style={{ fontSize: 10.5, fontStyle: 'italic', color: '#9B8A6A' }}>Thank you for choosing Safar e Arabian</div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: 11, color: '#6B5C3E' }}>Thanks, and Best Regards</div>
           <div style={{ fontSize: 13, fontWeight: 700, color: BROWN }}>{name}</div>
+        </div>
+      </div>
+      {/* Gold divider */}
+      <div style={{ height: 1.5, background: GOLD, opacity: 0.5, margin: '10px 0 8px' }} />
+      {/* Bottom bar: email + website */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 50 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Badge d={G.mail} size={23} />
+          <span style={{ fontSize: 11, color: INK_TX }}>{email}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Badge d={G.globe} size={23} />
+          <span style={{ fontSize: 11, color: INK_TX }}>{site}</span>
         </div>
       </div>
     </div>
