@@ -36,6 +36,14 @@ const hotelRow = (r, lastCell) => {
 
 /* ─── Hotel Invoice document ─── */
 function InvoiceDoc({ inv, rooms, hotelTotal }) {
+  const roomsByCity = rooms.reduce((acc, r) => {
+    const city = (r.city || inv.city || '').trim().toUpperCase();
+    if (!acc[city]) acc[city] = [];
+    acc[city].push(r);
+    return acc;
+  }, {});
+  const cityKeys = Object.keys(roomsByCity);
+
   return (
     <PageBox>
       <BrandHeader title="INVOICE"
@@ -58,10 +66,14 @@ function InvoiceDoc({ inv, rooms, hotelTotal }) {
           { icon: G.badge, label: 'VAT Number', value: inv.vat_number },
         ]} />
       </InfoCardRow>
-      <DetailsTitle icon={G.building}>{inv.city ? `${inv.city} ` : ''}Hotel Details</DetailsTitle>
-      <ThemeTable
-        columns={[...HOTEL_COLS, { label: 'AMOUNT (SAR)', icon: G.money }]}
-        rows={rooms.map((r) => hotelRow(r, (x) => ({ strong: true, value: fmt2(x.room_amount) })))} />
+      {cityKeys.map((city, idx) => (
+        <div key={idx}>
+          <DetailsTitle icon={G.building}>{city ? `${city} ` : ''}Hotel Details</DetailsTitle>
+          <ThemeTable
+            columns={[...HOTEL_COLS, { label: 'AMOUNT (SAR)', icon: G.money }]}
+            rows={roomsByCity[city].map((r) => hotelRow(r, (x) => ({ strong: true, value: fmt2(x.room_amount) })))} />
+        </div>
+      ))}
       <BankSummaryRow
         left={<BankList
           rows={[
@@ -83,6 +95,14 @@ function InvoiceDoc({ inv, rooms, hotelTotal }) {
 
 /* ─── Hotel Voucher document (same theme, voucher fields) ─── */
 function VoucherDoc({ inv, rooms }) {
+  const roomsByCity = rooms.reduce((acc, r) => {
+    const city = (r.city || inv.city || '').trim().toUpperCase();
+    if (!acc[city]) acc[city] = [];
+    acc[city].push(r);
+    return acc;
+  }, {});
+  const cityKeys = Object.keys(roomsByCity);
+
   return (
     <PageBox>
       <BrandHeader title="VOUCHER"
@@ -104,10 +124,14 @@ function VoucherDoc({ inv, rooms }) {
           { icon: G.phone, label: 'Mobile No', value: inv.mobile_no },
         ]} />
       </InfoCardRow>
-      <DetailsTitle icon={G.building}>{inv.city ? `${inv.city} ` : ''}Hotel Details</DetailsTitle>
-      <ThemeTable
-        columns={[...HOTEL_COLS, { label: 'CONF NO', icon: G.badge }]}
-        rows={rooms.map((r) => hotelRow(r, (x) => x.conformation_no || ''))} />
+      {cityKeys.map((city, idx) => (
+        <div key={idx}>
+          <DetailsTitle icon={G.building}>{city ? `${city} ` : ''}Hotel Details</DetailsTitle>
+          <ThemeTable
+            columns={[...HOTEL_COLS, { label: 'CONF NO', icon: G.badge }]}
+            rows={roomsByCity[city].map((r) => hotelRow(r, (x) => x.conformation_no || ''))} />
+        </div>
+      ))}
       <Policies inv={inv} />
       <DocFooter inv={inv} contacts={[{ label: 'ZAIN', value: '+966 53 653 3827' }, { label: 'ALI HAIDER', value: '+966 51 158 8203' }]} />
     </PageBox>
