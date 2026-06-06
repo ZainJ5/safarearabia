@@ -31,7 +31,7 @@ const UserSchema = new mongoose.Schema(
       type: Number,
       required: true,
       default: 3,
-      enum: [1, 2, 3], // 1=Admin, 2=Merchant, 3=Customer
+      enum: [1, 2, 3, 4], // 1=Admin, 2=Agent/Merchant, 3=Customer, 4=Employee
     },
     status: {
       type: Number,

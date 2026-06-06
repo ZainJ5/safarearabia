@@ -11,6 +11,13 @@ export const DOT_LINE = '#E7D8B5';
 export const EM = '#0B7A57';
 export const serif = 'Georgia, "Times New Roman", serif';
 
+/* Warm champagne-gold headers (replaces the old dark-brown fills) */
+export const HEAD_TOP = '#C9A24E';
+export const HEAD_BOT = '#A87E2B';
+export const HEAD_GRAD = `linear-gradient(180deg, ${HEAD_TOP} 0%, ${HEAD_BOT} 100%)`;
+export const HEAD_DK_GRAD = `linear-gradient(180deg, #B5912E 0%, #96752A 100%)`; // deeper gold (meta box A)
+export const HEAD_LT_GRAD = `linear-gradient(180deg, #DCC07A 0%, #C6A24C 100%)`; // lighter gold (meta box B)
+
 export const HLOGO = '/IMG_6483.PNG'; // full brand lockup (emblem + wordmark)
 
 /* Non-transparent artwork bounds inside the 1024×1024 PNG (measured), used to
@@ -64,14 +71,13 @@ export const Ico = ({ d, size = 15, color = GOLD, sw = 1.7, fill = 'none' }) => 
   </svg>
 );
 
-/* Circular icon badge. Centred with absolute positioning (not inline-flex) so the
-   inner SVG renders reliably in html2canvas inside any container — table cells,
-   flex rows, or standalone (inline-flex drops the glyph in non-flex contexts). */
+/* Circular icon badge. Uses display:flex to centre the glyph — this renders the
+   SVG reliably in html2canvas AND, as a block-level flex item, is vertically
+   centred correctly by a parent flex row's alignItems:center in both the live
+   page and the PDF. */
 export const Badge = ({ d, size = 28, ring = GOLD, glyph = GOLD, bg = '#fff', sw }) => (
-  <span style={{ position: 'relative', display: 'inline-block', verticalAlign: 'middle', width: size, height: size, borderRadius: '50%', border: `${sw || 1.5}px solid ${ring}`, background: bg, flexShrink: 0 }}>
-    <span style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
-      <Ico d={d} color={glyph} size={Math.round(size * 0.52)} />
-    </span>
+  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: size, height: size, borderRadius: '50%', border: `${sw || 1.5}px solid ${ring}`, background: bg, flexShrink: 0 }}>
+    <Ico d={d} color={glyph} size={Math.round(size * 0.52)} />
   </span>
 );
 
@@ -112,8 +118,8 @@ const FieldRows = ({ rows, labelW = 110 }) => (
 );
 
 export const Ribbon = ({ d, title }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: BROWN, borderRadius: '8px 8px 0 0', padding: '8px 14px' }}>
-    <Badge d={d} size={28} ring={GOLD} glyph={GOLD} bg={BROWN_LT} sw={2} />
+  <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: HEAD_BOT, backgroundImage: HEAD_GRAD, borderRadius: '8px 8px 0 0', padding: '8px 14px' }}>
+    <Badge d={d} size={28} ring="rgba(255,255,255,0.9)" glyph="#fff" bg="rgba(255,255,255,0.16)" sw={1.5} />
     <span style={{ fontSize: 12.5, fontWeight: 800, color: '#fff', letterSpacing: 1.1 }}>{title}</span>
   </div>
 );
@@ -160,17 +166,17 @@ export const BrandHeader = ({ title, metaA, metaB, phone, email, website, logoH 
           <div style={{ fontFamily: serif, fontSize: 40, fontWeight: 700, color: INK_TX, letterSpacing: 3, lineHeight: 1, marginBottom: 10 }}>{title}</div>
           {(metaA || metaB) && (
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
-              <div style={{ display: 'flex', borderRadius: 6, overflow: 'hidden', border: `1px solid ${GOLD}` }}>
+              <div style={{ display: 'flex', borderRadius: 6, overflow: 'hidden', border: `1px solid ${HEAD_BOT}` }}>
                 {metaA && (
-                  <div style={{ background: BROWN, color: '#fff', padding: '7px 16px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 9.5, letterSpacing: 1.2 }}>{metaA.label}</div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: GOLD_LT, marginTop: 2 }}>{metaA.value}</div>
+                  <div style={{ backgroundColor: '#9F7E2A', backgroundImage: HEAD_DK_GRAD, padding: '7px 18px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 9.5, letterSpacing: 1.2, color: 'rgba(255,255,255,0.9)' }}>{metaA.label}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginTop: 2 }}>{metaA.value}</div>
                   </div>
                 )}
                 {metaB && (
-                  <div style={{ backgroundColor: GOLD, backgroundImage: `linear-gradient(to bottom, ${GOLD_LT}, ${GOLD})`, color: BROWN, padding: '7px 16px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 9.5, letterSpacing: 1.2 }}>{metaB.label}</div>
-                    <div style={{ fontSize: 15, fontWeight: 700, marginTop: 2 }}>{metaB.value}</div>
+                  <div style={{ backgroundColor: '#C6A24C', backgroundImage: HEAD_LT_GRAD, padding: '7px 18px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 9.5, letterSpacing: 1.2, color: BROWN }}>{metaB.label}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: BROWN, marginTop: 2 }}>{metaB.value}</div>
                   </div>
                 )}
               </div>
@@ -253,11 +259,11 @@ export const ThemeTable = ({ columns, rows }) => (
   <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${GOLD}` }}>
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
-        <tr style={{ background: BROWN }}>
+        <tr style={{ background: HEAD_BOT, backgroundImage: HEAD_GRAD }}>
           {columns.map((c, ci) => (
-            <th key={ci} style={{ padding: '7px 5px', borderRight: ci < columns.length - 1 ? '1px solid rgba(255,255,255,0.12)' : 'none', color: '#fff', verticalAlign: 'middle' }}>
+            <th key={ci} style={{ padding: '7px 5px', borderRight: ci < columns.length - 1 ? '1px solid rgba(255,255,255,0.22)' : 'none', color: '#fff', verticalAlign: 'middle' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                <Ico d={c.icon} color={GOLD_LT} size={15} />
+                <Ico d={c.icon} color="#fff" size={15} />
                 <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 0.3 }}>{c.label}</span>
               </div>
             </th>
@@ -331,33 +337,43 @@ export const SummaryCard = ({ icon = G.receipt, title = 'PAYMENT SUMMARY', lines
   </div>
 );
 
+const PolicyLine = ({ label, text }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 6 }}>
+    <Badge d="M6 6l12 12M18 6L6 18" size={22} ring="#C99A4E" glyph="#B23B2E" sw={1.4} />
+    <div style={{ fontSize: 11, color: '#5A4A33' }}><strong style={{ color: BROWN }}>{label} :</strong> {text}</div>
+  </div>
+);
+
 export const Policies = ({ inv }) => (
   (inv.cancellation_policy || inv.no_show_policy) ? (
     <div style={{ marginTop: 12 }}>
-      {inv.cancellation_policy && <p style={{ color: '#B23B2E', fontSize: 10.5, margin: '0 0 2px' }}><strong>Cancellation Policy :</strong> {inv.cancellation_policy}</p>}
-      {inv.no_show_policy && <p style={{ color: '#B23B2E', fontSize: 10.5, margin: 0 }}><strong>No Show Policy :</strong> {inv.no_show_policy}</p>}
+      {inv.cancellation_policy && <PolicyLine label="Cancellation Policy" text={inv.cancellation_policy} />}
+      {inv.no_show_policy && <PolicyLine label="No Show Policy" text={inv.no_show_policy} />}
     </div>
   ) : null
 );
 
-export const DocFooter = ({ inv, contacts }) => (
-  <div>
-    {contacts && contacts.length > 0 && (
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 24, marginTop: 12, fontSize: 11, color: INK_TX }}>
-        {contacts.map((c) => <div key={c.label}><strong style={{ color: BROWN }}>{c.label}:</strong> {c.value}</div>)}
-      </div>
-    )}
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 12 }}>
-      <Flourish flip />
-      <Ico d="M12 2l4 5-4 5-4-5z" color={GOLD} fill={GOLD} size={13} />
-      <Flourish />
-    </div>
-    <div style={{ textAlign: 'center', marginTop: 7, fontSize: 11, color: '#6B5C3E' }}>
+export const DocFooter = ({ inv, contacts, signoff }) => (
+  <div style={{ marginTop: 14 }}>
+    <div style={{ textAlign: 'center', fontSize: 11, color: '#6B5C3E' }}>
       <strong style={{ color: BROWN }}>Generated by:</strong> {inv.agent_name || '—'}
       {inv.agent_no ? `  ·  Agent No: ${inv.agent_no}` : ''}
       {inv.agent_phone ? `  ·  ${inv.agent_phone}` : ''}
     </div>
-    <div style={{ textAlign: 'center', marginTop: 2, fontSize: 10.5, fontStyle: 'italic', color: '#9B8A6A' }}>Thank you for choosing Safar e Arabian</div>
+    {contacts && contacts.length > 0 && (
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 8 }}>
+        <Flourish flip />
+        {contacts.map((c) => <div key={c.label} style={{ fontSize: 11, color: INK_TX }}><strong style={{ color: BROWN }}>{c.label}:</strong> {c.value}</div>)}
+        <Flourish />
+      </div>
+    )}
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 10 }}>
+      <div style={{ fontSize: 10.5, fontStyle: 'italic', color: '#9B8A6A' }}>Thank you for choosing Safar e Arabian</div>
+      <div style={{ textAlign: 'right' }}>
+        <div style={{ fontSize: 11, color: '#6B5C3E' }}>Thanks, and Best Regards</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: BROWN }}>{signoff || inv.agent_name || 'Safar e Arabian Travel'}</div>
+      </div>
+    </div>
   </div>
 );
 

@@ -18,6 +18,10 @@ const TransportInvoiceSchema = new mongoose.Schema({
   invoice_no:             { type: Number },
   legacy_invoice_id:      { type: Number, default: null }, // legacy MySQL invoices.id (traceability)
   agent_user_id:          { type: mongoose.Schema.Types.ObjectId, default: null, ref: 'User' },
+  // Employee who generated the invoice (logged-in staff member)
+  employee_user_id:       { type: mongoose.Schema.Types.ObjectId, default: null, ref: 'User' },
+  employee_name:          { type: String, default: '' },
+  employee_phone:         { type: String, default: '' },
   reservation_no:         { type: String, default: '' },
   // Guest / agent info
   agent_name:             { type: String, default: '' },
