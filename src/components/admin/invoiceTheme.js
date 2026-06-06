@@ -165,7 +165,6 @@ export const BrandHeader = ({ title, metaA, metaB, phone, email, website, logoH 
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, fontSize: 11.5, color: INK_TX }}>
-            {phone && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span>{phone}</span><Badge d={G.phone} size={23} /></div>}
             {email && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span>{email}</span><Badge d={G.mail} size={23} /></div>}
             {website && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span>{website}</span><Badge d={G.globe} size={23} /></div>}
           </div>
@@ -337,8 +336,6 @@ export const Policies = ({ inv }) => (
 
 export const DocFooter = ({ inv, contacts, signoff }) => {
   const name = signoff || inv.employee_name || 'Safar e Arabian Travel';
-  const email = 'info@safarearabiantravel.com';
-  const site = 'safarearabiantravel.com';
   return (
     <div style={{ marginTop: 14 }}>
       {/* Row: contacts (left, vouchers only) + regards (right) */}
@@ -355,19 +352,6 @@ export const DocFooter = ({ inv, contacts, signoff }) => {
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: 11, color: '#6B5C3E' }}>Thanks, and Best Regards</div>
           <div style={{ fontSize: 13, fontWeight: 700, color: BROWN }}>{name}</div>
-        </div>
-      </div>
-      {/* Gold divider */}
-      <div style={{ height: 1.5, background: GOLD, opacity: 0.5, margin: '10px 0 8px' }} />
-      {/* Bottom bar: email + website */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 50 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Badge d={G.mail} size={23} />
-          <span style={{ fontSize: 11, color: INK_TX }}>{email}</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Badge d={G.globe} size={23} />
-          <span style={{ fontSize: 11, color: INK_TX }}>{site}</span>
         </div>
       </div>
     </div>
