@@ -46,16 +46,14 @@ export default function AgentProfilePage({ params }) {
             zip_code: d.data.zip_code || 'PK', status: d.data.status ?? 1, password: '',
           });
 
-          const agentName = `${d.data.fname || ''} ${d.data.lname || ''}`.trim();
-          if (agentName) {
-            const [hr, tr] = await Promise.all([
-              fetch(`/api/admin/hotel-invoices?agent_name=${encodeURIComponent(agentName)}&limit=5`),
-              fetch(`/api/admin/transport-invoices?agent_name=${encodeURIComponent(agentName)}&limit=5`),
-            ]);
-            const [hd, td] = await Promise.all([hr.json(), tr.json()]);
-            if (hd.success) setHotelInvoices(hd.data);
-            if (td.success) setTransportInvoices(td.data);
-          }
+          // Invoices where THIS agent is the selected/booking agent (by id, not name).
+          const [hr, tr] = await Promise.all([
+            fetch(`/api/admin/hotel-invoices?agent_user_id=${encodeURIComponent(id)}&limit=5`),
+            fetch(`/api/admin/transport-invoices?agent_user_id=${encodeURIComponent(id)}&limit=5`),
+          ]);
+          const [hd, td] = await Promise.all([hr.json(), tr.json()]);
+          if (hd.success) setHotelInvoices(hd.data);
+          if (td.success) setTransportInvoices(td.data);
         }
       } catch { /**/ }
       setLoading(false);

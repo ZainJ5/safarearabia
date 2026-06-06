@@ -91,30 +91,26 @@ function AgentInvoicesContent({ agentId }) {
   }, [agentId]);
 
   const fetchHotel = useCallback(async (page) => {
-    const name = agentNameRef.current;
-    if (!name) return;
     setHLoading(true);
-    const p = new URLSearchParams({ agent_name: name, page, limit: 15 });
+    const p = new URLSearchParams({ agent_user_id: agentId, page, limit: 15 });
     if (search)  p.set('search', search);
     if (status)  p.set('status', status);
     const r = await fetch(`/api/admin/hotel-invoices?${p}`);
     const d = await r.json();
     if (d.success) setHotelData({ items: d.data, total: d.pagination?.total || 0, pages: d.pagination?.pages || 1 });
     setHLoading(false);
-  }, [search, status]);
+  }, [search, status, agentId]);
 
   const fetchTransport = useCallback(async (page) => {
-    const name = agentNameRef.current;
-    if (!name) return;
     setTLoading(true);
-    const p = new URLSearchParams({ agent_name: name, page, limit: 15 });
+    const p = new URLSearchParams({ agent_user_id: agentId, page, limit: 15 });
     if (search)  p.set('search', search);
     if (status)  p.set('status', status);
     const r = await fetch(`/api/admin/transport-invoices?${p}`);
     const d = await r.json();
     if (d.success) setTransportData({ items: d.data, total: d.pagination?.total || 0, pages: d.pagination?.pages || 1 });
     setTLoading(false);
-  }, [search, status]);
+  }, [search, status, agentId]);
 
   // Load after agent is ready
   useEffect(() => {

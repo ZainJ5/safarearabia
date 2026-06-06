@@ -22,6 +22,7 @@ export async function GET(request) {
     const search = searchParams.get('search') || '';
     const skip   = (page - 1) * limit;
     const agentFilter  = searchParams.get('agent_name');
+    const agentUserId  = searchParams.get('agent_user_id');
     const dateFilter   = searchParams.get('date');
     const statusFilter = searchParams.get('status');
     const role = Number(session.user.role);
@@ -42,7 +43,9 @@ export async function GET(request) {
         { to_location:   { $regex: search, $options: 'i' } },
       ];
     }
-    if (agentFilter)  query.agent_name = { $regex: agentFilter, $options: 'i' };
+    // Agent's invoices = invoices where this agent is the selected/booking agent.
+    if (agentUserId)  query.agent_user_id = agentUserId;
+    else if (agentFilter) query.agent_name = { $regex: agentFilter, $options: 'i' };
     if (dateFilter)   query.date       = { $regex: `^${dateFilter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}` };
     if (statusFilter) query.status     = Number(statusFilter);
 

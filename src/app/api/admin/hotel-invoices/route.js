@@ -23,6 +23,7 @@ export async function GET(request) {
     const search = searchParams.get('search') || '';
     const skip   = (page - 1) * limit;
     const agentNameFilter = searchParams.get('agent_name');
+    const agentUserId     = searchParams.get('agent_user_id');
     const checkInFilter   = searchParams.get('check_in');
     const statusFilter    = searchParams.get('status');
     const role = Number(session.user.role);
@@ -42,7 +43,9 @@ export async function GET(request) {
         { reserve_no: !isNaN(search) ? Number(search) : undefined },
       ].filter(c => Object.values(c)[0] !== undefined);
     }
-    if (agentNameFilter) query.agent_name = { $regex: agentNameFilter, $options: 'i' };
+    // Agent's invoices = invoices where this agent is the selected/booking agent.
+    if (agentUserId)     query.agent_user_id = agentUserId;
+    else if (agentNameFilter) query.agent_name = { $regex: agentNameFilter, $options: 'i' };
     if (checkInFilter)   query.check_in   = { $regex: `^${checkInFilter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}` };
     if (statusFilter)    query.status     = Number(statusFilter);
 
