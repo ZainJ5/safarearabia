@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
-const STATUS_MAP   = { 1: 'Processing', 2: 'Completed', 3: 'Cancelled' };
+const STATUS_MAP = { 1: 'Processing', 2: 'Completed', 3: 'Cancelled' };
 const STATUS_COLOR = {
   1: { bg: '#EFF6FF', color: '#2563EB', border: '#BFDBFE' },
   2: { bg: '#ECFDF5', color: '#059669', border: '#A7F3D0' },
@@ -11,14 +11,14 @@ const STATUS_COLOR = {
 };
 
 /* ── Icons ── */
-const IcoSearch = () => <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="1.8"/><path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>;
-const IcoPlus   = () => <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg>;
-const IcoEye    = () => <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="1.8"/><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8"/></svg>;
-const IcoPencil = () => <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>;
-const IcoTrash  = () => <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6m4-6v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>;
-const IcoX      = () => <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg>;
-const IcoSort   = () => <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M11 18h2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>;
-const IcoEmpty  = () => <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2" stroke="currentColor" strokeWidth="1.3"/><path d="M6 18v2m12-2v2M2 12h20M7 8V5a1 1 0 011-1h8a1 1 0 011 1v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>;
+const IcoSearch = () => <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="1.8" /><path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>;
+const IcoPlus = () => <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg>;
+const IcoEye = () => <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="1.8" /><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" /></svg>;
+const IcoPencil = () => <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>;
+const IcoTrash = () => <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6m4-6v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>;
+const IcoX = () => <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg>;
+const IcoSort = () => <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M11 18h2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>;
+const IcoEmpty = () => <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2" stroke="currentColor" strokeWidth="1.3" /><path d="M6 18v2m12-2v2M2 12h20M7 8V5a1 1 0 011-1h8a1 1 0 011 1v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" /></svg>;
 
 const sel = {
   padding: '8px 12px', border: '1.5px solid #E5E7EB', borderRadius: 8,
@@ -34,21 +34,21 @@ const amtOf = inv => Number(inv.net_total_with_tax || inv.total || 0);
 
 export default function TransportInvoiceListPage() {
   const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [search, setSearch]     = useState('');
-  const [page, setPage]         = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [deleting, setDeleting] = useState(null);
 
   /* filters */
   const [statusFilter, setStatusFilter] = useState('');
-  const [dateFrom,  setDateFrom]        = useState('');
-  const [dateTo,    setDateTo]          = useState('');
-  const [sortBy,    setSortBy]          = useState('newest');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const p = new URLSearchParams({ page: 1, limit: 10000 });
+      const p = new URLSearchParams({ page: 1, limit: 200 });
       if (search) p.set('search', search);
       const r = await fetch(`/api/admin/transport-invoices?${p}`);
       const d = await r.json();
@@ -63,7 +63,7 @@ export default function TransportInvoiceListPage() {
     let r = [...invoices];
     if (statusFilter) r = r.filter(i => String(i.status || 1) === statusFilter);
     if (dateFrom) r = r.filter(i => i.created_at && i.created_at.slice(0, 10) >= dateFrom);
-    if (dateTo)   r = r.filter(i => i.created_at && i.created_at.slice(0, 10) <= dateTo);
+    if (dateTo) r = r.filter(i => i.created_at && i.created_at.slice(0, 10) <= dateTo);
     if (sortBy === 'oldest') r.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     else if (sortBy === 'newest') r.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     else if (sortBy === 'hi') r.sort((a, b) => amtOf(b) - amtOf(a));
@@ -72,11 +72,11 @@ export default function TransportInvoiceListPage() {
   }, [invoices, statusFilter, dateFrom, dateTo, sortBy]);
 
   const stats = useMemo(() => ({
-    total:      invoices.length,
+    total: invoices.length,
     processing: invoices.filter(i => (i.status || 1) === 1).length,
-    completed:  invoices.filter(i => i.status === 2).length,
-    cancelled:  invoices.filter(i => i.status === 3).length,
-    revenue:    invoices.reduce((s, i) => s + amtOf(i), 0),
+    completed: invoices.filter(i => i.status === 2).length,
+    cancelled: invoices.filter(i => i.status === 3).length,
+    revenue: invoices.reduce((s, i) => s + amtOf(i), 0),
   }), [invoices]);
 
   const hasFilters = statusFilter || dateFrom || dateTo || sortBy !== 'newest';
@@ -122,16 +122,16 @@ export default function TransportInvoiceListPage() {
       {/* ── Stats bar ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 16 }}>
         {[
-          { label: 'Total',      value: stats.total,                                                           accent: '#374151', bg: '#F8FAFC' },
-          { label: 'Processing', value: stats.processing,                                                      accent: '#2563EB', bg: '#EFF6FF' },
-          { label: 'Completed',  value: stats.completed,                                                       accent: '#059669', bg: '#ECFDF5' },
-          { label: 'Cancelled',  value: stats.cancelled,                                                       accent: '#DC2626', bg: '#FEF2F2' },
-          { label: 'Revenue',    value: `SAR ${stats.revenue.toLocaleString('en', { minimumFractionDigits: 2 })}`, accent: '#059669', bg: '#F0FDF4' },
+          { label: 'Total', value: stats.total, accent: '#374151', bg: '#F8FAFC' },
+          { label: 'Processing', value: stats.processing, accent: '#2563EB', bg: '#EFF6FF' },
+          { label: 'Completed', value: stats.completed, accent: '#059669', bg: '#ECFDF5' },
+          { label: 'Cancelled', value: stats.cancelled, accent: '#DC2626', bg: '#FEF2F2' },
+          { label: 'Revenue', value: `SAR ${stats.revenue.toLocaleString('en', { minimumFractionDigits: 2 })}`, accent: '#059669', bg: '#F0FDF4' },
         ].map(s => (
           <div key={s.label}
-            style={{ background: s.bg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${s.accent}22`, cursor: ['Processing','Completed','Cancelled'].includes(s.label) ? 'pointer' : 'default' }}
+            style={{ background: s.bg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${s.accent}22`, cursor: ['Processing', 'Completed', 'Cancelled'].includes(s.label) ? 'pointer' : 'default' }}
             onClick={() => {
-              if (!['Processing','Completed','Cancelled'].includes(s.label)) return;
+              if (!['Processing', 'Completed', 'Cancelled'].includes(s.label)) return;
               const code = { Processing: '1', Completed: '2', Cancelled: '3' }[s.label];
               setStatusFilter(prev => prev === code ? '' : code);
             }}>
@@ -270,7 +270,7 @@ export default function TransportInvoiceListPage() {
                       </td>
                       <td style={{ padding: '13px 14px', fontSize: 13, color: '#374151' }}>{inv.reservation_no || '—'}</td>
                       <td style={{ padding: '13px 14px', fontSize: 13, color: '#374151', fontWeight: 500 }}>{inv.agent_name || '—'}</td>
-                      <td style={{ padding: '13px 14px', fontSize: 13, color: '#6B7280' }}>{inv.vehicle_type || inv.vehicle || inv.transport_title || '—'}</td>
+                      <td style={{ padding: '13px 14px', fontSize: 13, color: '#6B7280' }}>{inv.vehicle_type || inv.transport_title || '—'}</td>
                       <td style={{ padding: '13px 14px', fontSize: 13, fontWeight: 700, color: '#059669', fontVariantNumeric: 'tabular-nums' }}>
                         SAR {amtOf(inv).toFixed(2)}
                       </td>

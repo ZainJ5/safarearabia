@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/>
+<script src="node_modules/html2canvas/dist/html2canvas.min.js"></script>
+<style>html,body{margin:0;background:#bbb;font-family:Arial}</style></head>
+<body><div id="stage" style="position:absolute;left:0;top:0"></div><div id="out"></div>
+<script>
+const GOLD='#C49A2E',GOLD_DK='#9A7414',INK='#3A2A12',serif='Georgia,"Times New Roman",serif';
+const logo='public/IMG_6483.PNG';
+// Try several crop windows to find the emblem framing. img drawn at DIM px (scale DIM/1024).
+const variants=[
+  {dim:150,win:82,left:-33,top:-4},
+  {dim:160,win:88,left:-36,top:-5},
+  {dim:140,win:78,left:-31,top:-3},
+];
+let html='<div style="background:#fff;padding:20px;width:520px">';
+variants.forEach((v,i)=>{
+  html+=`<div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;border:1px dashed #ddd;padding:8px">
+    <div style="position:relative;width:${v.win}px;height:${v.win}px;overflow:hidden;flex-shrink:0;outline:1px solid #f00">
+      <img src="${logo}" width="${v.dim}" height="${v.dim}" style="position:absolute;left:${v.left}px;top:${v.top}px"/>
+    </div>
+    <div>
+      <div style="font-family:${serif};font-size:30px;font-weight:700;color:${GOLD};letter-spacing:1px;line-height:1">SAFAR E ARABIAN</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:5px;width:230px">
+        <span style="width:22px;height:1.5px;background:${GOLD}"></span>
+        <span style="font-size:11px;letter-spacing:5px;color:${GOLD_DK};font-weight:600">TRAVEL &amp; TOURS</span>
+        <span style="flex:1;height:1.5px;background:${GOLD}"></span>
+      </div>
+    </div>
+    <span style="font-size:11px;color:#999">v${i} dim${v.dim} win${v.win} L${v.left} T${v.top}</span>
+  </div>`;
+});
+html+='</div>';
+document.getElementById('stage').innerHTML=html;
+window.addEventListener('load',()=>{setTimeout(()=>{const el=document.getElementById('stage').firstChild;html2canvas(el,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#fff',logging:false}).then(c=>{c.style.width=(c.width/2)+'px';document.getElementById('out').appendChild(c);document.getElementById('stage').style.display='none';document.title='DONE';});},500);});
+</script></body></html>

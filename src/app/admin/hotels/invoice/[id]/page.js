@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { defaultSettings } from '@/lib/defaultSettings';
 import {
   G, EM, fmt2, fmtDate, BROWN,
-  PageBox, BrandHeader, Divider, InfoCard, DetailsTitle, ThemeTable,
-  BankList, SummaryCard, Policies, DocFooter, downloadDoc,
+  PageBox, BrandHeader, Divider, InfoCard, InfoCardRow, DetailsTitle, ThemeTable,
+  BankList, SummaryCard, BankSummaryRow, Policies, DocFooter, downloadDoc,
 } from '@/components/admin/invoiceTheme';
 
-const phoneNum  = defaultSettings.hotline_phone;
+const phoneNum = defaultSettings.hotline_phone;
 const emailAddr = defaultSettings.email_address;
-const website   = (emailAddr && emailAddr.includes('@')) ? emailAddr.split('@')[1] : 'safararabiantravel.com';
+const website = (emailAddr && emailAddr.includes('@')) ? emailAddr.split('@')[1] : 'safararabiantravel.com';
 
 const HOTEL_COLS = [
   { label: 'HOTEL', icon: G.building }, { label: 'ROOM TYPE', icon: G.bed },
@@ -43,41 +43,38 @@ function InvoiceDoc({ inv, rooms, hotelTotal }) {
         metaB={{ label: 'INVOICE DATE', value: fmtDate(new Date()).main }}
         phone={phoneNum} email={emailAddr} website={website} />
       <Divider />
-      <div style={{ display: 'flex', gap: 20, alignItems: 'stretch' }}>
+      <InfoCardRow>
         <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
-          { icon: G.user,  label: 'Guest Name',   value: inv.guest_name },
-          { icon: G.globe, label: 'Nationality',  value: inv.nationality },
-          { icon: G.hash,  label: 'Client Ref No', value: inv.client_ref_no },
-          { icon: G.badge, label: 'VAT Number',   value: inv.vat_number },
+          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
+          { icon: G.globe, label: 'Nationality', value: inv.nationality },
+          { icon: G.hash, label: 'Client Ref No', value: inv.client_ref_no },
+          { icon: G.badge, label: 'VAT Number', value: inv.vat_number },
         ]} />
         <InfoCard icon={G.calendar} title="BOOKING INFORMATION" rows={[
-          { icon: G.hash,     label: 'Reservation No', value: inv.reserve_no },
-          { icon: G.user,     label: 'Agent Name',     value: inv.agent_name },
-          { icon: G.badge,    label: 'Agent No',       value: inv.agent_no },
-          { icon: G.calendar, label: 'Option Date',    value: inv.option_date },
-          { icon: G.check,    label: 'Invoice Status',  value: 'Confirmed', valueColor: EM },
+          { icon: G.hash, label: 'Reservation No', value: inv.reserve_no },
+          { icon: G.user, label: 'Agent Name', value: inv.agent_name },
+          { icon: G.badge, label: 'Agent No', value: inv.agent_no },
+          { icon: G.calendar, label: 'Option Date', value: inv.option_date },
+          { icon: G.check, label: 'Invoice Status', value: 'Confirmed', valueColor: EM },
         ]} />
-      </div>
+      </InfoCardRow>
       <DetailsTitle icon={G.building}>{inv.city ? `${inv.city} ` : ''}Hotel Details</DetailsTitle>
       <ThemeTable
         columns={[...HOTEL_COLS, { label: 'AMOUNT (SAR)', icon: G.money }]}
         rows={rooms.map((r) => hotelRow(r, (x) => ({ strong: true, value: fmt2(x.room_amount) })))} />
-      <div style={{ display: 'flex', gap: 24, marginTop: 16, alignItems: 'flex-start' }}>
-        <BankList
+      <BankSummaryRow
+        left={<BankList
           rows={[
-            { icon: G.bank, label: 'Account Name',    value: inv.account_name },
-            { icon: G.bank, label: 'Bank',            value: inv.bank },
+            { icon: G.bank, label: 'Account Name', value: inv.account_name },
+            { icon: G.bank, label: 'Bank', value: inv.bank },
             { icon: G.card, label: 'Bank Account No', value: inv.bank_account_no },
-            { icon: G.iban, label: 'IBAN',            value: inv.ibn },
-            { icon: G.pin,  label: 'Bank Address',    value: inv.bank_address },
+            { icon: G.iban, label: 'IBAN', value: inv.ibn },
+            { icon: G.pin, label: 'Bank Address', value: inv.bank_address },
           ]}
-          extra={inv.important_contact ? <div style={{ fontSize: 11, marginTop: 6 }}><strong style={{ color: BROWN }}>Important Contact:</strong> {inv.important_contact}</div> : null} />
-        <div style={{ width: 330, flexShrink: 0 }}>
-          <SummaryCard
-            lines={[{ label: 'Subtotal', value: `SAR ${fmt2(hotelTotal)}` }, { label: 'VAT (0%)', value: 'SAR 0.00' }]}
-            total={{ label: 'TOTAL', pre: 'SAR', value: fmt2(hotelTotal) }} />
-        </div>
-      </div>
+          extra={inv.important_contact ? <div style={{ fontSize: 11, marginTop: 6 }}><strong style={{ color: BROWN }}>Important Contact:</strong> {inv.important_contact}</div> : null} />}
+        right={<SummaryCard
+          lines={[{ label: 'Subtotal', value: `SAR ${fmt2(hotelTotal)}` }, { label: 'VAT (0%)', value: 'SAR 0.00' }]}
+          total={{ label: 'TOTAL', pre: 'SAR', value: fmt2(hotelTotal) }} />} />
       <Policies inv={inv} />
       <DocFooter inv={inv} />
     </PageBox>
@@ -93,20 +90,20 @@ function VoucherDoc({ inv, rooms }) {
         metaB={{ label: 'PRINT DATE', value: fmtDate(new Date()).main }}
         phone={phoneNum} email={emailAddr} website={website} />
       <Divider />
-      <div style={{ display: 'flex', gap: 20, alignItems: 'stretch' }}>
+      <InfoCardRow>
         <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
-          { icon: G.user,  label: 'Guest Name',   value: inv.guest_name },
-          { icon: G.globe, label: 'Nationality',  value: inv.nationality },
-          { icon: G.user,  label: 'Contact Name', value: inv.contact_name },
-          { icon: G.phone, label: 'Mobile No',    value: inv.mobile_no },
+          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
+          { icon: G.globe, label: 'Nationality', value: inv.nationality },
+          { icon: G.user, label: 'Contact Name', value: inv.contact_name },
+          { icon: G.phone, label: 'Mobile No', value: inv.mobile_no },
         ]} />
         <InfoCard icon={G.calendar} title="BOOKING INFORMATION" rows={[
-          { icon: G.user,  label: 'Agent Name',   value: inv.agent_name },
-          { icon: G.badge, label: 'Agent No',     value: inv.agent_no },
-          { icon: G.hash,  label: 'Client Ref No', value: inv.client_ref_no },
-          { icon: G.hash,  label: 'Group No',     value: inv.group_no },
+          { icon: G.user, label: 'Agent Name', value: inv.agent_name },
+          { icon: G.badge, label: 'Agent No', value: inv.agent_no },
+          { icon: G.hash, label: 'Client Ref No', value: inv.client_ref_no },
+          { icon: G.hash, label: 'Group No', value: inv.group_no },
         ]} />
-      </div>
+      </InfoCardRow>
       <DetailsTitle icon={G.building}>{inv.city ? `${inv.city} ` : ''}Hotel Details</DetailsTitle>
       <ThemeTable
         columns={[...HOTEL_COLS, { label: 'CONF NO', icon: G.badge }]}
@@ -134,8 +131,8 @@ const PreviewFrame = ({ id, label, children }) => (
 
 export default function HotelInvoiceDetailPage({ params }) {
   const { id } = use(params);
-  const [inv, setInv]                 = useState(null);
-  const [loading, setLoading]         = useState(true);
+  const [inv, setInv] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(null);
 
   useEffect(() => {
@@ -152,7 +149,7 @@ export default function HotelInvoiceDetailPage({ params }) {
     setDownloading(mode);
     try {
       const suffix = mode === 'invoice' ? 'Invoice' : 'Voucher';
-      const refNo  = inv?.reserve_no || id.slice(-6);
+      const refNo = inv?.reserve_no || id.slice(-6);
       await downloadDoc(el, `Hotel_${suffix}_${refNo}_${Date.now()}.pdf`);
     } catch (err) {
       console.error('PDF generation failed:', err);
@@ -171,7 +168,7 @@ export default function HotelInvoiceDetailPage({ params }) {
   );
   if (!inv) return <div style={{ padding: 60, textAlign: 'center', color: '#9CA3AF' }}>Invoice not found.</div>;
 
-  const rooms      = (inv.items && inv.items.length) ? inv.items : [inv];
+  const rooms = (inv.items && inv.items.length) ? inv.items : [inv];
   const roomsTotal = rooms.reduce((s, r) => s + Number(r.room_amount || 0), 0);
   const hotelTotal = Number(inv.total_amount || roomsTotal || inv.room_amount || 0);
 

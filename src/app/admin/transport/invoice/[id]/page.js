@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { defaultSettings } from '@/lib/defaultSettings';
 import {
   G, fmt2, fmtDate,
-  PageBox, BrandHeader, Divider, InfoCard, DetailsTitle, ThemeTable,
-  BankList, SummaryCard, Policies, DocFooter, downloadDoc, BROWN, INK_TX,
+  PageBox, BrandHeader, Divider, InfoCard, InfoCardRow, DetailsTitle, ThemeTable,
+  BankList, SummaryCard, BankSummaryRow, Policies, DocFooter, downloadDoc, BROWN, INK_TX,
 } from '@/components/admin/invoiceTheme';
 
-const phoneNum  = defaultSettings.hotline_phone;
+const phoneNum = defaultSettings.hotline_phone;
 const emailAddr = defaultSettings.email_address;
-const website   = (emailAddr && emailAddr.includes('@')) ? emailAddr.split('@')[1] : 'safararabiantravel.com';
+const website = (emailAddr && emailAddr.includes('@')) ? emailAddr.split('@')[1] : 'safararabiantravel.com';
 
 /* ─── Transport Invoice document ─── */
 function TransportInvoiceDoc({ inv, segs, netBase, vatAmt }) {
@@ -21,20 +21,20 @@ function TransportInvoiceDoc({ inv, segs, netBase, vatAmt }) {
         metaB={{ label: 'INVOICE DATE', value: fmtDate(new Date()).main }}
         phone={phoneNum} email={emailAddr} website={website} />
       <Divider />
-      <div style={{ display: 'flex', gap: 20, alignItems: 'stretch' }}>
+      <InfoCardRow>
         <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
-          { icon: G.user,  label: 'Guest Name',   value: inv.guest_name },
-          { icon: G.globe, label: 'Nationality',  value: inv.nationality },
-          { icon: G.phone, label: 'Mobile No',    value: inv.contact_number },
-          { icon: G.tag,   label: 'Payment Type', value: inv.payment_type },
+          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
+          { icon: G.globe, label: 'Nationality', value: inv.nationality },
+          { icon: G.phone, label: 'Mobile No', value: inv.contact_number },
+          { icon: G.tag, label: 'Payment Type', value: inv.payment_type },
         ]} />
         <InfoCard icon={G.calendar} title="BOOKING INFORMATION" rows={[
-          { icon: G.user,     label: 'Agent Name',       value: inv.agent_name },
-          { icon: G.badge,    label: 'Agent No',         value: inv.agent_no },
+          { icon: G.user, label: 'Agent Name', value: inv.agent_name },
+          { icon: G.badge, label: 'Agent No', value: inv.agent_no },
           { icon: G.calendar, label: 'Reservation Date', value: inv.reservation_date },
-          { icon: G.hash,     label: 'User Id',          value: inv.username },
+          { icon: G.hash, label: 'User Id', value: inv.username },
         ]} />
-      </div>
+      </InfoCardRow>
       <DetailsTitle icon={G.car}>Transport Details</DetailsTitle>
       <ThemeTable
         columns={[
@@ -63,27 +63,24 @@ function TransportInvoiceDoc({ inv, segs, netBase, vatAmt }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 24, marginTop: 16, alignItems: 'flex-start' }}>
-        <BankList rows={[
-          { icon: G.bank, label: 'Account Name',    value: inv.account_name },
-          { icon: G.bank, label: 'Bank',            value: inv.bank },
+      <BankSummaryRow
+        left={<BankList rows={[
+          { icon: G.bank, label: 'Account Name', value: inv.account_name },
+          { icon: G.bank, label: 'Bank', value: inv.bank },
           { icon: G.card, label: 'Bank Account No', value: inv.bank_account_no },
-          { icon: G.iban, label: 'IBAN',            value: inv.ibn },
-          { icon: G.pin,  label: 'Bank Address',    value: inv.bank_address },
+          { icon: G.iban, label: 'IBAN', value: inv.ibn },
+          { icon: G.pin, label: 'Bank Address', value: inv.bank_address },
         ]}
-        extra={inv.important_contact ? <div style={{ fontSize: 11, marginTop: 6 }}><strong style={{ color: BROWN }}>Important Contact:</strong> {inv.important_contact}</div> : null} />
-        <div style={{ width: 330, flexShrink: 0 }}>
-          <SummaryCard
-            lines={[
-              { label: 'Transport', value: fmt2(inv.transport) },
-              { label: 'Discount', value: fmt2(inv.discount) },
-              { label: 'Net Total', value: fmt2(netBase) },
-              { label: `VAT (${Number(inv.vat || 0).toFixed(2)}%)`, value: fmt2(vatAmt) },
-              { label: 'Convert Rate Total: SAR', value: fmt2(inv.convert_rate_total_sar) },
-            ]}
-            total={{ label: 'NET TOTAL', pre: 'SAR', value: fmt2(inv.net_total_with_tax) }} />
-        </div>
-      </div>
+          extra={inv.important_contact ? <div style={{ fontSize: 11, marginTop: 6 }}><strong style={{ color: BROWN }}>Important Contact:</strong> {inv.important_contact}</div> : null} />}
+        right={<SummaryCard
+          lines={[
+            { label: 'Transport', value: fmt2(inv.transport) },
+            { label: 'Discount', value: fmt2(inv.discount) },
+            { label: 'Net Total', value: fmt2(netBase) },
+            { label: `VAT (${Number(inv.vat || 0).toFixed(2)}%)`, value: fmt2(vatAmt) },
+            { label: 'Convert Rate Total: SAR', value: fmt2(inv.convert_rate_total_sar) },
+          ]}
+          total={{ label: 'NET TOTAL', pre: 'SAR', value: fmt2(inv.net_total_with_tax) }} />} />
       <Policies inv={inv} />
       <DocFooter inv={inv} />
     </PageBox>
@@ -99,20 +96,20 @@ function TransportVoucherDoc({ inv, segs }) {
         metaB={{ label: 'PRINT DATE', value: fmtDate(new Date()).main }}
         phone={phoneNum} email={emailAddr} website={website} />
       <Divider />
-      <div style={{ display: 'flex', gap: 20, alignItems: 'stretch' }}>
+      <InfoCardRow>
         <InfoCard icon={G.user} title="GUEST INFORMATION" rows={[
-          { icon: G.user,  label: 'Guest Name',   value: inv.guest_name },
-          { icon: G.globe, label: 'Nationality',  value: inv.nationality },
-          { icon: G.user,  label: 'Contact Name', value: inv.contact_name },
-          { icon: G.phone, label: 'Mobile No',    value: inv.contact_number },
+          { icon: G.user, label: 'Guest Name', value: inv.guest_name },
+          { icon: G.globe, label: 'Nationality', value: inv.nationality },
+          { icon: G.user, label: 'Contact Name', value: inv.contact_name },
+          { icon: G.phone, label: 'Mobile No', value: inv.contact_number },
         ]} />
         <InfoCard icon={G.calendar} title="BOOKING INFORMATION" rows={[
-          { icon: G.user,  label: 'Agent Name',   value: inv.agent_name },
-          { icon: G.badge, label: 'Agent No',     value: inv.agent_no },
-          { icon: G.hash,  label: 'Client Ref No', value: inv.client_ref_no },
-          { icon: G.hash,  label: 'Group No',     value: inv.group_no },
+          { icon: G.user, label: 'Agent Name', value: inv.agent_name },
+          { icon: G.badge, label: 'Agent No', value: inv.agent_no },
+          { icon: G.hash, label: 'Client Ref No', value: inv.client_ref_no },
+          { icon: G.hash, label: 'Group No', value: inv.group_no },
         ]} />
-      </div>
+      </InfoCardRow>
       <DetailsTitle icon={G.car}>Transport Details</DetailsTitle>
       <ThemeTable
         columns={[
@@ -153,8 +150,8 @@ const PreviewFrame = ({ id, label, children }) => (
 
 export default function TransportInvoiceDetailPage({ params }) {
   const { id } = use(params);
-  const [inv, setInv]                 = useState(null);
-  const [loading, setLoading]         = useState(true);
+  const [inv, setInv] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(null);
 
   useEffect(() => {
@@ -171,7 +168,7 @@ export default function TransportInvoiceDetailPage({ params }) {
     setDownloading(mode);
     try {
       const suffix = mode === 'invoice' ? 'Invoice' : 'Voucher';
-      const refNo  = inv?.invoice_no || id.slice(-6);
+      const refNo = inv?.invoice_no || id.slice(-6);
       await downloadDoc(el, `Transport_${suffix}_T${refNo}_${Date.now()}.pdf`);
     } catch (err) {
       console.error('PDF generation failed:', err);
@@ -193,12 +190,14 @@ export default function TransportInvoiceDetailPage({ params }) {
   // One invoice may have several transport segments; fall back to flat fields.
   const segs = (inv.items && inv.items.length)
     ? inv.items
-    : [{ date: inv.date, time: inv.time, from_location: inv.from_location, to_location: inv.to_location,
-         vehicle: inv.vehicle, mov_type: inv.mov_type, qty: inv.qty, no_of_adults: inv.no_of_adults,
-         packs: inv.packs, rate: inv.rate, total: inv.total }];
+    : [{
+      date: inv.date, time: inv.time, from_location: inv.from_location, to_location: inv.to_location,
+      vehicle: inv.vehicle, mov_type: inv.mov_type, qty: inv.qty, no_of_adults: inv.no_of_adults,
+      packs: inv.packs, rate: inv.rate, total: inv.total
+    }];
   const segTotal = segs.reduce((s, r) => s + Number(r.total || 0), 0);
-  const netBase  = segTotal + Number(inv.transport || 0) - Number(inv.discount || 0);
-  const vatAmt   = netBase * (Number(inv.vat || 0) / 100);
+  const netBase = segTotal + Number(inv.transport || 0) - Number(inv.discount || 0);
+  const vatAmt = netBase * (Number(inv.vat || 0) / 100);
 
   const dlBtn = (mode, label, base, active) => (
     <button onClick={() => handleDownload(mode)} disabled={!!downloading}
