@@ -28,6 +28,10 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['react-hot-toast'],
   },
+
+  // Puppeteer must not be bundled by webpack — it has native bindings and
+  // spawns a separate Chrome process.
+  serverExternalPackages: ['puppeteer', 'puppeteer-core'],
 };
 
 export default nextConfig;

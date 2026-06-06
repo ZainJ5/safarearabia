@@ -19,15 +19,7 @@ export async function POST(request) {
     }
     const safeName = String(filename || 'document').replace(/[^\w.\- ]+/g, '_').replace(/\.pdf$/i, '');
 
-    let pdf;
-    try {
-      pdf = await htmlToPdf(html);
-    } catch (e) {
-      if (e?.message === 'NO_CHROME') {
-        return NextResponse.json({ error: 'No Chrome/Chromium found on the server. Install Chrome or set CHROME_PATH.' }, { status: 501 });
-      }
-      throw e;
-    }
+    const pdf = await htmlToPdf(html);
 
     return new NextResponse(new Uint8Array(pdf), {
       status: 200,

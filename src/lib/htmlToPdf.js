@@ -1,32 +1,6 @@
-import { execFile } from 'child_process';
-import { promisify } from 'util';
+import puppeteer from 'puppeteer';
 import fs from 'fs/promises';
-import os from 'os';
 import path from 'path';
-
-const execFileP = promisify(execFile);
-
-/* Locate an installed Chrome/Chromium. Override with CHROME_PATH env if needed. */
-export async function findChrome() {
-  const fromEnv = process.env.CHROME_PATH || process.env.PUPPETEER_EXECUTABLE_PATH;
-  const candidates = [
-    fromEnv,
-    'C:/Program Files/Google/Chrome/Application/chrome.exe',
-    'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
-    'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-    'C:/Program Files/Microsoft/Edge/Application/msedge.exe',
-    '/usr/bin/google-chrome-stable',
-    '/usr/bin/google-chrome',
-    '/usr/bin/chromium-browser',
-    '/usr/bin/chromium',
-    '/snap/bin/chromium',
-    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  ].filter(Boolean);
-  for (const c of candidates) {
-    try { await fs.access(c); return c; } catch { /* keep looking */ }
-  }
-  return null;
-}
 
 const PRINT_CSS = `
   @page { size: A4 portrait; margin: 0; }
@@ -37,14 +11,11 @@ const PRINT_CSS = `
   tr, table, img, svg { break-inside: avoid; page-break-inside: avoid; }
 `;
 
-/* Render self-contained HTML (inline styles) to an A4 PDF Buffer using the
-   installed Chrome. Throws Error('NO_CHROME') if none is found. Uses an isolated
-   --user-data-dir so it launches even while the user has Chrome open. */
+/* Render self-contained HTML (inline styles) to an A4 PDF Buffer using
+   Puppeteer's bundled Chromium.  Works on any VPS / serverless host that
+   supports headless Chrome without requiring a system-level install. */
 export async function htmlToPdf(rawHtml) {
-  const chrome = await findChrome();
-  if (!chrome) throw new Error('NO_CHROME');
-
-  // Inline the logo as a data URI so the file:// render needs no network; strip scripts.
+  // Inline the logo as a data URI so the page needs no network access
   let body = String(rawHtml).replace(/<script[\s\S]*?<\/script>/gi, '');
   try {
     const logoBuf = await fs.readFile(path.join(process.cwd(), 'public', 'Logo.png'));
@@ -53,26 +24,46 @@ export async function htmlToPdf(rawHtml) {
 
   const doc = `<!doctype html><html><head><meta charset="utf-8"/><style>${PRINT_CSS}</style></head><body><div id="print-doc">${body}</div></body></html>`;
 
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'sea-pdf-'));
-  const htmlPath = path.join(dir, 'doc.html');
-  const pdfPath = path.join(dir, 'doc.pdf');
-  const profileDir = path.join(dir, 'profile');
+  let browser;
   try {
-    await fs.writeFile(htmlPath, doc, 'utf8');
-    // Windows file URLs need three slashes: file:///C:/...
-    const p = htmlPath.replace(/\\/g, '/');
-    const fileUrl = 'file://' + (p.startsWith('/') ? '' : '/') + p;
-    await execFileP(chrome, [
-      '--headless=new',
-      `--user-data-dir=${profileDir}`,   // isolate so it runs even if Chrome is open
-      '--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu',
-      '--no-first-run', '--no-default-browser-check', '--disable-extensions',
-      '--no-pdf-header-footer',
-      `--print-to-pdf=${pdfPath}`, '--virtual-time-budget=3000',
-      fileUrl,
-    ], { timeout: 40000, windowsHide: true, maxBuffer: 1024 * 1024 * 64 });
-    return await fs.readFile(pdfPath);
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-extensions',
+      ],
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(doc, { waitUntil: 'networkidle0', timeout: 30000 });
+
+    // Wait for all images to load (data URIs resolve instantly, but just in case)
+    await page.evaluate(() => {
+      return Promise.all(
+        Array.from(document.images)
+          .filter(img => !img.complete)
+          .map(img => new Promise((resolve) => {
+            img.addEventListener('load', resolve);
+            img.addEventListener('error', resolve);
+          }))
+      );
+    });
+
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+      preferCSSPageSize: true,
+    });
+
+    return Buffer.from(pdf);
   } finally {
-    fs.rm(dir, { recursive: true, force: true }).catch(() => {});
+    if (browser) await browser.close().catch(() => {});
   }
 }
