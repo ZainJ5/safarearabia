@@ -70,8 +70,8 @@ function InvoiceDoc({ inv, rooms, hotelTotal }) {
         <div key={idx}>
           <DetailsTitle icon={G.building}>{city ? `${city} ` : ''}Hotel Details</DetailsTitle>
           <ThemeTable
-            columns={[...HOTEL_COLS, { label: 'AMOUNT (SAR)', icon: G.money }]}
-            rows={roomsByCity[city].map((r) => hotelRow(r, (x) => ({ strong: true, value: fmt2(x.room_amount) })))} />
+            columns={[...HOTEL_COLS, { label: 'PRICE/NIGHT (SAR)', icon: G.money }]}
+            rows={roomsByCity[city].map((r) => hotelRow(r, (x) => ({ strong: true, value: fmt2(x.day_rate) })))} />
         </div>
       ))}
       <BankSummaryRow
