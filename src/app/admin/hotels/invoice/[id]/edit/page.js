@@ -9,7 +9,7 @@ import AgentSearchSelect from '@/components/admin/AgentSearchSelect';
 const NATIONALITIES = [
   'Pakistani', 'Saudi Arabian', 'Indian', 'Bangladeshi', 'Egyptian',
   'Indonesian', 'Malaysian', 'Turkish', 'Jordanian', 'Emirati',
-  'British', 'American', 'Filipino', 'Moroccan', 'Nigerian', 'Other',
+  'British', 'American', 'Australian', 'Filipino', 'Moroccan', 'Nigerian', 'Other',
 ];
 const CITIES = ['Makkah', 'Madinah', 'Jeddah', 'Riyadh', 'Taif', 'Dhahran', 'Dammam', 'Khobar', 'Tabuk', 'Abha'];
 
