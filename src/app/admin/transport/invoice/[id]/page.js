@@ -3,7 +3,7 @@ import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { defaultSettings } from '@/lib/defaultSettings';
 import {
-  G, fmt2, fmtDate,
+  G, fmt2, fmtDate, fmtTime,
   PageBox, BrandHeader, Divider, InfoCard, InfoCardRow, DetailsTitle, ThemeTable,
   BankList, SummaryCard, BankSummaryRow, Policies, DocFooter, downloadDoc, BROWN, INK_TX,
 } from '@/components/admin/invoiceTheme';
@@ -46,7 +46,7 @@ function TransportInvoiceDoc({ inv, segs, netBase, vatAmt }) {
         ]}
         rows={segs.map((s) => [
           { top: fmtDate(s.date).main || s.date || '', bottom: fmtDate(s.date).wd },
-          s.time || '',
+          fmtTime(s.time),
           s.from_location || '',
           s.to_location || '',
           s.vehicle || '',
@@ -119,7 +119,7 @@ function TransportVoucherDoc({ inv, segs }) {
           { label: 'ADULT', icon: G.guests }, { label: 'PACKS', icon: G.badge },
         ]}
         rows={segs.map((s) => [
-          { top: fmtDate(s.date).main || s.date || '', bottom: s.time || fmtDate(s.date).wd },
+          { top: fmtDate(s.date).main || s.date || '', bottom: fmtTime(s.time) || fmtDate(s.date).wd },
           s.from_location || '',
           s.to_location || '',
           s.mov_type || '',

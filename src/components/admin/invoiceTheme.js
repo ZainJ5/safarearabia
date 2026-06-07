@@ -23,6 +23,18 @@ const LOGO_W = 465, LOGO_H = 148;  // intrinsic size of Logo.png
 
 export const fmt2 = (n) => Number(n || 0).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+/* Format a stored 24-h time string (HH:MM) → '2:30 PM' */
+export const fmtTime = (t) => {
+  if (!t) return '';
+  const [hStr, mStr] = String(t).split(':');
+  const h = parseInt(hStr, 10);
+  const m = mStr || '00';
+  if (isNaN(h)) return t;
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${m} ${period}`;
+};
+
 /* Format a stored date string → { main:'04 Jun 2026', wd:'(Thu)' } */
 export const fmtDate = (s) => {
   if (!s) return { main: '', wd: '' };
