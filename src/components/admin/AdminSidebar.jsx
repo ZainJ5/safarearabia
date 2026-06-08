@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAdminSidebar } from './AdminSidebarContext';
 
-/* ─── Icons ──────────────────────────────────────────────────────────── */
 const I = {
   dashboard:  <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="currentColor" opacity=".55"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="currentColor" opacity=".55"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="currentColor" opacity=".3"/></svg>,
   arrivals:   <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
@@ -126,19 +125,11 @@ const AGENT_NAV = [
 ];
 
 /* Employees only generate & manage their own invoices — invoice tabs only. */
-const EMPLOYEE_NAV = [
-  { type: 'divider', label: 'HOTEL' },
-  { key: 'hotel-my-inv',     label: 'Hotel Invoices',  href: '/admin/hotels/invoice',        icon: I.invoice, exact: true },
-  { key: 'hotel-create-inv', label: 'Create Invoice',  href: '/admin/hotels/invoice/create', icon: I.fileAdd },
-  { type: 'divider', label: 'TRANSPORT' },
-  { key: 'transp-my-inv',     label: 'Transport Invoices', href: '/admin/transport/invoice',        icon: I.invoice, exact: true },
-  { key: 'transp-create-inv', label: 'Create Invoice',     href: '/admin/transport/invoice/create', icon: I.fileAdd },
-];
 
 /* ─── Sidebar component ──────────────────────────────────────────────── */
 export default function AdminSidebar({ userRole = 1 }) {
   const pathname  = usePathname();
-  const nav       = userRole === 4 ? EMPLOYEE_NAV : (userRole === 2 ? AGENT_NAV : NAV);
+  const nav       = userRole === 2 ? AGENT_NAV : NAV;
   const [hovered, setHovered] = useState(null);
   const { open, setOpen } = useAdminSidebar();
 
