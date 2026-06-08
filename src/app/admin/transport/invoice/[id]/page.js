@@ -116,7 +116,7 @@ function TransportVoucherDoc({ inv, segs }) {
           { label: 'DATE', icon: G.calendar }, { label: 'FROM', icon: G.pin },
           { label: 'TO', icon: G.pin }, { label: 'MOV TYPE', icon: G.route },
           { label: 'VEHICLE', icon: G.car }, { label: 'QTY', icon: G.hash },
-          { label: 'ADULT', icon: G.guests }, { label: 'PACKS', icon: G.badge },
+          { label: 'ADULT', icon: G.guests },
         ]}
         rows={segs.map((s) => [
           { top: fmtDate(s.date).main || s.date || '', bottom: fmtTime(s.time) || fmtDate(s.date).wd },
@@ -126,7 +126,6 @@ function TransportVoucherDoc({ inv, segs }) {
           s.vehicle || '',
           s.qty || '',
           s.no_of_adults || '',
-          s.packs || '',
         ])} />
       <Policies inv={inv} />
       <DocFooter inv={inv} contacts={[{ label: 'ZAIN', value: '+966 53 653 3827' }, { label: 'ALI HAIDER', value: '+966 51 158 8203' }]} />
