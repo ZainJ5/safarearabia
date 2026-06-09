@@ -9,7 +9,7 @@ import AgentSearchSelect from '@/components/admin/AgentSearchSelect';
 const NATIONALITIES = [
   'Pakistani', 'Saudi Arabian', 'Indian', 'Bangladeshi', 'Egyptian',
   'Indonesian', 'Malaysian', 'Turkish', 'Jordanian', 'Emirati',
-  'British', 'American', 'Filipino', 'Moroccan', 'Nigerian', 'Other',
+  'British', 'American', 'Australian', 'Filipino', 'Moroccan', 'Nigerian', 'Other',
 ];
 
 const lbl = { display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: '#374151' };
@@ -23,34 +23,51 @@ function Field({ label, required: r, children }) {
   );
 }
 
-const calcAmt = (f) => {
-  const qty      = Number(f.qty)       || 0;
-  const rate     = Number(f.rate)      || 0;
-  const tableTotal = qty * rate;
-  const transport  = Number(f.transport)  || 0;
-  const discount   = Number(f.discount)   || 0;
-  const vat        = Number(f.vat)        || 0;
-  const net        = (tableTotal + transport - discount) * (1 + vat / 100);
-  return { ...f, total: tableTotal, net_total_with_tax: Math.round(net * 100) / 100 };
+const SEG_KEYS = ['date', 'time', 'from_location', 'to_location', 'vehicle', 'mov_type', 'qty', 'no_of_adults', 'packs', 'rate', 'total'];
+
+const BLANK_SEG = {
+  date: '', time: '', from_location: '', to_location: '',
+  vehicle: '', mov_type: '', qty: 1, no_of_adults: 0, packs: '', rate: 0, total: 0,
+};
+
+const recalcSeg = (s) => ({ ...s, total: (Number(s.qty) || 0) * (Number(s.rate) || 0) });
+
+const calcAmt = (f, extraSegsTotal = 0) => {
+  const segTotal      = (Number(f.qty) || 0) * (Number(f.rate) || 0);
+  const grandSegTotal = segTotal + extraSegsTotal;
+  const transport     = Number(f.transport) || 0;
+  const discount      = Number(f.discount)  || 0;
+  const vat           = Number(f.vat)       || 0;
+  const netBase       = grandSegTotal + transport - discount;
+  const net           = netBase * (1 + vat / 100);
+  return { ...f, total: segTotal, net_total_with_tax: Math.round(net * 100) / 100 };
 };
 
 export default function EditTransportInvoicePage({ params }) {
   const { id } = use(params);
   const router  = useRouter();
-  const { role, fname, lname } = useAdminUser();
+  const { role } = useAdminUser();
   const isAgent = role === 2;
 
-  const [form, setForm]       = useState(null);
-  const [agents, setAgents]   = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving]   = useState(false);
+  const [form, setForm]           = useState(null);
+  const [extraSegs, setExtraSegs] = useState([]);
+  const [agents, setAgents]       = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [saving, setSaving]       = useState(false);
 
+  // Load invoice and split items[] into form (first seg) + extraSegs (rest)
   useEffect(() => {
     fetch(`/api/admin/transport-invoices/${id}`)
       .then(r => r.json())
       .then(d => {
-        if (d.success) setForm(d.data);
-        else toast.error(d.error || 'Failed to load invoice');
+        if (d.success) {
+          setForm(d.data);
+          if (Array.isArray(d.data.items) && d.data.items.length > 1) {
+            setExtraSegs(d.data.items.slice(1).map(recalcSeg));
+          }
+        } else {
+          toast.error(d.error || 'Failed to load invoice');
+        }
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -64,16 +81,44 @@ export default function EditTransportInvoicePage({ params }) {
     }
   }, [isAgent]);
 
-  const set = (key, val) => setForm(prev => calcAmt({ ...prev, [key]: val }));
+  // Recalculate net total whenever extra segments change
+  useEffect(() => {
+    if (!form) return;
+    const extTotal = extraSegs.reduce((s, h) => s + Number(h.total || 0), 0);
+    setForm(prev => calcAmt(prev, extTotal));
+  }, [extraSegs]);
+
+  const set = (key, val) => {
+    const extTotal = extraSegs.reduce((s, h) => s + Number(h.total || 0), 0);
+    setForm(prev => calcAmt({ ...prev, [key]: val }, extTotal));
+  };
+
+  /* ── Segment handlers ── */
+  const setExtraSeg = (idx, key, val) =>
+    setExtraSegs(prev => prev.map((s, i) => i === idx ? recalcSeg({ ...s, [key]: val }) : s));
+  const addSeg    = () => setExtraSegs(prev => [...prev, { ...BLANK_SEG }]);
+  const removeSeg = (idx) => setExtraSegs(prev => prev.filter((_, i) => i !== idx));
+
+  const extSegsTotal   = extraSegs.reduce((s, h) => s + Number(h.total || 0), 0);
+  const grandSegsTotal = Number(form?.total || 0) + extSegsTotal;
 
   const handleSubmit = async () => {
     if (!form.guest_name?.trim()) { toast.error('Guest Name is required'); return; }
+    if (!form.date) { toast.error('Date is required for the first transport segment'); return; }
+    if (extraSegs.some(s => !s.date)) { toast.error('Date is required for each transport segment'); return; }
     setSaving(true);
     try {
+      const payload = { ...form };
+      if (extraSegs.length > 0) {
+        const firstSeg = Object.fromEntries(SEG_KEYS.map(k => [k, form[k]]));
+        payload.items = [firstSeg, ...extraSegs.map(s => Object.fromEntries(SEG_KEYS.map(k => [k, s[k]])))];
+      } else {
+        payload.items = [];
+      }
       const res = await fetch(`/api/admin/transport-invoices/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success) {
@@ -86,12 +131,12 @@ export default function EditTransportInvoicePage({ params }) {
     setSaving(false);
   };
 
-  const inp = { width: '100%', padding: '10px 13px', border: '1px solid #D1D5DB', borderRadius: 6, fontSize: 14, fontFamily: 'inherit', background: '#fff', color: '#111827', outline: 'none', boxSizing: 'border-box' };
+  const inp     = { width: '100%', padding: '10px 13px', border: '1px solid #D1D5DB', borderRadius: 6, fontSize: 14, fontFamily: 'inherit', background: '#fff', color: '#111827', outline: 'none', boxSizing: 'border-box' };
   const autoInp = { ...inp, background: '#F0FDF4', color: '#059669', fontWeight: 700 };
-  const row2 = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 };
-  const row3 = { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20, marginBottom: 20 };
-  const row1 = { marginBottom: 20 };
-  const sec  = { fontSize: 14, fontWeight: 700, color: '#0D1B2E', paddingBottom: 12, marginBottom: 20, borderBottom: '1px solid #F3F4F6' };
+  const row2    = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 };
+  const row3    = { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20, marginBottom: 20 };
+  const row1    = { marginBottom: 20 };
+  const sec     = { fontSize: 14, fontWeight: 700, color: '#0D1B2E', paddingBottom: 12, marginBottom: 20, borderBottom: '1px solid #F3F4F6' };
 
   if (loading) return (
     <div style={{ padding: 80, textAlign: 'center', color: '#9CA3AF' }}>
@@ -131,7 +176,7 @@ export default function EditTransportInvoicePage({ params }) {
               <AgentSearchSelect
                 agents={agents}
                 value={form.agent_name || ''}
-                onChange={(name, ag) => setForm(prev => calcAmt({ ...prev, agent_name: name, agent_no: ag?.custom_id || prev.agent_no || '' }))}
+                onChange={(name, ag) => setForm(prev => calcAmt({ ...prev, agent_name: name, agent_no: ag?.custom_id || prev.agent_no || '' }, extSegsTotal))}
                 style={inp}
               />
             )}
@@ -170,7 +215,9 @@ export default function EditTransportInvoicePage({ params }) {
           <Field label="Payment Type"><input value={form.payment_type || ''} onChange={e => set('payment_type', e.target.value)} style={inp} /></Field>
         </div>
 
+        {/* ── Transport Details (Segment #1) ── */}
         <div style={{ ...sec, marginTop: 12 }}>Transport Details</div>
+
         <div style={row2}>
           <Field label="Date" required><input type="date" value={form.date || ''} onChange={e => set('date', e.target.value)} style={inp} /></Field>
           <Field label="Time"><input type="time" value={form.time || ''} onChange={e => set('time', e.target.value)} style={inp} /></Field>
@@ -191,6 +238,57 @@ export default function EditTransportInvoicePage({ params }) {
         </div>
         <div style={row1}><Field label="Total (Qty × Rate)"><input value={Number(form.total || 0).toFixed(2)} readOnly style={autoInp} /></Field></div>
 
+        {/* ── Additional transport segments ── */}
+        {extraSegs.map((s, idx) => (
+          <div key={idx} style={{ border: '1px solid #E5E7EB', borderRadius: 10, padding: '18px 20px 4px', marginBottom: 20, background: '#FBFAF8' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#5B21B6' }}>Segment #{idx + 2}</span>
+              <button type="button" onClick={() => removeSeg(idx)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg>
+                Remove
+              </button>
+            </div>
+            <div style={row2}>
+              <Field label="Date" required><input type="date" value={s.date || ''} onChange={e => setExtraSeg(idx, 'date', e.target.value)} style={inp} /></Field>
+              <Field label="Time"><input type="time" value={s.time || ''} onChange={e => setExtraSeg(idx, 'time', e.target.value)} style={inp} /></Field>
+            </div>
+            <div style={row2}>
+              <Field label="From"><input value={s.from_location || ''} onChange={e => setExtraSeg(idx, 'from_location', e.target.value)} style={inp} /></Field>
+              <Field label="To"><input value={s.to_location || ''} onChange={e => setExtraSeg(idx, 'to_location', e.target.value)} style={inp} /></Field>
+            </div>
+            <div style={row3}>
+              <Field label="Vehicle"><input value={s.vehicle || ''} onChange={e => setExtraSeg(idx, 'vehicle', e.target.value)} style={inp} /></Field>
+              <Field label="Mov. Type"><input value={s.mov_type || ''} onChange={e => setExtraSeg(idx, 'mov_type', e.target.value)} style={inp} /></Field>
+              <Field label="Qty"><input type="number" min="1" value={s.qty || 1} onChange={e => setExtraSeg(idx, 'qty', e.target.value)} style={inp} /></Field>
+            </div>
+            <div style={row3}>
+              <Field label="No. of Adults"><input type="number" min="0" value={s.no_of_adults || 0} onChange={e => setExtraSeg(idx, 'no_of_adults', e.target.value)} style={inp} /></Field>
+              <Field label="Packs"><input value={s.packs || ''} onChange={e => setExtraSeg(idx, 'packs', e.target.value)} style={inp} /></Field>
+              <Field label="Rate"><input type="number" step="0.01" min="0" value={s.rate || 0} onChange={e => setExtraSeg(idx, 'rate', e.target.value)} style={inp} /></Field>
+            </div>
+            <div style={row1}>
+              <Field label="Total (Qty × Rate)"><input value={Number(s.total || 0).toFixed(2)} readOnly style={autoInp} /></Field>
+            </div>
+          </div>
+        ))}
+
+        {/* Add segment + running grand total */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 20 }}>
+          <button type="button" onClick={addSeg}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', background: '#EDE9FE', color: '#5B21B6', border: '1.5px dashed #C4B5FD', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg>
+            Add Another Segment
+          </button>
+          {extraSegs.length > 0 && (
+            <div style={{ fontSize: 13, color: '#374151' }}>
+              Segments Total ({extraSegs.length + 1} segments):{' '}
+              <strong style={{ color: '#059669', fontSize: 15 }}>{grandSegsTotal.toFixed(2)}</strong>
+            </div>
+          )}
+        </div>
+
+        {/* ── Financial Summary ── */}
         <div style={{ ...sec, marginTop: 12 }}>Financial Summary</div>
         <div style={row2}>
           <Field label="Transport Surcharge"><input type="number" step="0.01" min="0" value={form.transport || 0} onChange={e => set('transport', e.target.value)} style={inp} /></Field>
@@ -211,6 +309,7 @@ export default function EditTransportInvoicePage({ params }) {
           <Field label="Note"><input value={form.notes || ''} onChange={e => set('notes', e.target.value)} style={inp} /></Field>
         </div>
 
+        {/* ── Bank & Policies ── */}
         <div style={{ ...sec, marginTop: 12 }}>Bank Details & Policies</div>
         <div style={row2}>
           <Field label="Account Name"><input value={form.account_name || ''} onChange={e => set('account_name', e.target.value)} style={inp} /></Field>
@@ -220,6 +319,8 @@ export default function EditTransportInvoicePage({ params }) {
           <Field label="Bank Account No"><input value={form.bank_account_no || ''} onChange={e => set('bank_account_no', e.target.value)} style={inp} /></Field>
           <Field label="IBN"><input value={form.ibn || ''} onChange={e => set('ibn', e.target.value)} style={inp} /></Field>
         </div>
+        <div style={row1}><Field label="Bank Address"><input value={form.bank_address || ''} onChange={e => set('bank_address', e.target.value)} style={inp} /></Field></div>
+        <div style={row1}><Field label="Important Contact"><input value={form.important_contact || ''} onChange={e => set('important_contact', e.target.value)} style={inp} /></Field></div>
         <div style={row1}><Field label="Cancellation Policy"><input value={form.cancellation_policy || ''} onChange={e => set('cancellation_policy', e.target.value)} style={inp} /></Field></div>
         <div style={row1}><Field label="No Show Policy"><input value={form.no_show_policy || ''} onChange={e => set('no_show_policy', e.target.value)} style={inp} /></Field></div>
 
