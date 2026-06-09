@@ -12,8 +12,7 @@ export default auth((req) => {
   const isEmployee = isLoggedIn && userRole === 4;
   // Admins and employees use the admin (management) portal. Agents no longer log in.
   const isStaff    = isAdmin || isEmployee;
-  // Employees are scoped to the invoice screens; admins land on the dashboard.
-  const staffHome  = isAdmin ? '/admin/dashboard' : '/admin/hotels/invoice';
+  const staffHome  = '/admin/dashboard';
 
   const protectedPaths = ['/dashboard', '/checkout'];
   const isProtected    = protectedPaths.some((p) => pathname.startsWith(p));
@@ -36,11 +35,6 @@ export default auth((req) => {
   // Staff visiting checkout → not needed, redirect to their portal home
   if (pathname.startsWith('/checkout') && isStaff) {
     return NextResponse.redirect(new URL(staffHome, req.url));
-  }
-
-  // Employees have no dashboard — bounce them to their invoices
-  if (pathname.startsWith('/admin/dashboard') && isEmployee) {
-    return NextResponse.redirect(new URL('/admin/hotels/invoice', req.url));
   }
 
   // Customer protected routes

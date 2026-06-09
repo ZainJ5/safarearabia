@@ -81,8 +81,7 @@ function LoginForm() {
       if (role === 1) {
         dest = safeCb.startsWith('/admin') ? safeCb : '/admin/dashboard';
       } else if (role === 4) {
-        // Employees live in the invoice screens, not the dashboard
-        dest = safeCb.startsWith('/admin') ? safeCb : '/admin/hotels/invoice';
+        dest = safeCb.startsWith('/admin') ? safeCb : '/admin/dashboard';
       } else {
         dest = safeCb.startsWith('/admin') ? '/dashboard' : safeCb;
       }
