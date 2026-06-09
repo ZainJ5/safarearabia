@@ -128,7 +128,7 @@ export default function HotelBookingsPage() {
                       <td style={{ padding: '12px 14px', textAlign: 'center', color: '#9CA3AF', fontSize: 12 }}>{(page - 1) * 15 + idx + 1}</td>
                       <td style={{ padding: '12px 14px', textAlign: 'center' }}>
                         <span style={{ display: 'inline-block', padding: '3px 10px', background: '#FEF3EA', color: '#B1723C', border: '1px solid #F3D9C0', borderRadius: 6, fontSize: 12.5, fontWeight: 700 }}>
-                          #{inv.reserve_no || '—'}
+                          H-{inv.invoice_no || '—'}
                         </span>
                       </td>
                       <td style={{ padding: '12px 14px', fontSize: 13, color: '#374151', fontWeight: 500 }}>{inv.reserve_no || '—'}</td>

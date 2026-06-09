@@ -261,7 +261,7 @@ export default function HotelInvoiceListPage() {
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <td style={{ padding: '13px 14px', textAlign: 'center', fontSize: 12, color: '#9CA3AF', fontWeight: 600 }}>{idx + 1}</td>
                       <td style={{ padding: '13px 14px', textAlign: 'center' }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#B1723C', background: '#FDF4EC', padding: '3px 10px', borderRadius: 6, border: '1px solid rgba(177,114,60,0.15)' }}>#{inv.reserve_no}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#B1723C', background: '#FDF4EC', padding: '3px 10px', borderRadius: 6, border: '1px solid rgba(177,114,60,0.15)' }}>H-{inv.invoice_no}</span>
                       </td>
                       <td style={{ padding: '13px 14px', fontSize: 13, color: '#374151' }}>{inv.reserve_no || '—'}</td>
                       <td style={{ padding: '13px 14px', fontSize: 13, color: '#374151', fontWeight: 500 }}>{inv.agent_name || '—'}</td>

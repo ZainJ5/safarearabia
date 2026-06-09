@@ -47,7 +47,7 @@ function InvoiceDoc({ inv, rooms, hotelTotal }) {
   return (
     <PageBox>
       <BrandHeader title="INVOICE"
-        metaA={{ label: 'INVOICE NO.', value: inv.invoice_no || inv.reserve_no }}
+        metaA={{ label: 'INVOICE NO.', value: inv.invoice_no ? `H-${inv.invoice_no}` : inv.reserve_no }}
         metaB={{ label: 'INVOICE DATE', value: fmtDate(new Date()).main }}
         phone={phoneNum} email={emailAddr} website={website} />
       <Divider />
