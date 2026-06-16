@@ -115,7 +115,7 @@ const FieldRows = ({ rows, labelW = 110 }) => (
           <Badge d={r.icon} size={28} />
           <div style={{ width: labelW, flexShrink: 0, fontSize: 12, fontWeight: 700, color: INK_TX }}>{r.label}</div>
           <div style={{ flexShrink: 0, color: '#B9A77E', fontWeight: 700 }}>:</div>
-          <div style={{ flex: 1, fontSize: 12, color: r.valueColor || '#2C2113', fontWeight: 600, wordBreak: 'break-word' }}>{r.value || '—'}</div>
+          <div style={{ flex: 1, fontSize: 12, color: r.valueColor || '#2C2113', fontWeight: 700, wordBreak: 'break-word' }}>{r.value || '—'}</div>
         </div>
       );
     })}
@@ -245,7 +245,7 @@ export const DetailsTitle = ({ icon, children }) => (
   </div>
 );
 
-const tdC = { borderTop: `1px solid ${DOT_LINE}`, padding: '9px 6px', fontSize: 11.5, textAlign: 'center', color: '#3A2F1C', verticalAlign: 'middle' };
+const tdC = { borderTop: `1px solid ${DOT_LINE}`, padding: '9px 6px', fontSize: 11.5, fontWeight: 700, textAlign: 'center', color: '#3A2F1C', verticalAlign: 'middle' };
 
 /* Generic premium table. columns:[{label,icon}]  rows:[[cell,...]]
    cell may be a string/number, {top,bottom}, {strong,value}, or {emblem,top}. */
@@ -297,7 +297,7 @@ export const BankList = ({ rows, extra }) => (
         <Badge d={b.icon} size={28} />
         <div style={{ width: 120, flexShrink: 0, fontSize: 12, fontWeight: 700, color: INK_TX }}>{b.label}</div>
         <div style={{ flexShrink: 0, color: '#B9A77E', fontWeight: 700 }}>:</div>
-        <div style={{ flex: 1, fontSize: 12, color: '#2C2113', wordBreak: 'break-word' }}>{b.value || '—'}</div>
+        <div style={{ flex: 1, fontSize: 12, fontWeight: 700, color: '#2C2113', wordBreak: 'break-word' }}>{b.value || '—'}</div>
       </div>
     ))}
     {extra}
@@ -314,7 +314,7 @@ export const SummaryCard = ({ icon = G.receipt, title = 'PAYMENT SUMMARY', lines
           {lines.map((l, i) => (
             <tr key={i}>
               <td style={{ padding: '8px 0', fontSize: 12.5, color: INK_TX, textAlign: 'left', borderTop: i ? `1px dotted ${DOT_LINE}` : 'none' }}>{l.label}</td>
-              <td style={{ padding: '8px 0', fontSize: 12.5, fontWeight: 600, color: INK_TX, textAlign: 'right', borderTop: i ? `1px dotted ${DOT_LINE}` : 'none' }}>{l.value}</td>
+              <td style={{ padding: '8px 0', fontSize: 12.5, fontWeight: 700, color: INK_TX, textAlign: 'right', borderTop: i ? `1px dotted ${DOT_LINE}` : 'none' }}>{l.value}</td>
             </tr>
           ))}
         </tbody>
