@@ -39,6 +39,7 @@ function TransportInvoiceDoc({ inv, segs, netBase, vatAmt }) {
       <ThemeTable
         columns={[
           { label: 'DATE', icon: G.calendar }, { label: 'TIME', icon: G.clock },
+          { label: 'FLIGHT', icon: G.plane },
           { label: 'FROM', icon: G.pin }, { label: 'TO', icon: G.pin },
           { label: 'VEHICLE', icon: G.car }, { label: 'MOV TYPE', icon: G.route },
           { label: 'QTY', icon: G.hash }, { label: 'RATE', icon: G.tag },
@@ -47,6 +48,7 @@ function TransportInvoiceDoc({ inv, segs, netBase, vatAmt }) {
         rows={segs.map((s) => [
           { top: fmtDate(s.date).main || s.date || '', bottom: fmtDate(s.date).wd },
           fmtTime(s.time),
+          s.flight_details || '',
           s.from_location || '',
           s.to_location || '',
           s.vehicle || '',
@@ -113,13 +115,15 @@ function TransportVoucherDoc({ inv, segs }) {
       <DetailsTitle icon={G.car}>Transport Details</DetailsTitle>
       <ThemeTable
         columns={[
-          { label: 'DATE', icon: G.calendar }, { label: 'FROM', icon: G.pin },
+          { label: 'DATE', icon: G.calendar }, { label: 'FLIGHT', icon: G.plane },
+          { label: 'FROM', icon: G.pin },
           { label: 'TO', icon: G.pin }, { label: 'MOV TYPE', icon: G.route },
           { label: 'VEHICLE', icon: G.car }, { label: 'QTY', icon: G.hash },
           { label: 'ADULT', icon: G.guests },
         ]}
         rows={segs.map((s) => [
           { top: fmtDate(s.date).main || s.date || '', bottom: fmtTime(s.time) || fmtDate(s.date).wd },
+          s.flight_details || '',
           s.from_location || '',
           s.to_location || '',
           s.mov_type || '',
@@ -190,7 +194,8 @@ export default function TransportInvoiceDetailPage({ params }) {
   const segs = (inv.items && inv.items.length)
     ? inv.items
     : [{
-      date: inv.date, time: inv.time, from_location: inv.from_location, to_location: inv.to_location,
+      date: inv.date, time: inv.time, flight_details: inv.flight_details,
+      from_location: inv.from_location, to_location: inv.to_location,
       vehicle: inv.vehicle, mov_type: inv.mov_type, qty: inv.qty, no_of_adults: inv.no_of_adults,
       packs: inv.packs, rate: inv.rate, total: inv.total
     }];

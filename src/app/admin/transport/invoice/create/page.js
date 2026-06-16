@@ -25,17 +25,17 @@ function Field({ label, required: r, children }) {
 }
 
 const BLANK_SEG = {
-  date: '', time: '', from_location: '', to_location: '',
+  date: '', time: '', flight_details: '', from_location: '', to_location: '',
   vehicle: '', mov_type: '', qty: 1, no_of_adults: 0, packs: '', rate: 0, total: 0,
 };
 
-const SEG_KEYS = ['date', 'time', 'from_location', 'to_location', 'vehicle', 'mov_type', 'qty', 'no_of_adults', 'packs', 'rate', 'total'];
+const SEG_KEYS = ['date', 'time', 'flight_details', 'from_location', 'to_location', 'vehicle', 'mov_type', 'qty', 'no_of_adults', 'packs', 'rate', 'total'];
 
 const INIT = {
   reservation_no: '', agent_user_id: '', agent_name: '', agent_no: '', agent_phone: '', nationality: '', guest_name: '',
   contact_name: '', contact_number: '', client_ref_no: '', group_no: '', local_refno: '',
   reservation_date: '', username: '', payment_type: '',
-  date: '', time: '', from_location: '', to_location: '',
+  date: '', time: '', flight_details: '', from_location: '', to_location: '',
   vehicle: '', mov_type: '', qty: 1, no_of_adults: 0, packs: '', rate: 0, total: 0,
   transport: 0, discount: 0, vat: 0, net_total_with_tax: 0, convert_rate_total_sar: 0,
   special_requirements: '', notes: '',
@@ -216,6 +216,10 @@ export default function CreateTransportInvoicePage() {
           <Field label="Time" required><input type="time" value={form.time} onChange={e => set('time', e.target.value)} style={inp} /></Field>
         </div>
 
+        <div style={row1}>
+          <Field label="Flight Details"><input value={form.flight_details} onChange={e => set('flight_details', e.target.value)} placeholder="e.g. SV 1234 / DEP 04:50 / ARR 06:30" style={inp} /></Field>
+        </div>
+
         <div style={row2}>
           <Field label="From" required><input value={form.from_location} onChange={e => set('from_location', e.target.value)} placeholder="e.g. Jeddah Airport" style={inp} /></Field>
           <Field label="To" required><input value={form.to_location} onChange={e => set('to_location', e.target.value)} placeholder="e.g. Makkah Hotel" style={inp} /></Field>
@@ -251,6 +255,9 @@ export default function CreateTransportInvoicePage() {
             <div style={row2}>
               <Field label="Date" required><input type="date" value={s.date} onChange={e => setExtraSeg(idx, 'date', e.target.value)} style={inp} /></Field>
               <Field label="Time"><input type="time" value={s.time} onChange={e => setExtraSeg(idx, 'time', e.target.value)} style={inp} /></Field>
+            </div>
+            <div style={row1}>
+              <Field label="Flight Details"><input value={s.flight_details} onChange={e => setExtraSeg(idx, 'flight_details', e.target.value)} placeholder="e.g. SV 1234 / DEP 04:50 / ARR 06:30" style={inp} /></Field>
             </div>
             <div style={row2}>
               <Field label="From"><input value={s.from_location} onChange={e => setExtraSeg(idx, 'from_location', e.target.value)} placeholder="e.g. Jeddah Airport" style={inp} /></Field>

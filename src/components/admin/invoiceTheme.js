@@ -72,6 +72,7 @@ export const G = {
   route: 'M6 4a2 2 0 100 4 2 2 0 000-4zM6 8v6a3 3 0 003 3h6M18 16a2 2 0 100 4 2 2 0 000-4z',
   clock: 'M12 3a9 9 0 100 18 9 9 0 000-18zM12 7.5V12l3 2',
   tag: 'M3 12l8-8h7v7l-8 8zM15.5 8.5a1 1 0 100 0',
+  plane: 'M21 15.5v-2l-8-5V3.2a1.7 1.7 0 00-3.4 0V8.5l-8 5v2l8-2.4V18l-2.2 1.6v1.7l3.9-1.1 3.9 1.1v-1.7L13 18v-4.9z',
 };
 
 export const Ico = ({ d, size = 15, color = GOLD, sw = 1.7, fill = 'none' }) => (

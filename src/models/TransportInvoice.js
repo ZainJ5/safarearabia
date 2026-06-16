@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const TransportSegmentSchema = new mongoose.Schema({
   date:          { type: String, default: '' },
   time:          { type: String, default: '' },
+  flight_details:{ type: String, default: '' },
   from_location: { type: String, default: '' },
   to_location:   { type: String, default: '' },
   vehicle:       { type: String, default: '' },
@@ -40,6 +41,7 @@ const TransportInvoiceSchema = new mongoose.Schema({
   // Transport details
   date:                   { type: String, default: '' },
   time:                   { type: String, default: '' },
+  flight_details:         { type: String, default: '' },
   from_location:          { type: String, default: '' },
   to_location:            { type: String, default: '' },
   vehicle:                { type: String, default: '' },

@@ -19,7 +19,7 @@ const HOTEL_COLS = [
   { label: 'GUESTS', icon: G.guests }, { label: 'MEAL PLAN', icon: G.meal },
 ];
 
-const hotelRow = (r, lastCell) => {
+const hotelRow = (r, trailing) => {
   const ci = fmtDate(r.check_in), co = fmtDate(r.check_out);
   return [
     { emblem: true, top: r.hotel_name || '' },
@@ -30,7 +30,7 @@ const hotelRow = (r, lastCell) => {
     r.no_of_rooms || 0,
     { top: `${Number(r.no_of_adults || 0)} Adult`, bottom: `${Number(r.no_of_children || 0)} Child` },
     r.meals || '',
-    lastCell(r),
+    ...trailing(r),
   ];
 };
 
@@ -70,8 +70,8 @@ function InvoiceDoc({ inv, rooms, hotelTotal }) {
         <div key={idx}>
           <DetailsTitle icon={G.building}>{city ? `${city} ` : ''}Hotel Details</DetailsTitle>
           <ThemeTable
-            columns={[...HOTEL_COLS, { label: 'PRICE/NIGHT (SAR)', icon: G.money }]}
-            rows={roomsByCity[city].map((r) => hotelRow(r, (x) => ({ strong: true, value: fmt2(x.day_rate) })))} />
+            columns={[...HOTEL_COLS, { label: 'ML RATE (SAR)', icon: G.money }, { label: 'PRICE/NIGHT (SAR)', icon: G.money }]}
+            rows={roomsByCity[city].map((r) => hotelRow(r, (x) => [fmt2(x.ml_srate), { strong: true, value: fmt2(x.day_rate) }]))} />
         </div>
       ))}
       <BankSummaryRow
@@ -129,7 +129,7 @@ function VoucherDoc({ inv, rooms }) {
           <DetailsTitle icon={G.building}>{city ? `${city} ` : ''}Hotel Details</DetailsTitle>
           <ThemeTable
             columns={[...HOTEL_COLS, { label: 'CONF NO', icon: G.badge }]}
-            rows={roomsByCity[city].map((r) => hotelRow(r, (x) => x.conformation_no || ''))} />
+            rows={roomsByCity[city].map((r) => hotelRow(r, (x) => [x.conformation_no || '']))} />
         </div>
       ))}
       <Policies inv={inv} />
