@@ -23,11 +23,11 @@ function Field({ label, required: r, children }) {
   );
 }
 
-const SEG_KEYS = ['date', 'time', 'flight_details', 'from_location', 'to_location', 'vehicle', 'mov_type', 'qty', 'no_of_adults', 'packs', 'rate', 'total'];
+const SEG_KEYS = ['date', 'time', 'flight_details', 'from_location', 'to_location', 'vehicle', 'qty', 'no_of_adults', 'packs', 'rate', 'total'];
 
 const BLANK_SEG = {
   date: '', time: '', flight_details: '', from_location: '', to_location: '',
-  vehicle: '', mov_type: '', qty: 1, no_of_adults: 0, packs: '', rate: 0, total: 0,
+  vehicle: '', qty: 1, no_of_adults: 0, packs: '', rate: 0, total: 0,
 };
 
 const recalcSeg = (s) => ({ ...s, total: (Number(s.qty) || 0) * (Number(s.rate) || 0) });
@@ -231,12 +231,11 @@ export default function EditTransportInvoicePage({ params }) {
         </div>
         <div style={row3}>
           <Field label="Vehicle"><input value={form.vehicle || ''} onChange={e => set('vehicle', e.target.value)} style={inp} /></Field>
-          <Field label="Mov. Type"><input value={form.mov_type || ''} onChange={e => set('mov_type', e.target.value)} style={inp} /></Field>
           <Field label="Qty"><input type="number" min="1" value={form.qty || 1} onChange={e => set('qty', e.target.value)} style={inp} /></Field>
-        </div>
-        <div style={row3}>
           <Field label="No. of Adults"><input type="number" min="0" value={form.no_of_adults || 0} onChange={e => set('no_of_adults', e.target.value)} style={inp} /></Field>
-          <Field label="Packs"><input value={form.packs || ''} onChange={e => set('packs', e.target.value)} style={inp} /></Field>
+        </div>
+        <div style={row2}>
+          <Field label="ML Rate"><input value={form.packs || ''} onChange={e => set('packs', e.target.value)} placeholder="ML Rate" style={inp} /></Field>
           <Field label="Rate"><input type="number" step="0.01" min="0" value={form.rate || 0} onChange={e => set('rate', e.target.value)} style={inp} /></Field>
         </div>
         <div style={row1}><Field label="Total (Qty × Rate)"><input value={Number(form.total || 0).toFixed(2)} readOnly style={autoInp} /></Field></div>
@@ -265,12 +264,11 @@ export default function EditTransportInvoicePage({ params }) {
             </div>
             <div style={row3}>
               <Field label="Vehicle"><input value={s.vehicle || ''} onChange={e => setExtraSeg(idx, 'vehicle', e.target.value)} style={inp} /></Field>
-              <Field label="Mov. Type"><input value={s.mov_type || ''} onChange={e => setExtraSeg(idx, 'mov_type', e.target.value)} style={inp} /></Field>
               <Field label="Qty"><input type="number" min="1" value={s.qty || 1} onChange={e => setExtraSeg(idx, 'qty', e.target.value)} style={inp} /></Field>
-            </div>
-            <div style={row3}>
               <Field label="No. of Adults"><input type="number" min="0" value={s.no_of_adults || 0} onChange={e => setExtraSeg(idx, 'no_of_adults', e.target.value)} style={inp} /></Field>
-              <Field label="Packs"><input value={s.packs || ''} onChange={e => setExtraSeg(idx, 'packs', e.target.value)} style={inp} /></Field>
+            </div>
+            <div style={row2}>
+              <Field label="ML Rate"><input value={s.packs || ''} onChange={e => setExtraSeg(idx, 'packs', e.target.value)} placeholder="ML Rate" style={inp} /></Field>
               <Field label="Rate"><input type="number" step="0.01" min="0" value={s.rate || 0} onChange={e => setExtraSeg(idx, 'rate', e.target.value)} style={inp} /></Field>
             </div>
             <div style={row1}>

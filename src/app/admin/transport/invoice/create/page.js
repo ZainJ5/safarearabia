@@ -26,17 +26,17 @@ function Field({ label, required: r, children }) {
 
 const BLANK_SEG = {
   date: '', time: '', flight_details: '', from_location: '', to_location: '',
-  vehicle: '', mov_type: '', qty: 1, no_of_adults: 0, packs: '', rate: 0, total: 0,
+  vehicle: '', qty: 1, no_of_adults: 0, packs: '', rate: 0, total: 0,
 };
 
-const SEG_KEYS = ['date', 'time', 'flight_details', 'from_location', 'to_location', 'vehicle', 'mov_type', 'qty', 'no_of_adults', 'packs', 'rate', 'total'];
+const SEG_KEYS = ['date', 'time', 'flight_details', 'from_location', 'to_location', 'vehicle', 'qty', 'no_of_adults', 'packs', 'rate', 'total'];
 
 const INIT = {
   reservation_no: '', agent_user_id: '', agent_name: '', agent_no: '', agent_phone: '', nationality: '', guest_name: '',
   contact_name: '', contact_number: '', client_ref_no: '', group_no: '', local_refno: '',
   reservation_date: '', username: '', payment_type: '',
   date: '', time: '', flight_details: '', from_location: '', to_location: '',
-  vehicle: '', mov_type: '', qty: 1, no_of_adults: 0, packs: '', rate: 0, total: 0,
+  vehicle: '', qty: 1, no_of_adults: 0, packs: '', rate: 0, total: 0,
   transport: 0, discount: 0, vat: 0, net_total_with_tax: 0, convert_rate_total_sar: 0,
   special_requirements: '', notes: '',
   account_name: 'Safar E Arabian Travel & Tours', bank: 'Faisal Bank',
@@ -227,13 +227,12 @@ export default function CreateTransportInvoicePage() {
 
         <div style={row3}>
           <Field label="Vehicle"><input value={form.vehicle} onChange={e => set('vehicle', e.target.value)} placeholder="e.g. H1, Bus, Van" style={inp} /></Field>
-          <Field label="Mov. Type"><input value={form.mov_type} onChange={e => set('mov_type', e.target.value)} placeholder="Movement Type" style={inp} /></Field>
           <Field label="Qty" required><input type="number" min="1" value={form.qty} onChange={e => set('qty', e.target.value)} style={inp} /></Field>
+          <Field label="No. of Adults"><input type="number" min="0" value={form.no_of_adults} onChange={e => set('no_of_adults', e.target.value)} style={inp} /></Field>
         </div>
 
-        <div style={row3}>
-          <Field label="No. of Adults"><input type="number" min="0" value={form.no_of_adults} onChange={e => set('no_of_adults', e.target.value)} style={inp} /></Field>
-          <Field label="Packs"><input value={form.packs} onChange={e => set('packs', e.target.value)} placeholder="e.g. Hajj, Umrah" style={inp} /></Field>
+        <div style={row2}>
+          <Field label="ML Rate"><input value={form.packs} onChange={e => set('packs', e.target.value)} placeholder="ML Rate" style={inp} /></Field>
           <Field label="Rate" required><input type="number" step="0.01" min="0" value={form.rate} onChange={e => set('rate', e.target.value)} style={inp} /></Field>
         </div>
 
@@ -265,12 +264,11 @@ export default function CreateTransportInvoicePage() {
             </div>
             <div style={row3}>
               <Field label="Vehicle"><input value={s.vehicle} onChange={e => setExtraSeg(idx, 'vehicle', e.target.value)} placeholder="e.g. H1, Bus, Van" style={inp} /></Field>
-              <Field label="Mov. Type"><input value={s.mov_type} onChange={e => setExtraSeg(idx, 'mov_type', e.target.value)} placeholder="Movement Type" style={inp} /></Field>
               <Field label="Qty"><input type="number" min="1" value={s.qty} onChange={e => setExtraSeg(idx, 'qty', e.target.value)} style={inp} /></Field>
-            </div>
-            <div style={row3}>
               <Field label="No. of Adults"><input type="number" min="0" value={s.no_of_adults} onChange={e => setExtraSeg(idx, 'no_of_adults', e.target.value)} style={inp} /></Field>
-              <Field label="Packs"><input value={s.packs} onChange={e => setExtraSeg(idx, 'packs', e.target.value)} placeholder="e.g. Hajj, Umrah" style={inp} /></Field>
+            </div>
+            <div style={row2}>
+              <Field label="ML Rate"><input value={s.packs} onChange={e => setExtraSeg(idx, 'packs', e.target.value)} placeholder="ML Rate" style={inp} /></Field>
               <Field label="Rate"><input type="number" step="0.01" min="0" value={s.rate} onChange={e => setExtraSeg(idx, 'rate', e.target.value)} style={inp} /></Field>
             </div>
             <div style={row1}>

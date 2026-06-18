@@ -41,8 +41,8 @@ function TransportInvoiceDoc({ inv, segs, netBase, vatAmt }) {
           { label: 'DATE', icon: G.calendar }, { label: 'TIME', icon: G.clock },
           { label: 'FLIGHT', icon: G.plane },
           { label: 'FROM', icon: G.pin }, { label: 'TO', icon: G.pin },
-          { label: 'VEHICLE', icon: G.car }, { label: 'MOV TYPE', icon: G.route },
-          { label: 'QTY', icon: G.hash }, { label: 'RATE', icon: G.tag },
+          { label: 'VEHICLE', icon: G.car },
+          { label: 'QTY', icon: G.hash }, { label: 'ML RATE', icon: G.tag },
           { label: 'TOTAL', icon: G.money },
         ]}
         rows={segs.map((s) => [
@@ -52,9 +52,8 @@ function TransportInvoiceDoc({ inv, segs, netBase, vatAmt }) {
           s.from_location || '',
           s.to_location || '',
           s.vehicle || '',
-          s.mov_type || '',
           s.qty || '',
-          fmt2(s.rate),
+          s.packs || '',
           { strong: true, value: fmt2(s.total) },
         ])} />
 
@@ -117,7 +116,7 @@ function TransportVoucherDoc({ inv, segs }) {
         columns={[
           { label: 'DATE', icon: G.calendar }, { label: 'FLIGHT', icon: G.plane },
           { label: 'FROM', icon: G.pin },
-          { label: 'TO', icon: G.pin }, { label: 'MOV TYPE', icon: G.route },
+          { label: 'TO', icon: G.pin },
           { label: 'VEHICLE', icon: G.car }, { label: 'QTY', icon: G.hash },
           { label: 'ADULT', icon: G.guests },
         ]}
@@ -126,7 +125,6 @@ function TransportVoucherDoc({ inv, segs }) {
           s.flight_details || '',
           s.from_location || '',
           s.to_location || '',
-          s.mov_type || '',
           s.vehicle || '',
           s.qty || '',
           s.no_of_adults || '',
@@ -196,7 +194,7 @@ export default function TransportInvoiceDetailPage({ params }) {
     : [{
       date: inv.date, time: inv.time, flight_details: inv.flight_details,
       from_location: inv.from_location, to_location: inv.to_location,
-      vehicle: inv.vehicle, mov_type: inv.mov_type, qty: inv.qty, no_of_adults: inv.no_of_adults,
+      vehicle: inv.vehicle, qty: inv.qty, no_of_adults: inv.no_of_adults,
       packs: inv.packs, rate: inv.rate, total: inv.total
     }];
   const segTotal = segs.reduce((s, r) => s + Number(r.total || 0), 0);

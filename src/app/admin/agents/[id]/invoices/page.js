@@ -298,7 +298,7 @@ function AgentInvoicesContent({ agentId }) {
                   <thead>
                     <tr>
                       <th>#</th><th>Invoice No.</th><th>Date</th><th>Guest Name</th>
-                      <th>From</th><th>To</th><th>Vehicle</th><th>Mov. Type</th>
+                      <th>From</th><th>To</th><th>Vehicle</th>
                       <th>Amount</th><th>Status</th><th style={{ width: 60 }}>View</th>
                     </tr>
                   </thead>
@@ -312,7 +312,6 @@ function AgentInvoicesContent({ agentId }) {
                         <td style={{ fontSize: 12 }}>{inv.from_location || '—'}</td>
                         <td style={{ fontSize: 12 }}>{inv.to_location || '—'}</td>
                         <td style={{ fontSize: 12 }}>{inv.vehicle || '—'}</td>
-                        <td style={{ fontSize: 12 }}>{inv.mov_type || '—'}</td>
                         <td style={{ fontWeight: 700, color: '#059669', whiteSpace: 'nowrap' }}>SAR {fmt(inv.net_total_with_tax || inv.total)}</td>
                         <td>{statusBadge(inv.status || 'Processing')}</td>
                         <td>
