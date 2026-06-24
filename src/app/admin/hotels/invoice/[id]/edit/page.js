@@ -5,12 +5,8 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useAdminUser } from '@/components/admin/AdminUserContext';
 import AgentSearchSelect from '@/components/admin/AgentSearchSelect';
+import NationalitySelect from '@/components/admin/NationalitySelect';
 
-const NATIONALITIES = [
-  'Pakistani', 'Saudi Arabian', 'Indian', 'Bangladeshi', 'Egyptian',
-  'Indonesian', 'Malaysian', 'Turkish', 'Jordanian', 'Emirati',
-  'British', 'American', 'Australian', 'Filipino', 'Moroccan', 'Nigerian', 'Other',
-];
 const CITIES = ['Makkah', 'Madinah', 'Jeddah', 'Riyadh', 'Taif', 'Dhahran', 'Dammam', 'Khobar', 'Tabuk', 'Abha'];
 
 const lbl = { display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: '#374151' };
@@ -216,10 +212,7 @@ export default function EditHotelInvoicePage({ params }) {
             )}
           </Field>
           <Field label="Nationality" required>
-            <select value={form.nationality || ''} onChange={e => set('nationality', e.target.value)} style={inp}>
-              <option value="">Select Option</option>
-              {NATIONALITIES.map(n => <option key={n} value={n}>{n}</option>)}
-            </select>
+            <NationalitySelect value={form.nationality || ''} onChange={v => set('nationality', v)} style={inp} />
           </Field>
         </div>
 
